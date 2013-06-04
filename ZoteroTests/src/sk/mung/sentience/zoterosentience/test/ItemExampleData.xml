@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<feed 
+    xmlns="http://www.w3.org/2005/Atom" 
+    xmlns:zapi="http://zotero.org/ns/api">
+    <title>Zotero / milan.unger / Items</title>
+    <id>http://zotero.org/users/1401573/items?content=json&amp;itemKey=UM6AIBM3%2CE75CSV5V%2C7VCIGNKJ</id>
+    <link rel="self" type="application/atom+xml" href="https://api.zotero.org/users/1401573/items?content=json&amp;itemKey=UM6AIBM3%2CE75CSV5V%2C7VCIGNKJ"/>
+    <link rel="first" type="application/atom+xml" href="https://api.zotero.org/users/1401573/items?content=json&amp;itemKey=UM6AIBM3%2CE75CSV5V%2C7VCIGNKJ"/>
+    <link rel="last" type="application/atom+xml" href="https://api.zotero.org/users/1401573/items?content=json&amp;itemKey=UM6AIBM3%2CE75CSV5V%2C7VCIGNKJ"/>
+    <link rel="alternate" type="text/html" href="https://www.zotero.org/users/1401573/items?itemKey=UM6AIBM3%2CE75CSV5V%2C7VCIGNKJ"/>
+    <zapi:totalResults>3</zapi:totalResults>
+    <updated>2013-05-30T12:36:23Z</updated>
+    <entry>
+        <title>Learning from the past to face the risks of today</title>
+        <author>
+            <name>milan.unger</name>
+            <uri>http://zotero.org/milan.unger</uri>
+        </author>
+        <id>http://zotero.org/users/1401573/items/UM6AIBM3</id>
+        <published>2013-05-30T12:36:23Z</published>
+        <updated>2013-05-30T12:36:23Z</updated>
+        <link rel="self" type="application/atom+xml" href="https://api.zotero.org/users/1401573/items/UM6AIBM3?content=json"/>
+        <link rel="alternate" type="text/html" href="http://zotero.org/milan.unger/items/UM6AIBM3"/>
+        <zapi:key>UM6AIBM3</zapi:key>
+        <zapi:version>459</zapi:version>
+        <zapi:itemType>journalArticle</zapi:itemType>
+        <zapi:creatorSummary>Leveson</zapi:creatorSummary>
+        <zapi:year>2013</zapi:year>
+        <zapi:numChildren>0</zapi:numChildren>
+        <zapi:numTags>0</zapi:numTags>
+        <content zapi:type="json">
+            {
+            	"itemKey":"UM6AIBM3",
+            	"itemVersion":459,
+            	"itemType":"journalArticle",
+            	"title":"Learning from the past",
+            	"creators":[{"creatorType":"author","firstName":"Nancy G.","lastName":"Leveson"}],
+            	"abstractNote":"",
+            	"publicationTitle":"Communications of the ACM",
+            	"volume":"56",
+            	"issue":"6",
+            	"pages":"38",
+            	"date":"2013-06-01",
+            	"series":"",
+            	"seriesTitle":"",
+            	"seriesText":"",
+            	"journalAbbreviation":"",
+            	"language":"",
+            	"DOI":"10.1145/2461256.2461270",
+            	"ISSN":"00010782",
+            	"shortTitle":"",
+            	"url":"http://dl.acm.org/citation.cfm?doid=2461256.2461270",
+            	"accessDate":"2013-05-30 12:36:23",
+            	"archive":"",
+            	"archiveLocation":"",
+            	"libraryCatalog":"CrossRef",
+            	"callNumber":"",
+            	"rights":"",
+            	"extra":"",
+            	"tags":[{"tag":"read"},{"tag":"star_5"}],
+            	"collections":["EFSI75K4"],
+            	"relations":{}
+            }</content>
+    </entry>
+    <entry>
+        <title>Bohner_Software change impacts-an evolving perspective.pdf</title>
+        <author>
+            <name>milan.unger</name>
+            <uri>http://zotero.org/milan.unger</uri>
+        </author>
+        <id>http://zotero.org/users/1401573/items/E75CSV5V</id>
+        <published>2013-05-28T10:10:26Z</published>
+        <updated>2013-05-28T10:10:38Z</updated>
+        <link rel="self" type="application/atom+xml" href="https://api.zotero.org/users/1401573/items/E75CSV5V?content=json"/>
+        <link rel="up" type="application/atom+xml" href="https://api.zotero.org/users/1401573/items/7VCIGNKJ?content=json"/>
+        <link rel="alternate" type="text/html" href="http://zotero.org/milan.unger/items/E75CSV5V"/>
+        <link rel="enclosure" type="application/pdf" href="https://api.zotero.org/users/1401573/items/E75CSV5V/file" title="Bohner_Software change impacts-an evolving perspective.pdf" length="2210245"/>
+        <zapi:key>E75CSV5V</zapi:key>
+        <zapi:version>444</zapi:version>
+        <zapi:itemType>attachment</zapi:itemType>
+        <zapi:numTags>1</zapi:numTags>
+        <content zapi:type="json">
+            {
+            	"itemKey":"E75CSV5V",
+            	"itemVersion":444,
+            	"parentItem":"7VCIGNKJ",
+            	"itemType":"attachment",
+            	"linkMode":"imported_file",
+            	"title":"Bohner_Software change impacts-an evolving perspective.pdf",
+            	"accessDate":"",
+            	"url":"",
+            	"note":"lastmod{1369735828519}; mode{1}; location{[BaseFolder]\\Bohner_Software change impacts-an evolving perspective.pdf}; projectFolder{}",
+            	"contentType":"application/pdf",
+            	"charset":"",
+            	"filename":"Bohner_Software change impacts-an evolving perspective.pdf",
+            	"md5":"3f71db6537e3fc0b7d10611aa847401b",
+            	"mtime":1369735828519,"tags":[{"tag":"_tablet"}],
+            	"relations":{}
+            }</content>
+    </entry>
+   
+</feed>
