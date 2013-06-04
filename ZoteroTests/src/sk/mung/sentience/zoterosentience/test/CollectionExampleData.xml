@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<!--​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​-->
+<feed 
+    xmlns="http://www.w3.org/2005/Atom" 
+    xmlns:zapi="http://zotero.org/ns/api">
+    <title>Zotero / milan.unger / Collections</title>
+    <id>http://zotero.org/users/1401573/collections?content=json&amp;collectionKey=8ICDQ3UI%2CPK6KCW7I%2CUDFG422N%2C5T683X2X%2C7RABZRE5%2C3U86ERE3&amp;pprint=1</id>
+    <link rel="self" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections?content=json&amp;collectionKey=8ICDQ3UI%2CPK6KCW7I%2CUDFG422N%2C5T683X2X%2C7RABZRE5%2C3U86ERE3&amp;pprint=1"/>
+    <link rel="first" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections?content=json&amp;collectionKey=8ICDQ3UI%2CPK6KCW7I%2CUDFG422N%2C5T683X2X%2C7RABZRE5%2C3U86ERE3&amp;pprint=1"/>
+    <link rel="last" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections?content=json&amp;collectionKey=8ICDQ3UI%2CPK6KCW7I%2CUDFG422N%2C5T683X2X%2C7RABZRE5%2C3U86ERE3&amp;pprint=1"/>
+    <link rel="alternate" type="text/html" href="https://www.zotero.org/users/1401573/collections?collectionKey=8ICDQ3UI%2CPK6KCW7I%2CUDFG422N%2C5T683X2X%2C7RABZRE5%2C3U86ERE3&amp;pprint=1"/>
+    <zapi:totalResults>6</zapi:totalResults>
+    <updated>2013-05-23T06:38:10Z</updated>
+    <entry>
+        <title>Medical Imaging and semantic analysis</title>
+        <author>
+            <name>milan.unger</name>
+            <uri>http://zotero.org/milan.unger</uri>
+        </author>
+        <id>http://zotero.org/users/1401573/collections/8ICDQ3UI</id>
+        <published>2013-05-22T11:35:00Z</published>
+        <updated>2013-05-23T06:38:10Z</updated>
+        <link rel="self" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections/8ICDQ3UI"/>
+        <link rel="up" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections/5T683X2X"/>
+        <link rel="alternate" type="text/html" href="http://zotero.org/users/1401573/collections/8ICDQ3UI"/>
+        <zapi:key>8ICDQ3UI</zapi:key>
+        <zapi:version>408</zapi:version>
+        <zapi:numCollections>0</zapi:numCollections>
+        <zapi:numItems>4</zapi:numItems>
+        <content type="application/json">{
+  "collectionKey": "8ICDQ3UI",
+  "collectionVersion": 408,
+  "name": "Medical Imaging and semantic analysis",
+  "parentCollection": "5T683X2X",
+  "relations": {
+    
+  }
+}</content>
+    </entry>
+    <entry>
+        <title>Adaptive system and context awareness</title>
+        <author>
+            <name>milan.unger</name>
+            <uri>http://zotero.org/milan.unger</uri>
+        </author>
+        <id>http://zotero.org/users/1401573/collections/PK6KCW7I</id>
+        <published>2013-05-22T06:42:48Z</published>
+        <updated>2013-05-22T06:53:55Z</updated>
+        <link rel="self" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections/PK6KCW7I"/>
+        <link rel="up" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections/7RABZRE5"/>
+        <link rel="alternate" type="text/html" href="http://zotero.org/users/1401573/collections/PK6KCW7I"/>
+        <zapi:key>PK6KCW7I</zapi:key>
+        <zapi:version>383</zapi:version>
+        <zapi:numCollections>0</zapi:numCollections>
+        <zapi:numItems>3</zapi:numItems>
+        <content type="application/json">{
+  "collectionKey": "PK6KCW7I",
+  "collectionVersion": 383,
+  "name": "Adaptive system and context awareness",
+  "parentCollection": "7RABZRE5",
+  "relations": {
+    
+  }
+}</content>
+    </entry>
+    <entry>
+        <title>Soft skills</title>
+        <author>
+            <name>milan.unger</name>
+            <uri>http://zotero.org/milan.unger</uri>
+        </author>
+        <id>http://zotero.org/users/1401573/collections/UDFG422N</id>
+        <published>2013-05-16T10:51:48Z</published>
+        <updated>2013-05-17T08:23:22Z</updated>
+        <link rel="self" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections/UDFG422N"/>
+        <link rel="alternate" type="text/html" href="http://zotero.org/users/1401573/collections/UDFG422N"/>
+        <zapi:key>UDFG422N</zapi:key>
+        <zapi:version>294</zapi:version>
+        <zapi:numCollections>0</zapi:numCollections>
+        <zapi:numItems>4</zapi:numItems>
+        <content type="application/json">{
+  "collectionKey": "UDFG422N",
+  "collectionVersion": 294,
+  "name": "Soft skills",
+  "parentCollection": false,
+  "relations": {
+    
+  }
+}</content>
+    </entry>
+    <entry>
+        <title>Artificial Intelligence</title>
+        <author>
+            <name>milan.unger</name>
+            <uri>http://zotero.org/milan.unger</uri>
+        </author>
+        <id>http://zotero.org/users/1401573/collections/5T683X2X</id>
+        <published>2013-05-16T06:22:05Z</published>
+        <updated>2013-05-17T14:12:34Z</updated>
+        <link rel="self" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections/5T683X2X"/>
+        <link rel="alternate" type="text/html" href="http://zotero.org/users/1401573/collections/5T683X2X"/>
+        <zapi:key>5T683X2X</zapi:key>
+        <zapi:version>353</zapi:version>
+        <zapi:numCollections>1</zapi:numCollections>
+        <zapi:numItems>37</zapi:numItems>
+        <content type="application/json">{
+  "collectionKey": "5T683X2X",
+  "collectionVersion": 353,
+  "name": "Artificial Intelligence",
+  "parentCollection": false,
+  "relations": {
+    
+  }
+}</content>
+    </entry>
+    <entry>
+        <title>Software engineering</title>
+        <author>
+            <name>milan.unger</name>
+            <uri>http://zotero.org/milan.unger</uri>
+        </author>
+        <id>http://zotero.org/users/1401573/collections/7RABZRE5</id>
+        <published>2013-05-15T11:41:31Z</published>
+        <updated>2013-05-17T13:48:22Z</updated>
+        <link rel="self" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections/7RABZRE5"/>
+        <link rel="alternate" type="text/html" href="http://zotero.org/users/1401573/collections/7RABZRE5"/>
+        <zapi:key>7RABZRE5</zapi:key>
+        <zapi:version>351</zapi:version>
+        <zapi:numCollections>2</zapi:numCollections>
+        <zapi:numItems>19</zapi:numItems>
+        <content type="application/json">{
+  "collectionKey": "7RABZRE5",
+  "collectionVersion": 351,
+  "name": "Software engineering",
+  "parentCollection": false,
+  "relations": {
+    
+  }
+}</content>
+    </entry>
+    <entry>
+        <title>Modifiability</title>
+        <author>
+            <name>milan.unger</name>
+            <uri>http://zotero.org/milan.unger</uri>
+        </author>
+        <id>http://zotero.org/users/1401573/collections/3U86ERE3</id>
+        <published>2013-05-15T08:13:01Z</published>
+        <updated>2013-05-23T06:15:07Z</updated>
+        <link rel="self" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections/3U86ERE3"/>
+        <link rel="up" type="application/atom+xml" href="https://api.zotero.org/users/1401573/collections/7RABZRE5"/>
+        <link rel="alternate" type="text/html" href="http://zotero.org/users/1401573/collections/3U86ERE3"/>
+        <zapi:key>3U86ERE3</zapi:key>
+        <zapi:version>399</zapi:version>
+        <zapi:numCollections>0</zapi:numCollections>
+        <zapi:numItems>16</zapi:numItems>
+        <content type="application/json">{
+  "collectionKey": "3U86ERE3",
+  "collectionVersion": 399,
+  "name": "Modifiability",
+  "parentCollection": "7RABZRE5",
+  "relations": {
+    
+  }
+}</content>
+    </entry>
+</feed>

@@ -1,0 +1,3 @@
+include ':D::Data:01-Projects:MainActivity'
+include ':D::Data:01-Projects:ZoteroTests'
+include ':D::Data:01-Projects:ZoteroSentience'
