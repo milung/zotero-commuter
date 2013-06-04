@@ -4,3 +4,6 @@
 /.project$
 /proguard.cfg$
 .metadata$
+out$
+syntax: glob
+

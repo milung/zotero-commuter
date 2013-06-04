@@ -1,0 +1,19 @@
+<component name="libraryTable">
+  <library name="testlibs">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/ZoteroTests/testlibs/commons-logging-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/ZoteroTests/testlibs/httpclient-4.2.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/ZoteroTests/testlibs/commons-codec-1.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/ZoteroTests/testlibs/httpmime-4.2.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/ZoteroTests/testlibs/kxml2-2.2.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/ZoteroTests/testlibs/httpclient-cache-4.2.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/ZoteroTests/testlibs/fluent-hc-4.2.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/ZoteroTests/testlibs/httpcore-4.2.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/ZoteroTests/testlibs/mockito-all-1.9.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/ZoteroTests/testlibs/mockito-all-1.9.5.jar!/" />
+    </SOURCES>
+  </library>
+</component>
