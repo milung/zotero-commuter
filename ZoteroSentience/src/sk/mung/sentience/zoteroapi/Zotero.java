@@ -12,8 +12,10 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.xmlpull.v1.XmlPullParserException;
 
+import sk.mung.sentience.zoteroapi.items.Item;
 import sk.mung.sentience.zoteroapi.parsers.AbstractAtomParser;
 import sk.mung.sentience.zoteroapi.parsers.CollectionParser;
+import sk.mung.sentience.zoteroapi.parsers.ItemParser;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -81,6 +83,14 @@ public class Zotero
         		COLLECTIONS, versions, startPosition, endPosition, new CollectionParser());
     }
 
+    public List<Item> getItems(
+            Collection<String> versions, int startPosition, int endPosition )
+            throws IOException, XmlPullParserException
+    {
+        return loadEntities(
+                ITEMS, versions, startPosition, endPosition, new ItemParser());
+    }
+
 	private <T> List<T> loadEntities(
 			String section,
 			Collection<String> versions, int startPosition, int endPosition,
@@ -97,7 +107,7 @@ public class Zotero
             StringBuilder builder = new StringBuilder();
             String separator = ""; 
             for( int position = startPosition + chunk * CHUNK_SIZE; 
-                    position < startPosition + (chunk + 1) * CHUNK_SIZE && position < endPosition; 
+                    position < startPosition + (chunk + 1) * CHUNK_SIZE && position < endPosition && iterator.hasNext();
                     ++position)
             {
                 builder.append(separator + iterator.next());
@@ -108,7 +118,7 @@ public class Zotero
             		new String[][] {
 	                    {"format","atom"},
 	                    {"content","json"},
-	                    {"collectionKey",builder.toString()}},
+	                    {"itemKey",builder.toString()}},
             		0);            
             entities.addAll( parser.parse(response.ResponseString));            
         }        

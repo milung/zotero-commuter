@@ -14,6 +14,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import sk.mung.sentience.zoterosentience.storage.ZoteroSync;
+
 /**
  * An activity representing a list of LibraryItems. This activity has different
  * presentations for handset and tablet-size devices. On handsets, the activity
@@ -75,7 +77,7 @@ public class LibraryItemListActivity extends FragmentActivity
      * that the item with the given ID was selected.
      */
     @Override
-    public void onItemSelected(String id)
+    public void onItemSelected(long id)
     {
         if (mTwoPane)
         {
@@ -83,7 +85,7 @@ public class LibraryItemListActivity extends FragmentActivity
             // adding or replacing the detail fragment using a
             // fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(LibraryItemDetailFragment.ARG_ITEM_ID, id);
+            arguments.putLong(LibraryItemDetailFragment.ARG_COLLECTION_KEY, id);
             LibraryItemDetailFragment fragment = new LibraryItemDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
@@ -96,7 +98,7 @@ public class LibraryItemListActivity extends FragmentActivity
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
             Intent detailIntent = new Intent(this, LibraryItemDetailActivity.class);
-            detailIntent.putExtra(LibraryItemDetailFragment.ARG_ITEM_ID, id);
+            detailIntent.putExtra(LibraryItemDetailFragment.ARG_COLLECTION_KEY, id);
             startActivity(detailIntent);
         }
     }
@@ -117,8 +119,10 @@ public class LibraryItemListActivity extends FragmentActivity
             {
                 try
                 {
-                    ((GlobalState)getApplication()).getZoteroSync().syncCollections();
-                    ((GlobalState)getApplication()).getZoteroSync().syncDeletions();
+                    ZoteroSync zoteroSync = ((GlobalState) getApplication()).getZoteroSync();
+                    zoteroSync.syncCollections();
+                    zoteroSync.syncDeletions();
+                    zoteroSync.syncItems();
                     return 0;
                 }
                 catch (IOException e)

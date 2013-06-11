@@ -2,7 +2,7 @@ package sk.mung.sentience.zoteroapi;
 
 public class CollectionEntity
 {
-	private int id;
+	private long id;
     private String name;
     private String key;
     private int version;
@@ -10,10 +10,10 @@ public class CollectionEntity
     private boolean isSynced;
     
     
-    public int getId() {
+    public long getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 	public boolean isSynced()

@@ -7,6 +7,8 @@ import java.util.Map;
 
 public class Item
 {
+
+    private long id;
     private String title;
     private int version;
     private ItemType itemType;
@@ -18,8 +20,17 @@ public class Item
     private final List<Creator> creators = new ArrayList<Creator>();
     private final List<String> collectionKeys = new ArrayList<String>();
     private final List<String> tags = new ArrayList<String>();
-    
-    
+
+    public long getId()
+    {
+        return id;
+    }
+
+    public void setId(long id)
+    {
+        this.id = id;
+    }
+
     public ItemType getItemType() { return itemType; }
 
 	public void setItemType(ItemType itemType) { this.itemType = itemType; }
