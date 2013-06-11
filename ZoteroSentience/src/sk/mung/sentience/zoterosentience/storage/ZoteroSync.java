@@ -8,36 +8,37 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import sk.mung.sentience.zoteroapi.Zotero;
 import sk.mung.sentience.zoteroapi.CollectionEntity;
+import sk.mung.sentience.zoteroapi.items.Item;
 
 public class ZoteroSync
 {
-    private ZoteroStorage database;
+    private ZoteroStorage storage;
     private Zotero zotero;
     
-    public ZoteroSync(ZoteroStorage database, Zotero zotero)
+    public ZoteroSync(ZoteroStorage storage, Zotero zotero)
     {
-        this.database = database;
+        this.storage = storage;
         this.zotero = zotero;
     }
     
     public void syncCollections() throws IOException, XmlPullParserException
     {
-        int version = database.getCollectionsVersion();
+        int version = storage.getCollectionsVersion();
         Map<String, Integer> collectionVersions = zotero.getCollectionsVersions(version);
         int lastModifiedVersion = zotero.getLastModifiedVersion();
         if( collectionVersions.size()> 0 )
         {
             List<CollectionEntity> collections 
                 = zotero.getCollections(collectionVersions.keySet(), 0, -1);  
-            database.updateCollections( collections);
+            storage.updateCollections( collections);
         }
         
-        database.setCollectionsVersion(lastModifiedVersion);
+        storage.setCollectionsVersion(lastModifiedVersion);
     }
     
     public void syncDeletions() throws IOException, XmlPullParserException
     {
-        int version = database.getDeletionsVersion();
+        int version = storage.getDeletionsVersion();
         Map<String, List<String>> deletions = zotero.getDeletions(version);
         int lastModifiedVersion = zotero.getLastModifiedVersion();
         
@@ -45,9 +46,24 @@ public class ZoteroSync
         {
         	List<String> collections = deletions.get("collections");
               
-            database.deleteCollections( collections);
+            storage.deleteCollections( collections);
         }
         
-        database.setDeletionsVersion(lastModifiedVersion);
+        storage.setDeletionsVersion(lastModifiedVersion);
+    }
+
+    public void syncItems() throws IOException, XmlPullParserException
+    {
+        int version = storage.getItemsVersion();
+        Map<String, Integer> itemVersions = zotero.getItemsVersions(version);
+        int lastModifiedVersion = zotero.getLastModifiedVersion();
+        if( itemVersions.size()> 0 )
+        {
+            List<Item> items
+                    = zotero.getItems(itemVersions.keySet(), 0, -1);
+            storage.updateItems( items);
+        }
+
+        storage.setItemsVersion(lastModifiedVersion);
     }
 }

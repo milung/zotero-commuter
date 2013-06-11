@@ -1,7 +1,6 @@
 package sk.mung.sentience.zoterosentience;
 
 import android.app.Activity;
-
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -10,10 +9,9 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
+
 import sk.mung.sentience.zoteroapi.ZoteroCollection;
 import sk.mung.sentience.zoterosentience.storage.CollectionsTreeLoader;
 
@@ -29,8 +27,7 @@ import sk.mung.sentience.zoterosentience.storage.CollectionsTreeLoader;
 public class LibraryItemListFragment extends Fragment
     implements LoaderCallbacks<ZoteroCollection>, 
     	ExpandableListView.OnChildClickListener, 
-    	ExpandableListView.OnGroupClickListener,
-    	OnItemClickListener
+    	ExpandableListView.OnGroupClickListener
 {
 
     private static final String TREE_STATE = "TreeState";
@@ -68,7 +65,7 @@ public class LibraryItemListFragment extends Fragment
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(String id);
+        public void onItemSelected(long id);
     }
 
     /**
@@ -79,7 +76,7 @@ public class LibraryItemListFragment extends Fragment
     	= new Callbacks()
          {
              @Override
-             public void onItemSelected(String id)
+             public void onItemSelected(long id)
              {}
          };
 
@@ -99,11 +96,12 @@ public class LibraryItemListFragment extends Fragment
         treeView.setSaveEnabled(true);
         treeView.setAdapter(treeAdapter);
         treeView.setActivated(true);
-        
+
         treeView.setGroupIndicator(null);
         treeView.setOnChildClickListener(this);
         treeView.setOnGroupClickListener(this);
-        getLoaderManager().initLoader(0, null, this);        
+
+        getLoaderManager().initLoader(0, null, this);
     }
     
     @Override
@@ -112,7 +110,6 @@ public class LibraryItemListFragment extends Fragment
     		ViewGroup container,
     		Bundle savedInstanceState) 
     {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_library_list, container, false);
     }
 
@@ -124,11 +121,12 @@ public class LibraryItemListFragment extends Fragment
         {
         	treeState = savedInstanceState.getParcelable(TREE_STATE);
         }
+
         // Restore the previously serialized activated item position.
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION))
         {
-            setActivatedPosition(savedInstanceState.getInt(STATE_ACTIVATED_POSITION));
+            mActivatedPosition = savedInstanceState.getInt(STATE_ACTIVATED_POSITION);
         }
     }
 
@@ -176,7 +174,7 @@ public class LibraryItemListFragment extends Fragment
     {
         // When setting CHOICE_MODE_SINGLE, ListView will automatically
         // give items the 'activated' state when touched.
-        /*getListView().setChoiceMode(activateOnItemClick
+        /*treeView.setChoiceMode(activateOnItemClick
                 ? ListView.CHOICE_MODE_SINGLE
                 : ListView.CHOICE_MODE_NONE);*/
     }
@@ -215,6 +213,7 @@ public class LibraryItemListFragment extends Fragment
     	if(treeState != null)
     	{
     		treeView.onRestoreInstanceState(treeState);
+            //setActivatedPosition(mActivatedPosition);
     	}
     }
 
@@ -230,6 +229,7 @@ public class LibraryItemListFragment extends Fragment
     {
         int index = parent.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition));
         parent.setItemChecked(index, true);
+        mCallbacks.onItemSelected(id);
         return true;
     }
 
@@ -240,15 +240,9 @@ public class LibraryItemListFragment extends Fragment
 		int index = parent.getFlatListPosition(ExpandableListView.getPackedPositionForGroup(groupPosition));
         boolean wasChecked = parent.isItemChecked(index);
 		parent.setItemChecked(index, true);
+        mCallbacks.onItemSelected(id);
         // finish handling if selecting expanded group - close it on second click only
 		return (parent.isGroupExpanded(groupPosition) && !wasChecked);
         
     }
-
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) 
-	{
-		mCallbacks.onItemSelected(Long.toString(id));
-		mActivatedPosition = position;
-	}
 }

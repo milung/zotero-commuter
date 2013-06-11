@@ -13,6 +13,7 @@ public enum ItemType
 	COMPUTER_PROGRAM(9,"computerProgram", Item.class),
 	CONFERENCE_PAPER(10,"conferencePaper", Item.class),
 	DICTIONARY_ENTRY(11,"dictionaryEntry", Item.class),
+    DOCUMENT(36,"document", Item.class),
 	EMAIL(12,"email", Item.class),
 	ENCYCLOPEDIA_ARTICLE(13,"encyclopediaArticle", Item.class),
 	FILM(14,"film", Item.class),
@@ -36,7 +37,8 @@ public enum ItemType
 	THESIS(32,"thesis", Item.class),
 	TV_BROADCAST(33,"tvBroadcast", Item.class),
 	VIDEO_RECORDING(34,"videoRecording", Item.class),
-	WEB_PAGE(35,"webpage", Item.class);
+	WEB_PAGE(35,"webpage", Item.class),
+    OTHER(999,"other", Item.class);
 	
 	private final String zoteroName;
 	private final Class<? super Item> clazz;
@@ -66,10 +68,24 @@ public enum ItemType
 				return type.createItem();
 			}
 		}
-		return new Item();
+
+        //fallback
+        return OTHER.createItem();
 	}
 
 	public int getId() {
 		return id;
 	}
+
+    public static ItemType valueWithId(int id)
+    {
+        for( ItemType itemType : values())
+        {
+            if(itemType.getId() == id)
+            {
+                return itemType;
+            }
+        }
+        return null;
+    }
 }

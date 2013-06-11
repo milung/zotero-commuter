@@ -2,30 +2,30 @@ package sk.mung.sentience.zoterosentience;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import sk.mung.sentience.zoterosentience.dummy.DummyContent;
+import java.util.List;
+
+import sk.mung.sentience.zoteroapi.items.Item;
+import sk.mung.sentience.zoterosentience.storage.ItemsLoader;
 
 /**
  * A fragment representing a single LibraryItem detail screen. This fragment is
  * either contained in a {@link LibraryItemListActivity} in two-pane mode (on
  * tablets) or a {@link LibraryItemDetailActivity} on handsets.
  */
-public class LibraryItemDetailFragment extends Fragment
+public class LibraryItemDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Item>>
 {
-    /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
-     */
-    public static final String     ARG_ITEM_ID = "item_id";
-
-    /**
-     * The dummy content this fragment is presenting.
-     */
-    private DummyContent.DummyItem mItem;
+    public static final String ARG_COLLECTION_KEY = "collection_key" ;
+    private Long collectionKey;
+    private ItemListAdapter listAdapter;
+    ListView listView;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -35,17 +35,21 @@ public class LibraryItemDetailFragment extends Fragment
     {}
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
+    public void onActivityCreated(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        listAdapter = new ItemListAdapter(getActivity());
+        listView = (ListView) getActivity().findViewById(R.id.libraryitem_detail);
+        listView.setAdapter(listAdapter);
+        listView.setSaveEnabled(true);
 
-        if (getArguments().containsKey(ARG_ITEM_ID))
+        if (getArguments().containsKey(ARG_COLLECTION_KEY))
         {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+            collectionKey =getArguments().getLong(ARG_COLLECTION_KEY);
         }
+        else collectionKey = null;
+
+        getLoaderManager().restartLoader(1, getArguments(), this);
     }
 
     @Override
@@ -54,12 +58,38 @@ public class LibraryItemDetailFragment extends Fragment
     {
         View rootView = inflater.inflate(R.layout.fragment_libraryitem_detail, container, false);
 
-        // Show the dummy content as text in a TextView.
-        if (mItem != null)
+        return rootView;
+    }
+
+    @Override
+    public Loader<List<Item>> onCreateLoader(int id, Bundle args)
+    {
+        Long collectionId =null;
+        if (getArguments().containsKey(ARG_COLLECTION_KEY))
         {
-            ((TextView) rootView.findViewById(R.id.libraryitem_detail)).setText(mItem.content);
+            collectionId = getArguments().getLong(ARG_COLLECTION_KEY);
         }
 
-        return rootView;
+        ItemsLoader loader
+                = new ItemsLoader(this.getActivity(), collectionId, getGlobalState().getStorage());
+        loader.setUpdateThrottle(3000);
+        return loader;
+    }
+
+    private GlobalState getGlobalState()
+    {
+        return (GlobalState) getActivity().getApplication();
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Item>> loader, List<Item> items)
+    {
+        listAdapter.setItems(items);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Item>> loader)
+    {
+        listAdapter.setItems(null);
     }
 }

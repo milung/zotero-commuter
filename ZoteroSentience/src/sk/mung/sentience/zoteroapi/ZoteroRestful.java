@@ -1,21 +1,24 @@
 package sk.mung.sentience.zoteroapi;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import android.net.Uri;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import android.net.Uri;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class ZoteroRestful {
-	
-	public class Response 
+
+    public static final String ZOTERO_API_VERSION_HEADER = "Zotero-API-Version";
+    public static final String ZOTERO_API_VERSION_VALUE = "2";
+    public static final String IF_MODIFIED_SINCE_VERSION_HEADER = "If-Modified-Since-Version";
+
+    public class Response
 	{
 		public final int StatusCode;
 		public final String ResponseString;
@@ -44,7 +47,7 @@ public class ZoteroRestful {
 	}
 	
 	public Response callCurrentUserApi(String method, String[][] parameters, int ifModifiedSinceVersion) 
-            throws IOException, ClientProtocolException
+            throws IOException
     {        
         Uri.Builder builder =  
             Uri.parse(API_BASE + getCurrentUserUriPrefix() + "/" + method)
@@ -55,10 +58,11 @@ public class ZoteroRestful {
             builder.appendQueryParameter(param[0], param[1]);
         }
         
-        HttpGet request = new HttpGet(builder.build().toString());        
-        request.addHeader("Zotero-API-Version", "2");
+        HttpGet request;
+        request = new HttpGet(builder.build().toString());
+        request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
         request.addHeader(
-        		"If-Modified-Since-Version", 
+                IF_MODIFIED_SINCE_VERSION_HEADER,
         		Integer.toString(ifModifiedSinceVersion));
         
         HttpClient httpclient = new DefaultHttpClient();

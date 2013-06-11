@@ -11,6 +11,8 @@ import sk.mung.sentience.zoteroapi.ZoteroCollection;
 import sk.mung.sentience.zoteroapi.items.Creator;
 import sk.mung.sentience.zoteroapi.items.Item;
 import sk.mung.sentience.zoteroapi.items.ItemField;
+import sk.mung.sentience.zoteroapi.items.ItemType;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -57,7 +59,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
 	private static final String TABLE_ITEMS_TO_COLLECTIONS = "items_to_collections";
 	private static final String TABLE_ITEMS_TO_TAGS = "items_to_tags";
 	private static final String TABLE_ITEMS_TO_CREATORS = "items_to_creators";
-	private static final String TABLE_ITEMS = "items";
+    private static final String TABLE_ITEMS = "items";
 	private static final String TABLE_FIELDS = "fields";
 	private static final String TABLE_CREATORS = "creators";
 	private static final String TABLE_PERSONS = "persons";
@@ -66,7 +68,8 @@ public class ZoteroStorage extends SQLiteOpenHelper
     static final String TABLE_VERSIONS = "query_versions";
     private static final String DATABASE_NAME = "ZoteroStorage";
     private static final int DATABASE_VERSION = 7;
-    
+    public static final String VERSION_ITEMS = "items";
+
     private List<ZoteroStorageListener> listeners = new ArrayList<ZoteroStorageListener>();
     
     public void addListener(ZoteroStorageListener listener)
@@ -336,6 +339,11 @@ public class ZoteroStorage extends SQLiteOpenHelper
 		{
 			updateItem( database, item );
 		}
+
+        for( ZoteroStorageListener listener : listeners )
+        {
+            listener.onItemsUpdated();
+        }
 	}
 
 	private void updateItem(SQLiteDatabase database, Item item) 
@@ -388,7 +396,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
 			itemCreatorValues.put(COLUMN_ITEM, itemId);
 			itemCreatorValues.put(COLUMN_CREATOR, creatorId);
 			
-			database.insertWithOnConflict(TABLE_ITEMS_TO_COLLECTIONS, null, itemCreatorValues, SQLiteDatabase.CONFLICT_IGNORE);
+			database.insertWithOnConflict(TABLE_ITEMS_TO_CREATORS, null, itemCreatorValues, SQLiteDatabase.CONFLICT_IGNORE);
 		}
 	}
 
@@ -480,4 +488,56 @@ public class ZoteroStorage extends SQLiteOpenHelper
 		}
 		return parentId;
 	}
+
+    public int getItemsVersion()
+    {
+        return getVersion(VERSION_ITEMS);
+    }
+
+    public void setItemsVersion(int version)
+    {
+        setVersion(VERSION_ITEMS, version);
+    }
+
+    public List<Item> getItems(Long collectionId)
+    {
+        SQLiteDatabase database = getReadableDatabase();
+        String query
+                = "SELECT "
+                + TABLE_ITEMS + "." + COLUMN_ID     + " AS " + COLUMN_ID + AND
+                + TABLE_ITEMS + "." + COLUMN_KEY    + " AS " + COLUMN_KEY + AND
+                + TABLE_ITEMS + "." + COLUMN_TITLE  + " AS " + COLUMN_TITLE + AND
+                + TABLE_ITEMS + "." + COLUMN_TYPE   + " AS " + COLUMN_TYPE
+                + " FROM " + TABLE_ITEMS
+                + " LEFT JOIN " + TABLE_ITEMS_TO_COLLECTIONS
+                + " ON " + TABLE_ITEMS + "." + COLUMN_ID + " = " + TABLE_ITEMS_TO_COLLECTIONS + "." + COLUMN_ITEM
+                + " LEFT JOIN " + TABLE_COLLECTIONS
+                + " ON " + TABLE_ITEMS_TO_COLLECTIONS + "." + COLUMN_COLLECTION + " = " + TABLE_COLLECTIONS + "." + COLUMN_ID
+                + " WHERE " + TABLE_ITEMS + "." + COLUMN_PARENT + " IS NULL ";
+
+        String[] selectionParams = null;
+        if(collectionId!=null && collectionId > 0)
+        {
+            query += " AND " + TABLE_COLLECTIONS + "." + COLUMN_ID + QUESTION_MARK;
+            selectionParams = new String[]{collectionId.toString()};
+        }
+
+        query = query + " ORDER BY " + COLUMN_TITLE;
+
+        Cursor cursor = database.rawQuery(query,selectionParams);
+
+        List<Item> items = new ArrayList<Item>();
+        while(cursor.moveToNext())
+        {
+            Item item = new Item();
+            item.setId(cursor.getLong(0));
+            item.setKey( cursor.getString(1));
+            item.setTitle( cursor.getString(2));
+            item.setItemType(ItemType.valueWithId(cursor.getInt(3)));
+
+            items.add(item);
+        }
+
+        return items;
+    }
 }
