@@ -8,7 +8,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import sk.mung.sentience.zoteroapi.Zotero;
 import sk.mung.sentience.zoteroapi.CollectionEntity;
-import sk.mung.sentience.zoteroapi.items.Item;
+import sk.mung.sentience.zoteroapi.items.ItemEntity;
 
 public class ZoteroSync
 {
@@ -59,7 +59,7 @@ public class ZoteroSync
         int lastModifiedVersion = zotero.getLastModifiedVersion();
         if( itemVersions.size()> 0 )
         {
-            List<Item> items
+            List<ItemEntity> items
                     = zotero.getItems(itemVersions.keySet(), 0, -1);
             storage.updateItems( items);
         }

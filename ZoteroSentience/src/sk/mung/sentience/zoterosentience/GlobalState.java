@@ -6,13 +6,12 @@ import android.content.SharedPreferences;
 import sk.mung.sentience.zoteroapi.Zotero;
 import sk.mung.sentience.zoteroapi.ZoteroOauth;
 import sk.mung.sentience.zoteroapi.ZoteroRestful;
+import sk.mung.sentience.zoterosentience.storage.QueryDictionary;
 import sk.mung.sentience.zoterosentience.storage.ZoteroStorage;
 import sk.mung.sentience.zoterosentience.storage.ZoteroSync;
 
 final public class GlobalState extends Application
 {
-    // private static final String REQUEST_SECRET = "requestSecret";
-    // private static final String REQUEST_TOKEN = "requestToken";
     private static final String USERNAME = "username";
     private static final String USER_ID = "userId";
     private static final String ACCESS_TOKEN = "accessToken";
@@ -42,7 +41,7 @@ final public class GlobalState extends Application
     {
         if( storage == null)
         {
-            storage = new ZoteroStorage(getApplicationContext());
+            storage = new ZoteroStorage(getApplicationContext(), new QueryDictionary(getApplicationContext()));
         }
         return storage;
     }

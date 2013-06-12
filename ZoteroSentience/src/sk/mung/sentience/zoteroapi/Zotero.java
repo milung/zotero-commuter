@@ -12,7 +12,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import sk.mung.sentience.zoteroapi.items.Item;
+import sk.mung.sentience.zoteroapi.items.ItemEntity;
 import sk.mung.sentience.zoteroapi.parsers.AbstractAtomParser;
 import sk.mung.sentience.zoteroapi.parsers.CollectionParser;
 import sk.mung.sentience.zoteroapi.parsers.ItemParser;
@@ -83,7 +83,7 @@ public class Zotero
         		COLLECTIONS, versions, startPosition, endPosition, new CollectionParser());
     }
 
-    public List<Item> getItems(
+    public List<ItemEntity> getItems(
             Collection<String> versions, int startPosition, int endPosition )
             throws IOException, XmlPullParserException
     {

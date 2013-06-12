@@ -8,7 +8,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import sk.mung.sentience.zoteroapi.items.Creator;
 import sk.mung.sentience.zoteroapi.items.CreatorType;
-import sk.mung.sentience.zoteroapi.items.Item;
+import sk.mung.sentience.zoteroapi.items.ItemEntity;
 import sk.mung.sentience.zoteroapi.parsers.ItemParser;
 
 import junit.framework.TestCase;
@@ -24,35 +24,35 @@ public class ItemParserTest extends TestCase
     public void test_parse_numberOfEntriesFits() throws IOException, XmlPullParserException
     {
         ItemParser subject = new ItemParser();
-        List<Item> items = subject.parse(data);
+        List<ItemEntity> items = subject.parse(data);
         assertEquals(2, items.size());
     }
     
     public void test_parse_versionFits() throws IOException, XmlPullParserException
     {        
     	ItemParser subject = new ItemParser();        
-        List<Item> items = subject.parse(data);        
+        List<ItemEntity> items = subject.parse(data);
         assertEquals(459, items.get(0).getVersion());
     }
     
     public void test_parse_titleSet() throws IOException, XmlPullParserException
     {        
     	ItemParser subject = new ItemParser();        
-        List<Item> items = subject.parse(data);        
+        List<ItemEntity> items = subject.parse(data);
         assertEquals("Learning from the past", items.get(0).getTitle());
     }
     
     public void test_parse_fieldsLoaded() throws IOException, XmlPullParserException
     {        
     	ItemParser subject = new ItemParser();        
-        List<Item> items = subject.parse(data);        
+        List<ItemEntity> items = subject.parse(data);
         assertEquals(23, items.get(0).getFields().size());
     }
 
     public void test_parse_creatorsLoaded() throws IOException, XmlPullParserException
     {        
     	ItemParser subject = new ItemParser();        
-        List<Item> items = subject.parse(data);        
+        List<ItemEntity> items = subject.parse(data);
         Creator expected = new Creator();
         expected.setType(CreatorType.AUTHOR);
         expected.setFirstName("Nancy G.");
@@ -64,7 +64,7 @@ public class ItemParserTest extends TestCase
     public void test_parse_collectionsLoaded() throws IOException, XmlPullParserException
     {        
     	ItemParser subject = new ItemParser();        
-        List<Item> items = subject.parse(data);        
+        List<ItemEntity> items = subject.parse(data);
         assertEquals(1, items.get(0).getCollectionKeys().size());
         assertEquals("EFSI75K4", items.get(0).getCollectionKeys().get(0));
     }
@@ -72,7 +72,7 @@ public class ItemParserTest extends TestCase
     public void test_parse_tagsLoaded() throws IOException, XmlPullParserException
     {        
     	ItemParser subject = new ItemParser();        
-        List<Item> items = subject.parse(data);        
+        List<ItemEntity> items = subject.parse(data);
         assertEquals(2, items.get(0).getTags().size());
         assertEquals("read", items.get(0).getTags().get(0));
     }
@@ -80,7 +80,7 @@ public class ItemParserTest extends TestCase
     public void test_parse_parentSet() throws IOException, XmlPullParserException
     {        
     	ItemParser subject = new ItemParser();        
-        List<Item> items = subject.parse(data);        
+        List<ItemEntity> items = subject.parse(data);
         assertEquals("7VCIGNKJ", items.get(1).getParentKey());
     }
     private InputStream createInputStream(String resource)

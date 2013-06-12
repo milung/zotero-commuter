@@ -61,4 +61,15 @@ public enum CreatorType {
 		return id;
 	}
 
+    public static CreatorType forId(int id)
+    {
+        for(CreatorType type : CreatorType.values())
+        {
+            if( type.getId() == id )
+            {
+                return type;
+            }
+        }
+        return null;
+    }
 }

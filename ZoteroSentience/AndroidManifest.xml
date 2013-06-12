@@ -39,6 +39,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="sk.mung.sentience.zoterosentience.LibraryItemListActivity" />
         </activity>
+        <activity
+                android:name=".ItemViewer"
+                android:label="itemviewer"/>
     </application>
 
 </manifest>
