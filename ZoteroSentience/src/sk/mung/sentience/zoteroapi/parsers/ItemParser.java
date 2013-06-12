@@ -4,21 +4,21 @@ import java.util.Map;
 
 import sk.mung.sentience.zoteroapi.items.Creator;
 import sk.mung.sentience.zoteroapi.items.CreatorType;
-import sk.mung.sentience.zoteroapi.items.Item;
+import sk.mung.sentience.zoteroapi.items.ItemEntity;
 import sk.mung.sentience.zoteroapi.items.ItemField;
 import sk.mung.sentience.zoteroapi.items.ItemType;
 
-public class ItemParser extends AbstractAtomParser<Item> 
+public class ItemParser extends AbstractAtomParser<ItemEntity>
 {
 
 	@Override
-	protected Item processContent(Map<String, Object> content)
+	protected ItemEntity processContent(Map<String, Object> content)
 	{
 		String itemType = (String) content.get("itemType");
 		
 		try 
 		{
-			Item item = ItemType.createItem(itemType);
+			ItemEntity item = ItemType.createItem(itemType);
 			item.setVersion((Integer) content.get("itemVersion"));
 			item.setKey((String) content.get("itemKey"));
 			item.setParentKey((String)content.get("parentItem"));
@@ -45,7 +45,7 @@ public class ItemParser extends AbstractAtomParser<Item>
 	}
 
 	@SuppressWarnings("unchecked")
-	private void processTags(Map<String, Object> content, Item item) {
+	private void processTags(Map<String, Object> content, ItemEntity item) {
 		if(content.containsKey("tags"))
 		{
 			for( Map<String,String> tagFields : (Iterable<Map<String,String>>)content.get("tags"))
@@ -56,7 +56,7 @@ public class ItemParser extends AbstractAtomParser<Item>
 	}
 
 	@SuppressWarnings("unchecked")
-	private void processCollections(Map<String, Object> content, Item item) {
+	private void processCollections(Map<String, Object> content, ItemEntity item) {
 		if(content.containsKey("collections"))
 		{
 			for( String key : (Iterable<String>)content.get("collections"))
@@ -67,7 +67,7 @@ public class ItemParser extends AbstractAtomParser<Item>
 	}
 
 	@SuppressWarnings("unchecked")
-	private void processCreators(Map<String, Object> content, Item item) {
+	private void processCreators(Map<String, Object> content, ItemEntity item) {
 		if(content.containsKey("creators"))
 		{
 			for( Map<String,String> creatorFields : (Iterable<Map<String,String>>)content.get("creators"))
@@ -82,7 +82,7 @@ public class ItemParser extends AbstractAtomParser<Item>
 		}
 	}
 
-	private void processItemFields(Map<String, Object> content, Item item) {
+	private void processItemFields(Map<String, Object> content, ItemEntity item) {
 		for(ItemField field : item.getSupportedFields())
 		{
 			if(content.containsKey(field.getZoteroName()))

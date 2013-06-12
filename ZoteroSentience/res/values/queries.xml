@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="create_versions_table">
+        CREATE TABLE versions (
+            _id INTEGER PRIMARY KEY AUTOINCREMENT,
+            query TEXT UNIQUE ON CONFLICT REPLACE,
+            version INTEGER)
+    </string>
+
+    <string name="create_tags_table">
+        CREATE TABLE tags (
+            _id INTEGER PRIMARY KEY AUTOINCREMENT,
+            query TEXT UNIQUE ON CONFLICT IGNORE )
+    </string>
+
+    <string name="create_persons_table">
+        CREATE TABLE persons (
+        _id INTEGER PRIMARY KEY AUTOINCREMENT,
+        firstName TEXT,
+        lastName TEXT,
+        shortName TEXT,
+        UNIQUE (firstName, lastName, shortName) ON CONFLICT IGNORE )
+    </string>
+
+    <string name="create_creators_table">
+        CREATE TABLE creators (
+        _id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type INTEGER,
+        person REFERENCES persons (_id),
+        UNIQUE ( type, person) ON CONFLICT IGNORE );
+    </string>
+
+    <string name="create_fields_table">
+        CREATE TABLE fields (
+        _id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type INTEGER,
+        item INTEGER REFERENCES items (_id),
+        value TEXT
+        UNIQUE ( item, type ) ON CONFLICT REPLACE )
+    </string>
+
+    <string name="create_items_to_creators_table">
+        CREATE TABLE items_to_creators (
+        item INTEGER REFERENCES items (_id),
+        creator INTEGER REFERENCES creators (_id),
+        UNIQUE (item,creator) ON CONFLICT IGNORE)
+    </string>
+
+    <string name="create_items_to_tags_table">
+        CREATE TABLE items_to_tags (
+        item INTEGER REFERENCES items (_id),
+        tag INTEGER REFERENCES tags (_id),
+        UNIQUE (item,tag) ON CONFLICT IGNORE)
+    </string>
+
+    <string name="create_items_to_collections_table">
+        CREATE TABLE items_to_collections (
+        item INTEGER REFERENCES items (_id),
+        collection INTEGER REFERENCES collections (_id),
+        UNIQUE (item,collection) ON CONFLICT IGNORE)
+    </string>
+
+    <string name="create_collections_table">
+        CREATE TABLE collections (
+            _id INTEGER PRIMARY KEY AUTOINCREMENT,
+            key TEXT UNIQUE ON CONFLICT REPLACE,
+            version INTEGER,
+            name TEXT,
+            parent TEXT,
+            synced INTEGER)
+    </string>
+
+    <string name="create_items_table">
+        CREATE TABLE items (
+        _id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type INTEGER,
+        key TEXT,
+        version INTEGER,
+        title TEXT,
+        parent INTEGER REFERENCES items (_id),
+        synced INTEGER )
+    </string>
+
+    <string name="get_item_creators">
+        SELECT creators._id, creators.type, persons.firstName, persons.lastName, persons.shortName
+        FROM items_to_creators
+        LEFT JOIN creators ON items_to_creators.creator = creators._id
+        LEFT JOIN persons ON creators.person = persons._id
+        WHERE items_to_creators.item=?
+    </string>
+
+    <string name="get_collection_items">
+        SELECT items._id, items.key, items.title, items.type
+        FROM items
+        LEFT JOIN items_to_collections ON item._id=items_to_collections.item
+        LEFT JOIN collections ON items_to_collections=collections._id
+        WHERE items.parent IS NULL AND collections._id=?
+        ORDER BY items.title
+    </string>
+
+    <string name="get_library_items">
+        SELECT items._id, items.key, items.title, items.type
+        FROM items
+        LEFT JOIN items_to_collections ON item._id=items_to_collections.item
+        LEFT JOIN collections ON items_to_collections=collections._id
+        WHERE items.parent IS NULL
+        ORDER BY items.title
+    </string>
+</resources>

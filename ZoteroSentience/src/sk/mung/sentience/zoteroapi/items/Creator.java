@@ -2,12 +2,23 @@ package sk.mung.sentience.zoteroapi.items;
 
 public class Creator {
 
+    private long id;
 	private CreatorType type;
 	
 	private String firstName;
 	private String lastName;
 	private String shortName;
-	
+
+    public long getId()
+    {
+        return id;
+    }
+
+    public void setId(long id)
+    {
+        this.id = id;
+    }
+
 	public CreatorType getType() {
 		return type;
 	}
@@ -76,6 +87,4 @@ public class Creator {
 			return false;
 		return true;
 	}
-	
-	
 }

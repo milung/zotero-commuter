@@ -9,7 +9,9 @@ import java.util.Map;
 import sk.mung.sentience.zoteroapi.CollectionEntity;
 import sk.mung.sentience.zoteroapi.ZoteroCollection;
 import sk.mung.sentience.zoteroapi.items.Creator;
+import sk.mung.sentience.zoteroapi.items.CreatorType;
 import sk.mung.sentience.zoteroapi.items.Item;
+import sk.mung.sentience.zoteroapi.items.ItemEntity;
 import sk.mung.sentience.zoteroapi.items.ItemField;
 import sk.mung.sentience.zoteroapi.items.ItemType;
 
@@ -71,6 +73,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
     public static final String VERSION_ITEMS = "items";
 
     private List<ZoteroStorageListener> listeners = new ArrayList<ZoteroStorageListener>();
+    private final QueryDictionary queries;
     
     public void addListener(ZoteroStorageListener listener)
     {
@@ -82,107 +85,25 @@ public class ZoteroStorage extends SQLiteOpenHelper
         listeners.remove(listener);
     }
     
-    public ZoteroStorage(Context context)
+    public ZoteroStorage(Context context, QueryDictionary queries)
     {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);       
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.queries = queries;
     }
 
     @Override
     public void onCreate(SQLiteDatabase database)
     {
-        database.execSQL(
-                CREATE_TABLE + TABLE_COLLECTIONS + START + 
-                    COLUMN_ID + PRIMARY_KEY +
-                	COLUMN_KEY + UNIQUE_TEXT + CONFLICT_REPLACE + AND +
-                    COLUMN_VERSION + INTEGER_AND + 
-                    COLUMN_NAME + TEXT_AND + 
-                    COLUMN_PARENT + TEXT_AND + 
-                    COLUMN_SYNCED + INTEGER 
-                + END);
-        
-        database.execSQL(
-                CREATE_TABLE + TABLE_VERSIONS + START + 
-                	COLUMN_ID + PRIMARY_KEY + 
-                	COLUMN_QUERY + UNIQUE_TEXT + CONFLICT_REPLACE + AND + 
-                    COLUMN_VERSION + INTEGER
-                + END);    
-        
-        database.execSQL(
-        		CREATE_TABLE + TABLE_TAGS + START + 
-        			COLUMN_ID + PRIMARY_KEY +
-        			COLUMN_TAG + UNIQUE_TEXT + CONFLICT_IGNORE + END );
-        
-        database.execSQL(
-        		CREATE_TABLE + TABLE_PERSONS + START + 
-        			COLUMN_ID + PRIMARY_KEY +
-        			COLUMN_FIRST_NAME + TEXT_AND +
-        			COLUMN_LAST_NAME + TEXT_AND + 
-        			COLUMN_SHORT_NAME + TEXT_AND +
-        			UNIQUE_START + 
-        				COLUMN_FIRST_NAME + AND + 
-        				COLUMN_LAST_NAME + AND + 
-        				COLUMN_SHORT_NAME + END + 
-    				CONFLICT_IGNORE + END
-        		);
-        
-        database.execSQL(
-        		CREATE_TABLE + TABLE_CREATORS + START + 
-        			COLUMN_ID + PRIMARY_KEY +
-        			COLUMN_TYPE + INTEGER_AND +
-        			COLUMN_PERSON + REFERENCES + TABLE_PERSONS + START + COLUMN_ID + END_AND +
-		    		UNIQUE_START + 
-		    			COLUMN_TYPE + AND + 
-		    			COLUMN_PERSON + END + 
-		    		CONFLICT_IGNORE + END );
-        
-        database.execSQL(
-        		CREATE_TABLE + TABLE_ITEMS + START +
-        			COLUMN_ID + PRIMARY_KEY + 
-        			COLUMN_TYPE + INTEGER_AND +
-        			COLUMN_KEY + UNIQUE_TEXT + CONFLICT_REPLACE + AND +
-        			COLUMN_VERSION + INTEGER_AND +
-        			COLUMN_TITLE + TEXT_AND +
-        			COLUMN_PARENT + REFERENCES + TABLE_ITEMS + START + COLUMN_ID + END_AND + 
-        			COLUMN_SYNCED + INTEGER + END);
-        
-        database.execSQL(
-        		CREATE_TABLE + TABLE_FIELDS + START +
-        			COLUMN_ID + PRIMARY_KEY +
-    				COLUMN_ITEM + REFERENCES + TABLE_ITEMS + START + COLUMN_ID + END_AND +
-        			COLUMN_TYPE + INTEGER_AND + 
-        			COLUMN_VALUE + TEXT_AND +
-    				UNIQUE_START + 
-    					COLUMN_ITEM + AND + 
-    					COLUMN_TYPE + END + 
-					CONFLICT_REPLACE + END );
-    				
-        database.execSQL(
-        		CREATE_TABLE + TABLE_ITEMS_TO_CREATORS + START +
-        			COLUMN_ITEM + REFERENCES + TABLE_ITEMS + START + COLUMN_ID + END_AND + 
-        			COLUMN_CREATOR + REFERENCES + TABLE_CREATORS + START + COLUMN_ID + " )," +
-					UNIQUE_START + 
-						COLUMN_ITEM + AND + 
-						COLUMN_CREATOR + END + 
-					CONFLICT_IGNORE + END );
-        
-        database.execSQL(
-        		CREATE_TABLE + TABLE_ITEMS_TO_TAGS + START +
-        			COLUMN_ITEM + REFERENCES + TABLE_ITEMS + START + COLUMN_ID + END_AND + 
-    				COLUMN_TAG + REFERENCES + TABLE_TAGS + START + COLUMN_ID + END_AND +
-    				UNIQUE_START +
-    					COLUMN_ITEM + AND + 
-    					COLUMN_TAG + END + 
-    				CONFLICT_IGNORE + END);
-        
-        database.execSQL(
-        		CREATE_TABLE + TABLE_ITEMS_TO_COLLECTIONS + START +
-    				COLUMN_ITEM + REFERENCES + TABLE_ITEMS + START + COLUMN_ID + END_AND + 
-    				COLUMN_COLLECTION + REFERENCES + TABLE_COLLECTIONS + START + COLUMN_ID + END_AND +
-    				UNIQUE_START + 
-    					COLUMN_ITEM + AND + 
-    					COLUMN_COLLECTION + END + 
-    					CONFLICT_IGNORE + END);
-        
+        database.execSQL( queries.createCollectionsTable() );
+        database.execSQL( queries.createVersionsTable() );
+        database.execSQL( queries.createTagsTable() );
+        database.execSQL( queries.createPersonsTable() );
+        database.execSQL( queries.createCreatorsTable() );
+        database.execSQL( queries.createItemsTable() );
+        database.execSQL( queries.createFieldsTable() );
+        database.execSQL( queries.createItemsToCreatorsTable() );
+        database.execSQL( queries.createItemsToTagsTable() );
+        database.execSQL( queries.createItemsToCollectionsTable() );
     }
 
     @Override
@@ -332,10 +253,10 @@ public class ZoteroStorage extends SQLiteOpenHelper
 		
 	}
 
-	public void updateItems(List<Item> items)
+	public void updateItems(List<ItemEntity> items)
 	{
 		SQLiteDatabase database = getWritableDatabase();
-		for(Item item : items)
+		for(ItemEntity item : items)
 		{
 			updateItem( database, item );
 		}
@@ -346,7 +267,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
         }
 	}
 
-	private void updateItem(SQLiteDatabase database, Item item) 
+	private void updateItem(SQLiteDatabase database, ItemEntity item)
 	{
 		ContentValues values = new ContentValues();
 		values.put(COLUMN_KEY, item.getKey());
@@ -367,7 +288,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
 		updateItemCreators(database, item, itemId);
 	}
 
-	private void updateItemCreators(SQLiteDatabase database, Item item,
+	private void updateItemCreators(SQLiteDatabase database, ItemEntity item,
 			long itemId) {
 		for(Creator creator: item.getCreators())
 		{
@@ -402,7 +323,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
 
 	private void updateItemCollections(
 			SQLiteDatabase database, 
-			Item item,
+			ItemEntity item,
 			long itemId) 
 	{
 		for(String collectionKey: item.getCollectionKeys())
@@ -432,7 +353,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
 		}
 	}
 
-	private void updateItemFields(SQLiteDatabase database, Item item,
+	private void updateItemFields(SQLiteDatabase database, ItemEntity item,
 			long itemId) {
 		for(Map.Entry<ItemField,String> entry : item.getFields().entrySet())
 		{
@@ -445,7 +366,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
 		}
 	}
 
-	private void updateItemTags(SQLiteDatabase database, Item item, long itemId) {
+	private void updateItemTags(SQLiteDatabase database, ItemEntity item, long itemId) {
 		Collection<Long> tagIds = getTagIds( database, item.getTags());
 		for( long tagId : tagIds )
 		{
@@ -472,7 +393,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
 
 	private long getOrCreateParentId(SQLiteDatabase database, String parentKey) {
 		Cursor cursor = database.query(TABLE_ITEMS,new String[] {COLUMN_ID},COLUMN_KEY + QUESTION_MARK, new String[]{parentKey},null,null,null);
-		long parentId = -1; 
+		long parentId;
 		if(cursor.getCount()>0)
 		{
 			cursor.moveToFirst();
@@ -502,42 +423,50 @@ public class ZoteroStorage extends SQLiteOpenHelper
     public List<Item> getItems(Long collectionId)
     {
         SQLiteDatabase database = getReadableDatabase();
-        String query
-                = "SELECT "
-                + TABLE_ITEMS + "." + COLUMN_ID     + " AS " + COLUMN_ID + AND
-                + TABLE_ITEMS + "." + COLUMN_KEY    + " AS " + COLUMN_KEY + AND
-                + TABLE_ITEMS + "." + COLUMN_TITLE  + " AS " + COLUMN_TITLE + AND
-                + TABLE_ITEMS + "." + COLUMN_TYPE   + " AS " + COLUMN_TYPE
-                + " FROM " + TABLE_ITEMS
-                + " LEFT JOIN " + TABLE_ITEMS_TO_COLLECTIONS
-                + " ON " + TABLE_ITEMS + "." + COLUMN_ID + " = " + TABLE_ITEMS_TO_COLLECTIONS + "." + COLUMN_ITEM
-                + " LEFT JOIN " + TABLE_COLLECTIONS
-                + " ON " + TABLE_ITEMS_TO_COLLECTIONS + "." + COLUMN_COLLECTION + " = " + TABLE_COLLECTIONS + "." + COLUMN_ID
-                + " WHERE " + TABLE_ITEMS + "." + COLUMN_PARENT + " IS NULL ";
+        String query = queries.getLibraryItems();
 
         String[] selectionParams = null;
         if(collectionId!=null && collectionId > 0)
         {
-            query += " AND " + TABLE_COLLECTIONS + "." + COLUMN_ID + QUESTION_MARK;
+            query = queries.getCollectionItems();
             selectionParams = new String[]{collectionId.toString()};
         }
 
-        query = query + " ORDER BY " + COLUMN_TITLE;
-
+        assert database != null;
         Cursor cursor = database.rawQuery(query,selectionParams);
 
         List<Item> items = new ArrayList<Item>();
         while(cursor.moveToNext())
         {
-            Item item = new Item();
+            ItemEntity item = new ItemEntity();
             item.setId(cursor.getLong(0));
             item.setKey( cursor.getString(1));
             item.setTitle( cursor.getString(2));
             item.setItemType(ItemType.valueWithId(cursor.getInt(3)));
 
-            items.add(item);
+            items.add(new ItemLazyProxy(item, this));
         }
 
         return items;
+    }
+
+    public List<Creator> getItemCreators(long itemId)
+    {
+        SQLiteDatabase database = getReadableDatabase();
+        assert database != null;
+        Cursor cursor = database.rawQuery(queries.getItemCreators(), new String [] {Long.toString(itemId)});
+
+        List<Creator> creators = new ArrayList<Creator>();
+        while(cursor.moveToNext())
+        {
+            Creator creator = new Creator();
+            creator.setId(cursor.getLong(0));
+            creator.setType( CreatorType.forId(cursor.getInt(1)));
+            creator.setFirstName( cursor.getString(2));
+            creator.setLastName( cursor.getString(3));
+
+            creators.add(creator);
+        }
+        return creators;
     }
 }

@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -43,12 +42,6 @@ public class LibraryItemDetailFragment extends Fragment implements LoaderManager
         listView.setAdapter(listAdapter);
         listView.setSaveEnabled(true);
 
-        if (getArguments().containsKey(ARG_COLLECTION_KEY))
-        {
-            collectionKey =getArguments().getLong(ARG_COLLECTION_KEY);
-        }
-        else collectionKey = null;
-
         getLoaderManager().restartLoader(1, getArguments(), this);
     }
 
@@ -56,9 +49,7 @@ public class LibraryItemDetailFragment extends Fragment implements LoaderManager
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.fragment_libraryitem_detail, container, false);
-
-        return rootView;
+        return inflater.inflate(R.layout.fragment_libraryitem_detail, container, false);
     }
 
     @Override
