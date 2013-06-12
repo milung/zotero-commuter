@@ -6,5 +6,4 @@
 .metadata$
 out$
 syntax: glob
-
-.idea/dictionaries
+.idea$
