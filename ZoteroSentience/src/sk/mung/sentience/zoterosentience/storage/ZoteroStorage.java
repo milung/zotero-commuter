@@ -52,7 +52,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
 	private static final String VERSION_DELETIONS = "deletions";
 
     private static final String DATABASE_NAME = "ZoteroStorage";
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 15;
     public static final String VERSION_ITEMS = "items";
 
     private List<ZoteroStorageListener> listeners = new ArrayList<ZoteroStorageListener>();

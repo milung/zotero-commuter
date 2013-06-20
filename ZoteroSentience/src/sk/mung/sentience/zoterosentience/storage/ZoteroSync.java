@@ -1,10 +1,10 @@
 package sk.mung.sentience.zoterosentience.storage;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import org.xmlpull.v1.XmlPullParserException;
 
 import sk.mung.sentience.zoteroapi.Zotero;
 import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
@@ -66,4 +66,6 @@ public class ZoteroSync
 
         storage.setItemsVersion(lastModifiedVersion);
     }
+
+
 }

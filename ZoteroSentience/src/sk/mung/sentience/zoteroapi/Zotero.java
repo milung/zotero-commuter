@@ -1,6 +1,9 @@
 package sk.mung.sentience.zoteroapi;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,6 +16,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
+import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemEntity;
 import sk.mung.sentience.zoteroapi.parsers.AbstractAtomParser;
 import sk.mung.sentience.zoteroapi.parsers.CollectionParser;
@@ -157,6 +161,9 @@ public class Zotero
 		        return result;
 	        }
 	}
-        
-   
+
+    public URL getAttachmentUrl(Item item) throws IOException
+    {
+        return restful.getAttachmentUrl(item);
+    }
 }

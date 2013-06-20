@@ -9,8 +9,15 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
+import sk.mung.sentience.zoteroapi.entities.Item;
 
 public class ZoteroRestful {
 
@@ -94,5 +101,13 @@ public class ZoteroRestful {
     {
         return "/users/" + userId;
     }
-    
+
+    public URL getAttachmentUrl(Item item) throws IOException
+    {
+        Uri.Builder builder =
+                Uri.parse(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
+                        .buildUpon()
+                        .appendQueryParameter("key", accessToken);
+        return new URL(builder.build().toString());
+    }
 }
