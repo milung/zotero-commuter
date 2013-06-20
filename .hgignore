@@ -6,4 +6,5 @@
 .metadata$
 out$
 syntax: glob
-.idea$
+.idea/workspace.xml$
+.idea/tasks.xml$
