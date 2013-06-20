@@ -28,6 +28,8 @@ public interface Item extends KeyEntity
 
     void addField(Field field);
 
+    Field getField(ItemField fieldType);
+
     boolean isSynced();
 
     void setSynced(boolean isSynced);

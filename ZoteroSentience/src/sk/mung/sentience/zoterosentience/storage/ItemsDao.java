@@ -137,7 +137,7 @@ public class ItemsDao extends BaseKeyDao<Item>
     @Override
     protected Item createEntity()
     {
-        return new ItemLazyProxy(new ItemEntity(),creatorsDao,this);
+        return new ItemLazyProxy(new ItemEntity(),creatorsDao,this, fieldsDao);
     }
 
     @Override

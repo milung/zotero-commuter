@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.List;
+
 import sk.mung.sentience.zoteroapi.entities.Field;
 import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemEntity;
@@ -85,5 +87,16 @@ public class FieldsDao extends BaseDao<Field>
         values.put(COLUMN_TYPE,entity.getType().getId());
         values.put(COLUMN_VALUE, entity.getValue());
         return values;
+    }
+
+    public List<Field> findByItem(Item item)
+    {
+        Cursor c = getReadableDatabase().query(
+                getTable(),
+                getSelectColumns(),
+                COLUMN_ITEM+QUESTION_MARK,
+                new String[]{ Long.toString(item.getId())},
+                null,null,null);
+        return cursorToEntities( c );
     }
 }

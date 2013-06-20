@@ -60,6 +60,15 @@ public class ItemEntity implements Item
 	@Override
     public List<Field> getFields() { return fields; 	}
 
+    public Field getField(ItemField fieldType)
+    {
+        for(Field f : getFields())
+        {
+            if(f.getType().equals(fieldType)) return f;
+        }
+        return null;
+    }
+
 	@Override
     public ItemField[] getSupportedFields() { return ItemField.values(); }
 

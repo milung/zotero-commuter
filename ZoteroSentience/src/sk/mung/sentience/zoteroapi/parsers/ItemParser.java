@@ -101,7 +101,7 @@ public class ItemParser extends AbstractAtomParser<ItemEntity>
                 Field field = new Field();
                 field.setItem(item);
                 field.setType(itemField);
-                field.setValue((String)content.get(itemField.getZoteroName()));
+                field.setValue(content.get(itemField.getZoteroName()).toString());
 				item.addField(field );
 			}
 		}

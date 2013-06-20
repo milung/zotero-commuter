@@ -102,15 +102,18 @@ public enum ItemField
 	THESIS_TYPE(101,"thesisType"),
 	UNIVERSITY(102,"university"),
 	VERSION(104,"version"),
-	WEBSITE_TITLE(105,"websiteTitle", true);
+	WEBSITE_TITLE(105,"websiteTitle", true),
+    CONTENT_TYPE(106,"contentType"),
+    MD5(107, "md5"),
+    LINK_MODE(108,"linkMode"),
+    MODIFICATION_TIME(109,"mtime"),
+    FILE_NAME(110,"filename");
 	
 	private final String zoteroName;
 	private final int id;
 	private final boolean isTitle;
 	
-	public boolean isTitle() {
-		return isTitle;
-	}
+	public boolean isTitle() { return isTitle; }
 
 	ItemField(int id, String name)
 	{
@@ -126,13 +129,9 @@ public enum ItemField
 		zoteroName = name;
 	}
 	
-	public String getZoteroName() {
-		return zoteroName;
-	}
+	public String getZoteroName() { return zoteroName; }
 
-	public int getId() {
-		return id;
-	};
+	public int getId() { return id; }
 
 	public static ItemField fromZoteroName(String fieldName)
 	{

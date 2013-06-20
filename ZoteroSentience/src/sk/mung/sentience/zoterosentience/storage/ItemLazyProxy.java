@@ -16,14 +16,18 @@ public class ItemLazyProxy implements Item
     private final Item adaptee;
     private final CreatorsDao creatorsDao;
     private final ItemsDao itemsDao;
+    private final FieldsDao fieldsDao;
+
     private boolean areCreatorsLoaded = false;
     private boolean areChildrenLoaded = false;
+    private boolean areFieldsLoaded = false;
 
-    public ItemLazyProxy(Item adaptee, CreatorsDao creatorsDao, ItemsDao itemsDao)
+    public ItemLazyProxy(Item adaptee, CreatorsDao creatorsDao, ItemsDao itemsDao, FieldsDao fieldsDao)
     {
         this.adaptee = adaptee;
         this.creatorsDao = creatorsDao;
         this.itemsDao = itemsDao;
+        this.fieldsDao = fieldsDao;
     }
 
     @Override
@@ -184,6 +188,25 @@ public class ItemLazyProxy implements Item
     public void addField(Field field)
     {
         adaptee.addField(field);
+    }
+
+    @Override
+    public Field getField(ItemField fieldType)
+    {
+        loadFields();
+        return adaptee.getField(fieldType);
+    }
+
+    private synchronized void loadFields()
+    {
+        if(!areFieldsLoaded)
+        {
+            for( Field field : fieldsDao.findByItem(this))
+            {
+                adaptee.addField(field);
+            }
+            areFieldsLoaded = true;
+        }
     }
 
     @Override
