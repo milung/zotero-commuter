@@ -5,6 +5,6 @@
 /proguard.cfg$
 .metadata$
 out$
-syntax: glob
 .idea/workspace.xml$
 .idea/tasks.xml$
+syntax: glob
