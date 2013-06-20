@@ -1,39 +1,41 @@
 package sk.mung.sentience.zoterosentience;
 
-import java.io.IOException;
-
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
+import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoterosentience.storage.ZoteroSync;
 
 /**
  * An activity representing a list of LibraryItems. This activity has different
  * presentations for handset and tablet-size devices. On handsets, the activity
  * presents a list of items, which when touched, lead to a
- * {@link LibraryItemDetailActivity} representing item details. On tablets, the
+ * {@link ItemListlActivity} representing item details. On tablets, the
  * activity presents the list of items and item details side-by-side using two
  * vertical panes.
  * <p>
  * The activity makes heavy use of fragments. The list of items is a
- * {@link LibraryItemListFragment} and the item details (if present) is a
- * {@link LibraryItemDetailFragment}.
+ * {@link LibraryFragment} and the item details (if present) is a
+ * {@link ItemListFragment}.
  * <p>
  * This activity also implements the required
- * {@link LibraryItemListFragment.Callbacks} interface to listen for item
+ * {@link LibraryFragment.Callbacks} interface to listen for item
  * selections.
  */
-public class LibraryItemListActivity extends FragmentActivity
-        implements LibraryItemListFragment.Callbacks
+public class LibraryActivity extends FragmentActivity
+        implements LibraryFragment.Callbacks, ItemListFragment.Callback
 {
 
     /**
@@ -46,9 +48,9 @@ public class LibraryItemListActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_libraryitem_list);
+        setContentView(R.layout.activity_library);
 
-        if (findViewById(R.id.libraryitem_detail_container) != null)
+        if (findViewById(R.id.library_itemlist_container) != null)
         {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-large and
@@ -58,9 +60,14 @@ public class LibraryItemListActivity extends FragmentActivity
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
-            ((LibraryItemListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.libraryitem_list))
+            ((LibraryFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.library_collection_list))
                     .setActivateOnItemClick(true);
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .hide(getSupportFragmentManager().findFragmentById(R.id.library_itemviewer))
+                    .commit();
         }
 
     }
@@ -73,36 +80,62 @@ public class LibraryItemListActivity extends FragmentActivity
     }
 
     /**
-     * Callback method from {@link LibraryItemListFragment.Callbacks} indicating
+     * Callback method from {@link LibraryFragment.Callbacks} indicating
      * that the item with the given ID was selected.
      */
     @Override
-    public void onItemSelected(long id)
+    public void onCollectionSelected(long id)
     {
         if (mTwoPane)
         {
-            // In two-pane mode, show the detail view in this activity by
-            // adding or replacing the detail fragment using a
-            // fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putLong(LibraryItemDetailFragment.ARG_COLLECTION_KEY, id);
-            LibraryItemDetailFragment fragment = new LibraryItemDetailFragment();
+            arguments.putLong(ItemListFragment.ARG_COLLECTION_KEY, id);
+            ItemListFragment fragment = new ItemListFragment();
             fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.libraryitem_detail_container, fragment)
-                    .commit();
 
+            ItemPager pager = (ItemPager) getSupportFragmentManager().findFragmentById(R.id.library_itemviewer);
+            if(pager != null)
+            {
+                pager.setCollectionId(id);
+            }
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.library_itemlist_container, fragment)
+                    .commit();
         }
         else
         {
             // In single-pane mode, simply start the detail activity
             // for the selected item ID.
-            Intent detailIntent = new Intent(this, LibraryItemDetailActivity.class);
-            detailIntent.putExtra(LibraryItemDetailFragment.ARG_COLLECTION_KEY, id);
+            Intent detailIntent = new Intent(this, ItemListlActivity.class);
+            detailIntent.putExtra(ItemListFragment.ARG_COLLECTION_KEY, id);
             startActivity(detailIntent);
         }
     }
-    
+
+    @Override
+    public void onItemSelected(Item item)
+    {
+        if (mTwoPane)
+        {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            ((ItemPager)fragmentManager.findFragmentById(R.id.library_itemviewer)).setPosition(item);
+            fragmentManager.beginTransaction()
+                .hide(fragmentManager.findFragmentById(R.id.library_collection_list))
+                .show(fragmentManager.findFragmentById(R.id.library_itemviewer))
+                .addToBackStack(null)
+            .commit();
+        }
+        else
+        {
+            // In single-pane mode, simply start the detail activity
+            // for the selected item ID.
+            // Intent detailIntent = new Intent(this, ItemListlActivity.class);
+            // detailIntent.putExtra(ItemListFragment.ARG_COLLECTION_KEY, id);
+            // startActivity(detailIntent);
+        }
+    }
+
     public void onLoginOptionSelected( MenuItem menuItem)
     {
         Intent intent = new Intent(this, LoginActivity.class);

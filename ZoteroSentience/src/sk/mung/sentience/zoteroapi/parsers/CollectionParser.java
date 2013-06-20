@@ -2,7 +2,7 @@ package sk.mung.sentience.zoteroapi.parsers;
 
 import java.util.Map;
 
-import sk.mung.sentience.zoteroapi.CollectionEntity;
+import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
 
 public class CollectionParser extends AbstractAtomParser<CollectionEntity>
 {

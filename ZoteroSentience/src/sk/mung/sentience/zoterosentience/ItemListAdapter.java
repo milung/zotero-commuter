@@ -5,14 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.items.Creator;
-import sk.mung.sentience.zoteroapi.items.Item;
-import sk.mung.sentience.zoteroapi.items.ItemEntity;
+import sk.mung.sentience.zoteroapi.entities.Item;
 
 /**
  *
@@ -21,6 +18,8 @@ public class ItemListAdapter extends BaseAdapter
 {
     private final Context context;
     private List<Item> items = new ArrayList<Item>();
+    private final ItemRenderer renderer;
+    private final int layoutId;
 
     public void setItems(List<Item> items)
     {
@@ -30,9 +29,11 @@ public class ItemListAdapter extends BaseAdapter
     }
 
 
-    public ItemListAdapter(Context context)
+    public ItemListAdapter(Context context, int layoutId)
     {
         this.context = context;
+        this.layoutId = layoutId;
+        this.renderer = new ItemRenderer(context);
     }
 
     @Override
@@ -60,25 +61,11 @@ public class ItemListAdapter extends BaseAdapter
         {
             convertView
                     = ((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                    .inflate(R.layout.listitem_item, null);
+                    .inflate(layoutId, null);
         }
-        Item item = items.get(position);
+
         assert convertView != null;
-        TextView textView = (TextView) convertView.findViewById(R.id.textViewTitle);
-        textView.setText(item.getTitle());
-
-        String creatorFormatter = context.getResources().getString(R.string.creator_sequence_format);
-
-
-        StringBuilder creatorsSequence = new StringBuilder();
-        String format = context.getResources().getString(R.string.creator_sequence_format_first);
-        for(Creator creator : item.getCreators())
-        {
-            creatorsSequence.append( String.format(format, creator.getFirstName(),creator.getLastName(), creator.getShortName()));
-            format = creatorFormatter;
-        }
-        textView = (TextView) convertView.findViewById(R.id.textViewCreator);
-        textView.setText(creatorsSequence.toString());
+        renderer.render(items.get(position),convertView);
         return convertView;
     }
 }

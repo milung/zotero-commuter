@@ -10,18 +10,18 @@ import android.view.MenuItem;
  * An activity representing a single LibraryItem detail screen. This activity is
  * only used on handset devices. On tablet-size devices, item details are
  * presented side-by-side with a list of items in a
- * {@link LibraryItemListActivity}.
+ * {@link LibraryActivity}.
  * <p>
  * This activity is mostly just a 'shell' activity containing nothing more than
- * a {@link LibraryItemDetailFragment}.
+ * a {@link ItemListFragment}.
  */
-public class LibraryItemDetailActivity extends FragmentActivity
+public class ItemListlActivity extends FragmentActivity
 {
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_libraryitem_detail);
+        setContentView(R.layout.activity_item_list);
 
         // Show the Up button in the action bar.
         getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -40,12 +40,12 @@ public class LibraryItemDetailActivity extends FragmentActivity
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(LibraryItemDetailFragment.ARG_COLLECTION_KEY,
-                    getIntent().getStringExtra(LibraryItemDetailFragment.ARG_COLLECTION_KEY));
-            LibraryItemDetailFragment fragment = new LibraryItemDetailFragment();
+            arguments.putString(ItemListFragment.ARG_COLLECTION_KEY,
+                    getIntent().getStringExtra(ItemListFragment.ARG_COLLECTION_KEY));
+            ItemListFragment fragment = new ItemListFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.libraryitem_detail_container, fragment)
+                    .add(R.id.library_itemlist_container, fragment)
                     .commit();
         }
     }
@@ -63,7 +63,7 @@ public class LibraryItemDetailActivity extends FragmentActivity
             //
             // http://developer.android.com/design/patterns/navigation.html#up-vs-back
             //
-            NavUtils.navigateUpTo(this, new Intent(this, LibraryItemListActivity.class));
+            NavUtils.navigateUpTo(this, new Intent(this, LibraryActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -11,7 +11,7 @@
     <string name="create_tags_table">
         CREATE TABLE tags (
             _id INTEGER PRIMARY KEY AUTOINCREMENT,
-            query TEXT UNIQUE ON CONFLICT IGNORE )
+            tag TEXT UNIQUE ON CONFLICT IGNORE )
     </string>
 
     <string name="create_persons_table">
@@ -24,7 +24,7 @@
     </string>
 
     <string name="create_creators_table">
-        CREATE TABLE creators (
+        CREATE TABLE IF NOT EXISTS creators (
         _id INTEGER PRIMARY KEY AUTOINCREMENT,
         type INTEGER,
         person REFERENCES persons (_id),
@@ -32,39 +32,39 @@
     </string>
 
     <string name="create_fields_table">
-        CREATE TABLE fields (
+        CREATE TABLE IF NOT EXISTS fields (
         _id INTEGER PRIMARY KEY AUTOINCREMENT,
         type INTEGER,
         item INTEGER REFERENCES items (_id),
-        value TEXT
+        value TEXT,
         UNIQUE ( item, type ) ON CONFLICT REPLACE )
     </string>
 
     <string name="create_items_to_creators_table">
-        CREATE TABLE items_to_creators (
+        CREATE TABLE  IF NOT EXISTS items_to_creators (
         item INTEGER REFERENCES items (_id),
         creator INTEGER REFERENCES creators (_id),
         UNIQUE (item,creator) ON CONFLICT IGNORE)
     </string>
 
     <string name="create_items_to_tags_table">
-        CREATE TABLE items_to_tags (
+        CREATE TABLE  IF NOT EXISTS items_to_tags (
         item INTEGER REFERENCES items (_id),
         tag INTEGER REFERENCES tags (_id),
         UNIQUE (item,tag) ON CONFLICT IGNORE)
     </string>
 
     <string name="create_items_to_collections_table">
-        CREATE TABLE items_to_collections (
+        CREATE TABLE  IF NOT EXISTS items_to_collections (
         item INTEGER REFERENCES items (_id),
         collection INTEGER REFERENCES collections (_id),
         UNIQUE (item,collection) ON CONFLICT IGNORE)
     </string>
 
     <string name="create_collections_table">
-        CREATE TABLE collections (
+        CREATE TABLE IF NOT EXISTS collections (
             _id INTEGER PRIMARY KEY AUTOINCREMENT,
-            key TEXT UNIQUE ON CONFLICT REPLACE,
+            key TEXT UNIQUE,
             version INTEGER,
             name TEXT,
             parent TEXT,
@@ -72,10 +72,10 @@
     </string>
 
     <string name="create_items_table">
-        CREATE TABLE items (
+        CREATE TABLE IF NOT EXISTS items (
         _id INTEGER PRIMARY KEY AUTOINCREMENT,
         type INTEGER,
-        key TEXT,
+        key TEXT UNIQUE,
         version INTEGER,
         title TEXT,
         parent INTEGER REFERENCES items (_id),
@@ -83,7 +83,7 @@
     </string>
 
     <string name="get_item_creators">
-        SELECT creators._id, creators.type, persons.firstName, persons.lastName, persons.shortName
+        SELECT creators._id, creators.type, persons._id AS person_id
         FROM items_to_creators
         LEFT JOIN creators ON items_to_creators.creator = creators._id
         LEFT JOIN persons ON creators.person = persons._id
@@ -91,20 +91,29 @@
     </string>
 
     <string name="get_collection_items">
-        SELECT items._id, items.key, items.title, items.type
+        SELECT items._id, items.key, items.version, items.type, items.synced, items.title, items.parent
         FROM items
-        LEFT JOIN items_to_collections ON item._id=items_to_collections.item
-        LEFT JOIN collections ON items_to_collections=collections._id
+        LEFT JOIN items_to_collections ON items._id=items_to_collections.item
+        LEFT JOIN collections ON items_to_collections.collection=collections._id
         WHERE items.parent IS NULL AND collections._id=?
         ORDER BY items.title
     </string>
 
     <string name="get_library_items">
-        SELECT items._id, items.key, items.title, items.type
+        SELECT  items._id, items.key, items.version, items.type, items.synced, items.title, items.parent
         FROM items
-        LEFT JOIN items_to_collections ON item._id=items_to_collections.item
-        LEFT JOIN collections ON items_to_collections=collections._id
+        LEFT JOIN items_to_collections ON items._id=items_to_collections.item
+        LEFT JOIN collections ON items_to_collections.collection=collections._id
         WHERE items.parent IS NULL
         ORDER BY items.title
     </string>
+
+    <string name="get_item_children">
+        SELECT  items._id, items.key, items.version, items.type, items.synced, items.title, items.parent
+        FROM items
+        WHERE items.parent=?
+        ORDER BY items.title
+    </string>
+
+
 </resources>

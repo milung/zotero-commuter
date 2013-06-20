@@ -1,9 +1,8 @@
-package sk.mung.sentience.zoteroapi.items;
+package sk.mung.sentience.zoteroapi.entities;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class ItemEntity implements Item
 {
@@ -11,15 +10,16 @@ public class ItemEntity implements Item
     private long id;
     private String title;
     private int version;
-    private ItemType itemType;
+    private ItemType itemType = ItemType.OTHER;
     private boolean isSynced = true;
     private String key;
     private String parentKey;
     
-    private final Map<ItemField, String> fields = new HashMap<ItemField,String>();
+    private final List<Field> fields = new ArrayList<Field>();
     private final List<Creator> creators = new ArrayList<Creator>();
-    private final List<String> collectionKeys = new ArrayList<String>();
-    private final List<String> tags = new ArrayList<String>();
+    private final List<CollectionEntity> collections = new ArrayList<CollectionEntity>();
+    private final List<Tag> tags = new ArrayList<Tag>();
+    private final List<Item> children = new ArrayList<Item>();
 
     @Override
     public long getId()
@@ -58,17 +58,17 @@ public class ItemEntity implements Item
     public void setTitle(String title) { this.title = title; }
 
 	@Override
-    public Map<ItemField, String> getFields() { return fields; 	}
+    public List<Field> getFields() { return fields; 	}
 
 	@Override
     public ItemField[] getSupportedFields() { return ItemField.values(); }
 
 	@Override
-    public void addField(ItemField field, String value) {
-		fields.put( field, value );
-		if(title == null && field.isTitle())
+    public void addField(Field field) {
+		fields.add(field);
+		if(title == null && field.getType().isTitle())
 		{
-			setTitle( value);
+			setTitle( field.getValue());
 		}
 	}
 
@@ -85,20 +85,32 @@ public class ItemEntity implements Item
     public void addCreator(Creator creator) { creators.add(creator); }
 
 	@Override
-    public List<String> getCollectionKeys() { return collectionKeys; }
+    public List<CollectionEntity> getCollections() { return collections; }
 
 	@Override
-    public List<String> getTags() { return tags; }
+    public List<Tag> getTags() { return tags; }
 
 	@Override
-    public void addCollectionKey(String key) { collectionKeys.add(key); }
+    public void addCollection(CollectionEntity key) { collections.add(key); }
 	
 	@Override
-    public void addTag(String tag) { tags.add(tag); }
+    public void addTag(Tag tag) { tags.add(tag); }
 
 	@Override
     public String getParentKey() { return parentKey; }
 
 	@Override
     public void setParentKey(String parentKey) { this.parentKey = parentKey; }
+
+    @Override
+    public List<Item> getChildren()
+    {
+        return Collections.unmodifiableList(children);
+    }
+
+    @Override
+    public void addChild(Item item)
+    {
+        children.add(item);
+    }
 }

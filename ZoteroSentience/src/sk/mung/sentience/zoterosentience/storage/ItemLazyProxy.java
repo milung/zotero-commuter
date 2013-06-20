@@ -1,25 +1,29 @@
 package sk.mung.sentience.zoterosentience.storage;
 
 import java.util.List;
-import java.util.Map;
 
-import sk.mung.sentience.zoteroapi.items.Creator;
-import sk.mung.sentience.zoteroapi.items.Item;
-import sk.mung.sentience.zoteroapi.items.ItemEntity;
-import sk.mung.sentience.zoteroapi.items.ItemField;
-import sk.mung.sentience.zoteroapi.items.ItemType;
+import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
+import sk.mung.sentience.zoteroapi.entities.Creator;
+import sk.mung.sentience.zoteroapi.entities.Field;
+import sk.mung.sentience.zoteroapi.entities.Item;
+import sk.mung.sentience.zoteroapi.entities.ItemField;
+import sk.mung.sentience.zoteroapi.entities.ItemType;
+import sk.mung.sentience.zoteroapi.entities.Tag;
 
 
 public class ItemLazyProxy implements Item
 {
     private final Item adaptee;
-    private final ZoteroStorage storage;
+    private final CreatorsDao creatorsDao;
+    private final ItemsDao itemsDao;
     private boolean areCreatorsLoaded = false;
+    private boolean areChildrenLoaded = false;
 
-    public ItemLazyProxy(Item adaptee, ZoteroStorage storage)
+    public ItemLazyProxy(Item adaptee, CreatorsDao creatorsDao, ItemsDao itemsDao)
     {
         this.adaptee = adaptee;
-        this.storage = storage;
+        this.creatorsDao = creatorsDao;
+        this.itemsDao = itemsDao;
     }
 
     @Override
@@ -48,7 +52,7 @@ public class ItemLazyProxy implements Item
     }
 
     @Override
-    public Map<ItemField, String> getFields()
+    public List<Field> getFields()
     {
         return adaptee.getFields();
     }
@@ -66,9 +70,9 @@ public class ItemLazyProxy implements Item
     }
 
     @Override
-    public void addCollectionKey(String key)
+    public void addCollection(CollectionEntity key)
     {
-        adaptee.addCollectionKey(key);
+        adaptee.addCollection(key);
     }
 
     @Override
@@ -88,8 +92,7 @@ public class ItemLazyProxy implements Item
     {
         if(!areCreatorsLoaded)
         {
-            List<Creator> creators = storage.getItemCreators(adaptee.getId());
-            for(Creator creator : creators)
+            for(Creator creator : creatorsDao.findByItem(adaptee))
             {
                 adaptee.addCreator(creator);
             }
@@ -98,15 +101,15 @@ public class ItemLazyProxy implements Item
     }
 
     @Override
-    public List<String> getTags()
+    public List<Tag> getTags()
     {
         return adaptee.getTags();
     }
 
     @Override
-    public List<String> getCollectionKeys()
+    public List<CollectionEntity> getCollections()
     {
-        return adaptee.getCollectionKeys();
+        return adaptee.getCollections();
     }
 
     @Override
@@ -134,7 +137,7 @@ public class ItemLazyProxy implements Item
     }
 
     @Override
-    public void addTag(String tag)
+    public void addTag(Tag tag)
     {
         adaptee.addTag(tag);
     }
@@ -152,9 +155,35 @@ public class ItemLazyProxy implements Item
     }
 
     @Override
-    public void addField(ItemField field, String value)
+    public List<Item> getChildren()
     {
-        adaptee.addField(field, value);
+        loadChildren();
+        return adaptee.getChildren();
+    }
+
+    @Override
+    public void addChild(Item item)
+    {
+        loadChildren();
+        adaptee.addChild(item);
+    }
+
+    private synchronized void loadChildren()
+    {
+        if(!areChildrenLoaded)
+        {
+            for( Item item : itemsDao.findByParent(this))
+            {
+                adaptee.addChild(item);
+            }
+            areChildrenLoaded = true;
+        }
+    }
+
+    @Override
+    public void addField(Field field)
+    {
+        adaptee.addField(field);
     }
 
     @Override

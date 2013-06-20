@@ -1,4 +1,4 @@
-package sk.mung.sentience.zoteroapi.items;
+package sk.mung.sentience.zoteroapi.entities;
 
 public enum ItemField 
 {
@@ -138,12 +138,24 @@ public enum ItemField
 	{
 		for( ItemField field : ItemField.values())
 		{
-			if( field.equals(field.zoteroName))
+			if( field.getZoteroName().equals(field.zoteroName))
 			{
 				return field;
 			}
 		}
 		return null;
 	}
+
+    public static ItemField fromId(int id)
+    {
+        for( ItemField field : ItemField.values())
+        {
+            if( field.id == id)
+            {
+                return field;
+            }
+        }
+        return null;
+    }
 
 }

@@ -12,19 +12,19 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 
-import sk.mung.sentience.zoteroapi.ZoteroCollection;
+import sk.mung.sentience.zoterosentience.storage.ZoteroCollection;
 import sk.mung.sentience.zoterosentience.storage.CollectionsTreeLoader;
 
 /**
  * A list fragment representing a list of LibraryItems. This fragment also
  * supports tablet devices by allowing list items to be given an 'activated'
  * state upon selection. This helps indicate which item is currently being
- * viewed in a {@link LibraryItemDetailFragment}.
+ * viewed in a {@link ItemListFragment}.
  * <p>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class LibraryItemListFragment extends Fragment
+public class LibraryFragment extends Fragment
     implements LoaderCallbacks<ZoteroCollection>, 
     	ExpandableListView.OnChildClickListener, 
     	ExpandableListView.OnGroupClickListener
@@ -65,7 +65,7 @@ public class LibraryItemListFragment extends Fragment
         /**
          * Callback for when an item has been selected.
          */
-        public void onItemSelected(long id);
+        public void onCollectionSelected(long id);
     }
 
     /**
@@ -76,7 +76,7 @@ public class LibraryItemListFragment extends Fragment
     	= new Callbacks()
          {
              @Override
-             public void onItemSelected(long id)
+             public void onCollectionSelected(long id)
              {}
          };
 
@@ -84,7 +84,7 @@ public class LibraryItemListFragment extends Fragment
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public LibraryItemListFragment()
+    public LibraryFragment()
     {}
 
     @Override
@@ -110,7 +110,7 @@ public class LibraryItemListFragment extends Fragment
     		ViewGroup container,
     		Bundle savedInstanceState) 
     {
-        return inflater.inflate(R.layout.fragment_library_list, container, false);
+        return inflater.inflate(R.layout.fragment_library, container, false);
     }
 
     @Override
@@ -229,7 +229,7 @@ public class LibraryItemListFragment extends Fragment
     {
         int index = parent.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition));
         parent.setItemChecked(index, true);
-        mCallbacks.onItemSelected(id);
+        mCallbacks.onCollectionSelected(id);
         return true;
     }
 
@@ -240,7 +240,7 @@ public class LibraryItemListFragment extends Fragment
 		int index = parent.getFlatListPosition(ExpandableListView.getPackedPositionForGroup(groupPosition));
         boolean wasChecked = parent.isItemChecked(index);
 		parent.setItemChecked(index, true);
-        mCallbacks.onItemSelected(id);
+        mCallbacks.onCollectionSelected(id);
         // finish handling if selecting expanded group - close it on second click only
 		return (parent.isGroupExpanded(groupPosition) && !wasChecked);
         
