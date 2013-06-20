@@ -12,7 +12,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import sk.mung.sentience.zoteroapi.items.ItemEntity;
+import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
+import sk.mung.sentience.zoteroapi.entities.ItemEntity;
 import sk.mung.sentience.zoteroapi.parsers.AbstractAtomParser;
 import sk.mung.sentience.zoteroapi.parsers.CollectionParser;
 import sk.mung.sentience.zoteroapi.parsers.ItemParser;

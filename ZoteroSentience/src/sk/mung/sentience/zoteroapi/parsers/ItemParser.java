@@ -2,11 +2,14 @@ package sk.mung.sentience.zoteroapi.parsers;
 
 import java.util.Map;
 
-import sk.mung.sentience.zoteroapi.items.Creator;
-import sk.mung.sentience.zoteroapi.items.CreatorType;
-import sk.mung.sentience.zoteroapi.items.ItemEntity;
-import sk.mung.sentience.zoteroapi.items.ItemField;
-import sk.mung.sentience.zoteroapi.items.ItemType;
+import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
+import sk.mung.sentience.zoteroapi.entities.Creator;
+import sk.mung.sentience.zoteroapi.entities.CreatorType;
+import sk.mung.sentience.zoteroapi.entities.Field;
+import sk.mung.sentience.zoteroapi.entities.ItemEntity;
+import sk.mung.sentience.zoteroapi.entities.ItemField;
+import sk.mung.sentience.zoteroapi.entities.ItemType;
+import sk.mung.sentience.zoteroapi.entities.Tag;
 
 public class ItemParser extends AbstractAtomParser<ItemEntity>
 {
@@ -50,7 +53,9 @@ public class ItemParser extends AbstractAtomParser<ItemEntity>
 		{
 			for( Map<String,String> tagFields : (Iterable<Map<String,String>>)content.get("tags"))
 			{
-				item.addTag(tagFields.get("tag"));
+                Tag tag = new Tag();
+                tag.setTag(tagFields.get("tag"));
+				item.addTag(tag);
 			}
 		}
 	}
@@ -61,7 +66,9 @@ public class ItemParser extends AbstractAtomParser<ItemEntity>
 		{
 			for( String key : (Iterable<String>)content.get("collections"))
 			{
-				item.addCollectionKey(key);
+                CollectionEntity collection = new CollectionEntity();
+                collection.setKey(key);
+				item.addCollection(collection);
 			}
 		}
 	}
@@ -72,22 +79,30 @@ public class ItemParser extends AbstractAtomParser<ItemEntity>
 		{
 			for( Map<String,String> creatorFields : (Iterable<Map<String,String>>)content.get("creators"))
 			{
-				Creator creator = new Creator();
-				creator.setType(CreatorType.forZoteroName(creatorFields.get("creatorType")));
-				creator.setFirstName(creatorFields.get("firstName"));
-				creator.setLastName(creatorFields.get("lastName"));
-				creator.setShortName(creatorFields.get("shortName"));
-				item.addCreator(creator);
+                    Creator creator = new Creator();
+                    creator.setType(CreatorType.forZoteroName(creatorFields.get("creatorType")));
+                    creator.setFirstName(creatorFields.get("firstName"));
+                    creator.setLastName(creatorFields.get("lastName"));
+                    creator.setShortName(creatorFields.get("shortName"));
+                if(creator.isValid())
+                {
+                    item.addCreator(creator);
+                }
+
 			}
 		}
 	}
 
 	private void processItemFields(Map<String, Object> content, ItemEntity item) {
-		for(ItemField field : item.getSupportedFields())
+		for(ItemField itemField : item.getSupportedFields())
 		{
-			if(content.containsKey(field.getZoteroName()))
+			if(content.containsKey(itemField.getZoteroName()))
 			{
-				item.addField(field, (String) content.get(field.getZoteroName()));
+                Field field = new Field();
+                field.setItem(item);
+                field.setType(itemField);
+                field.setValue((String)content.get(itemField.getZoteroName()));
+				item.addField(field );
 			}
 		}
 	}

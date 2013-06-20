@@ -5,7 +5,7 @@ import android.support.v4.content.AsyncTaskLoader;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.items.Item;
+import sk.mung.sentience.zoteroapi.entities.Item;
 
 
 public class ItemsLoader extends AsyncTaskLoader<List<Item>>
@@ -27,7 +27,7 @@ implements ZoteroStorageListener
     @Override
     public List<Item> loadInBackground()
     {
-        List<Item> items = storage.getItems(collectionId);
+        List<Item> items = storage.findCollectionById(collectionId == null ? 0 : collectionId).getItems();
         wasChanged = false;
         return items;
     }

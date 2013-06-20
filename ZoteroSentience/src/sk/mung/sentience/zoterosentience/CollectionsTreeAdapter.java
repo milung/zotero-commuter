@@ -3,7 +3,7 @@ package sk.mung.sentience.zoterosentience;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import sk.mung.sentience.zoteroapi.ZoteroCollection;
+import sk.mung.sentience.zoterosentience.storage.ZoteroCollection;
 import sk.mung.sentience.zoterosentience.storage.ZoteroStorage;
 import android.content.Context;
 import android.graphics.drawable.Drawable;

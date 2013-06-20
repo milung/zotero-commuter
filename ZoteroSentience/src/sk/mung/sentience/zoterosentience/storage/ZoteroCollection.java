@@ -1,11 +1,13 @@
-package sk.mung.sentience.zoteroapi;
+package sk.mung.sentience.zoterosentience.storage;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class ZoteroCollection extends CollectionEntity 
+import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
+
+public class ZoteroCollection extends CollectionEntity
 {
 	private final List<ZoteroCollection> children = new ArrayList<ZoteroCollection>();
 	private int level = 0;

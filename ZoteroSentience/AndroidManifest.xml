@@ -15,7 +15,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" android:name="sk.mung.sentience.zoterosentience.GlobalState">
         <activity
-            android:name="sk.mung.sentience.zoterosentience.LibraryItemListActivity"
+            android:name=".LibraryActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="sk.mung.sentience.zoterosentience.LibraryItemDetailActivity"
+            android:name=".ItemListlActivity"
             android:label="@string/title_libraryitem_detail"
             android:parentActivityName=".LibraryItemListActivity" >
             <meta-data

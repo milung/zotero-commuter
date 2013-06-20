@@ -1,7 +1,6 @@
 package sk.mung.sentience.zoterosentience.storage;
 
 
-import sk.mung.sentience.zoteroapi.ZoteroCollection;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 

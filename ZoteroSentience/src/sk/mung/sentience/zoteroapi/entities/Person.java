@@ -1,9 +1,9 @@
-package sk.mung.sentience.zoteroapi.items;
+package sk.mung.sentience.zoteroapi.entities;
 
-public class Creator {
+public class Person implements Entity
+{
 
     private long id;
-	private CreatorType type;
 	
 	private String firstName;
 	private String lastName;
@@ -19,13 +19,6 @@ public class Creator {
         this.id = id;
     }
 
-	public CreatorType getType() {
-		return type;
-	}
-	
-	public void setType(CreatorType type) {
-		this.type = type;
-	}
 	public String getFirstName() {
 		return firstName;
 	}
@@ -45,6 +38,13 @@ public class Creator {
 		this.shortName = shortName;
 	}
 
+    public boolean isValid()
+    {
+        return (firstName != null && firstName.length() > 0) ||
+                (lastName != null && lastName.length() > 0) ||
+                (shortName != null && shortName.length() > 0);
+    }
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -55,7 +55,6 @@ public class Creator {
 				+ ((lastName == null) ? 0 : lastName.hashCode());
 		result = prime * result
 				+ ((shortName == null) ? 0 : shortName.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -67,7 +66,7 @@ public class Creator {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Creator other = (Creator) obj;
+		Person other = (Person) obj;
 		if (firstName == null) {
 			if (other.firstName != null)
 				return false;
@@ -83,8 +82,7 @@ public class Creator {
 				return false;
 		} else if (!shortName.equals(other.shortName))
 			return false;
-		if (type != other.type)
-			return false;
+
 		return true;
 	}
 }

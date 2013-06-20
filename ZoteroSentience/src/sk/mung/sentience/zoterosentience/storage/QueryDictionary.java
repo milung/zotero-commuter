@@ -50,4 +50,9 @@ public class QueryDictionary
     { return context.getResources().getString(R.string.get_collection_items); }
 
     public String getLibraryItems() { return context.getResources().getString(R.string.get_library_items); }
+
+    public String getChildrenItems()
+    {
+        return context.getResources().getString(R.string.get_item_children);
+    }
 }

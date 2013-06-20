@@ -1,4 +1,4 @@
-package sk.mung.sentience.zoteroapi.items;
+package sk.mung.sentience.zoteroapi.entities;
 
 public enum CreatorType {
 	AUTHOR(1,"author"),

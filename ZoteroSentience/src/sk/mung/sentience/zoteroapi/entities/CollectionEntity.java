@@ -1,6 +1,12 @@
-package sk.mung.sentience.zoteroapi;
+package sk.mung.sentience.zoteroapi.entities;
 
-public class CollectionEntity
+import java.util.ArrayList;
+import java.util.List;
+
+import sk.mung.sentience.zoteroapi.entities.Item;
+import sk.mung.sentience.zoteroapi.entities.KeyEntity;
+
+public class CollectionEntity implements KeyEntity
 {
 	private long id;
     private String name;
@@ -8,7 +14,8 @@ public class CollectionEntity
     private int version;
     private String parentKey;
     private boolean isSynced;
-    
+
+    private List<Item> items = new ArrayList<Item>();
     
     public long getId() {
 		return id;
@@ -61,5 +68,8 @@ public class CollectionEntity
         this.parentKey = parentKey;
         isSynced = false;
     }
-    
+
+    public List<Item> getItems() { return items;}
+    public void addItem(Item item) { items.add(item);}
+
 }

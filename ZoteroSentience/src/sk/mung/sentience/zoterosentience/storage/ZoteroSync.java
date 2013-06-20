@@ -7,8 +7,8 @@ import java.util.Map;
 import org.xmlpull.v1.XmlPullParserException;
 
 import sk.mung.sentience.zoteroapi.Zotero;
-import sk.mung.sentience.zoteroapi.CollectionEntity;
-import sk.mung.sentience.zoteroapi.items.ItemEntity;
+import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
+import sk.mung.sentience.zoteroapi.entities.ItemEntity;
 
 public class ZoteroSync
 {
