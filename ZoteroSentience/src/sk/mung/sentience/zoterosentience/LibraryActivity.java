@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -35,9 +36,10 @@ import sk.mung.sentience.zoterosentience.storage.ZoteroSync;
  * selections.
  */
 public class LibraryActivity extends FragmentActivity
-        implements LibraryFragment.Callbacks, ItemListFragment.Callback
+        implements LibraryFragment.Callbacks, ItemListFragment.Callback, ItemPager.Callback
 {
 
+    public static final String LIBRARY_ACTIVITY_DETAILS_MODE = "libraryActivity.detailsMode";
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
@@ -60,14 +62,34 @@ public class LibraryActivity extends FragmentActivity
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
-            ((LibraryFragment) getSupportFragmentManager()
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            ((LibraryFragment) fragmentManager
                     .findFragmentById(R.id.library_collection_list))
                     .setActivateOnItemClick(true);
 
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .hide(getSupportFragmentManager().findFragmentById(R.id.library_itemviewer))
-                    .commit();
+            ItemPager pager = ((ItemPager)fragmentManager.findFragmentById(R.id.library_itemviewer));
+            pager.setCallback(this);
+
+            boolean isDetailMode = false;
+            if(savedInstanceState != null)
+            {
+                isDetailMode = savedInstanceState.getBoolean(LIBRARY_ACTIVITY_DETAILS_MODE,false);
+            }
+            else
+            {
+                onCollectionSelected(0);
+            }
+
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            if(isDetailMode)
+            {
+                transaction.hide(getSupportFragmentManager().findFragmentById(R.id.library_collection_list));
+            }
+            else
+            {
+                transaction.hide(getSupportFragmentManager().findFragmentById(R.id.library_itemviewer));
+            }
+            transaction.commit();
         }
 
     }
@@ -125,6 +147,9 @@ public class LibraryActivity extends FragmentActivity
                 .show(fragmentManager.findFragmentById(R.id.library_itemviewer))
                 .addToBackStack(null)
             .commit();
+
+            ItemPager pager = (ItemPager) fragmentManager.findFragmentById(R.id.library_itemviewer);
+            pager.setPosition(item);
         }
         else
         {
@@ -134,6 +159,12 @@ public class LibraryActivity extends FragmentActivity
             // detailIntent.putExtra(ItemListFragment.ARG_COLLECTION_KEY, id);
             // startActivity(detailIntent);
         }
+    }
+
+    @Override
+    public void onItemScrolled(int position, Item selectedItem)
+    {
+        ((ItemListFragment)getSupportFragmentManager().findFragmentById(R.id.library_itemlist_container)).scrollToPosition(position);
     }
 
     public void onLoginOptionSelected( MenuItem menuItem)
@@ -185,5 +216,14 @@ public class LibraryActivity extends FragmentActivity
             
         }.execute();
         
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+        ItemPager pager = ((ItemPager)getSupportFragmentManager().findFragmentById(R.id.library_itemviewer));
+
+        outState.putBoolean(LIBRARY_ACTIVITY_DETAILS_MODE,pager.isVisible());
     }
 }

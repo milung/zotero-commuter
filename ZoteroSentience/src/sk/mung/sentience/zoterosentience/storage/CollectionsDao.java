@@ -134,4 +134,15 @@ class CollectionsDao extends BaseKeyDao<CollectionEntity>
         return values;
     }
 
+    @Override
+    public CollectionEntity findById(long id)
+    {
+        if(id==0)
+        {
+            CollectionEntity library =  new CollectionLazyProxy(itemsDao);
+            library.setId(0);
+            return library;
+        }
+        else return super.findById(id);
+    }
 }

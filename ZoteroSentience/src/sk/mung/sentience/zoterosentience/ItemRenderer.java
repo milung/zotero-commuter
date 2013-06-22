@@ -23,6 +23,7 @@ public class ItemRenderer
 
     public void render(Item item, View view)
     {
+        if(item == null) return;
         TextView textView = (TextView) view.findViewById(R.id.textViewTitle);
         if( textView != null)
         {

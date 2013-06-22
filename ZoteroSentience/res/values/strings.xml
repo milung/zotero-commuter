@@ -16,4 +16,5 @@
     <string name="group_indicator">Group Indicator</string>
     <string name="creator_sequence_format_first">%1$s, %2$s</string>
     <string name="creator_sequence_format">; %1$s, %2$s</string>
+    <string name="attachment_no_viewer">No viewer installed for this type of attachment</string>
 </resources>

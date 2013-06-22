@@ -38,6 +38,13 @@ public class ItemListFragment
         callback.onItemSelected(item);
     }
 
+    public void scrollToPosition(int position)
+    {
+
+        ListView listView = (ListView) getActivity().findViewById(R.id.library_itemlist);
+        listView.setItemChecked(position, true);
+    }
+
     public interface Callback
     {
         public void onItemSelected(Item item);
@@ -102,9 +109,13 @@ public class ItemListFragment
     public Loader<List<Item>> onCreateLoader(int id, Bundle args)
     {
         Long collectionId =null;
-        if (getArguments().containsKey(ARG_COLLECTION_KEY))
+        if (getArguments() != null &&getArguments().containsKey(ARG_COLLECTION_KEY))
         {
             collectionId = getArguments().getLong(ARG_COLLECTION_KEY);
+        }
+        else
+        {
+            collectionId = 0L;
         }
 
         ItemsLoader loader
