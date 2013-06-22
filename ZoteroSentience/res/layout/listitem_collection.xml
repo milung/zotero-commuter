@@ -10,7 +10,7 @@
     <TextView
         android:id="@+id/title"
         android:layout_width="0dp"
-        android:layout_height="41dp"
+        android:layout_height="match_parent"
         android:layout_weight="0.94"
         android:ellipsize="end"
         android:maxLines="1"

@@ -165,7 +165,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
 
     public CollectionEntity findCollectionById(long id)
     {
-        return (id == 0) ? getEmptyLibrary() :  collectionsDao.findById(id);
+        return collectionsDao.findById(id);
     }
 
 	public int getDeletionsVersion() 

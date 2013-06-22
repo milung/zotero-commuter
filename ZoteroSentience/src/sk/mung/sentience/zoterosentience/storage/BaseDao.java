@@ -4,7 +4,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +31,7 @@ public abstract class BaseDao<T extends Entity>
 
     private final QueryDictionary queries;
     private final ZoteroStorage.DatabaseConnection databaseConnection;
+    private final Map<Long,WeakReference<T>> cache = new HashMap<Long,WeakReference<T>>();
 
     public BaseDao(ZoteroStorage.DatabaseConnection databaseConnection,  QueryDictionary queries)
     {
@@ -50,12 +53,40 @@ public abstract class BaseDao<T extends Entity>
 
     protected abstract String[] getSelectColumns();
 
-
-
     protected final T cursorToEntity(Cursor cursor)
     {
-        T entity = createEntity();
-        cursorToEntity(cursor, entity);
+        long id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID));
+
+        T entity = getFromCache(id);
+        if(entity == null)
+        {
+            entity = createEntity();
+            cursorToEntity(cursor, entity);
+            cache.put(entity.getId(),new WeakReference<T>(entity));
+        }
+        return entity;
+
+    }
+
+    private T getFromCache(long id)
+    {
+        if(cache.containsKey(id))
+        {
+            WeakReference<T> ref = cache.get(id);
+            T cached = ref.get();
+            if(cached != null)
+            {
+                return cached;
+            }
+        }
+        return null;
+    }
+
+    private T cacheEntity(T entity)
+    {
+        T cached = getFromCache(entity.getId());
+        if(cached != null) entity = cached;
+        cache.put(entity.getId(),new WeakReference<T>(entity));
         return entity;
     }
 
@@ -65,16 +96,11 @@ public abstract class BaseDao<T extends Entity>
 
     protected abstract ContentValues entityToValues(T entity);
 
-
-
     public final void dropTable()
     {
         SQLiteDatabase database = getWritableDatabase();
         database.execSQL("DROP TABLE IF EXISTS " + getTable());
     }
-
-
-
 
     protected final String[] buildQueryArguments(ContentValues values)
     {
@@ -151,9 +177,13 @@ public abstract class BaseDao<T extends Entity>
 
     public T findById(long id)
     {
-        T entity = createEntity();
-        entity.setId(id);
-        refresh(entity);
+        T entity = getFromCache(id);
+        if(entity == null)
+        {
+            entity = createEntity();
+            entity.setId(id);
+            refresh(entity);
+        }
         return entity;
     }
 }

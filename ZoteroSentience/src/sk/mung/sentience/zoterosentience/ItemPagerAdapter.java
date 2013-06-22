@@ -21,7 +21,9 @@ public class ItemPagerAdapter extends FragmentStatePagerAdapter
     @Override
     public Fragment getItem(int position)
     {
-        return new ItemViewer(items.get(position));
+        ItemViewer view = new ItemViewer();
+        view.setItem(items.get(position));
+        return view;
     }
 
     @Override

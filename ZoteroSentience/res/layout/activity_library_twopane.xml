@@ -2,8 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
     android:baselineAligned="false"
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
@@ -40,9 +38,8 @@
             android:name="sk.mung.sentience.zoterosentience.ItemPager"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="5" >
+            android:layout_weight="5"
+            tools:layout="@layout/fragment_item_pager">
     </fragment>
-
-
 
 </LinearLayout>

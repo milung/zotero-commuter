@@ -1,5 +1,6 @@
 package sk.mung.sentience.zoterosentience;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,10 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -26,23 +27,24 @@ import sk.mung.sentience.zoteroapi.entities.ItemField;
 
 public class ItemViewer extends Fragment implements AdapterView.OnItemClickListener
 {
-    private final Item item;
-
-    public ItemViewer(Item item)
-    {
-        this.item = item;
-    }
+    private Item item;
+    ItemListAdapter adapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_item_viewer, container, false);
-        ItemRenderer renderer = new ItemRenderer(getActivity());
-        renderer.render(item, view);
 
-        ItemListAdapter adapter = new ItemListAdapter(getActivity(),R.layout.listitem_item_child);
-        adapter.setItems(item.getChildren());
+        adapter = new ItemListAdapter(getActivity(),R.layout.listitem_item_child);
+        if(item != null)
+        {
+            adapter.setItems(item.getChildren());
+
+            ItemRenderer renderer = new ItemRenderer(getActivity());
+            renderer.render(item, view);
+        }
+
         assert view != null;
         ListView children = (ListView) view.findViewById(R.id.listViewChildren);
         children.setAdapter(adapter);
@@ -78,8 +80,8 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
 
                 OutputStream output = getActivity().getApplicationContext().openFileOutput(
                         fileName,
-                        Context.MODE_PRIVATE| Context.MODE_WORLD_READABLE);
-
+                        Context.MODE_WORLD_WRITEABLE);
+                assert output!=null;
                 byte data[] = new byte[1024];
                 long total = 0;
                 int count;
@@ -108,10 +110,27 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
         {
             if(file != null && contentType != null)
             {
+                try
+                {
                 Intent intent = new Intent();
                 intent.setAction(android.content.Intent.ACTION_VIEW);
                 intent.setDataAndType(Uri.fromFile(file), contentType);
                 startActivity(intent);
+                }
+                catch (ActivityNotFoundException ex)
+                {
+                    Toast.makeText(
+                            getActivity(),
+                            R.string.network_error,
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+            else
+            {
+                Toast.makeText(
+                        getActivity(),
+                        R.string.network_error,
+                        Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -120,5 +139,15 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
     {
         Item item = (Item) adapterView.getAdapter().getItem(position);
         new OpenAttachmentTask().execute(item);
+    }
+
+    public void setItem(Item item)
+    {
+        this.item = item;
+        if(item != null && adapter != null)
+        {
+            adapter.setItems(item.getChildren());
+        }
+
     }
 }

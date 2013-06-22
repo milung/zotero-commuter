@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-import android.widget.ListView;
 
 import sk.mung.sentience.zoterosentience.storage.ZoteroCollection;
 import sk.mung.sentience.zoterosentience.storage.CollectionsTreeLoader;
@@ -44,11 +43,6 @@ public class LibraryFragment extends Fragment
      */
     private Callbacks  mCallbacks    = sDummyCallbacks;
 
-    /**
-     * The current activated item position. Only used on tablets.
-     */
-    private int  mActivatedPosition       = 0;
-    
     //private SimpleCursorAdapter adapter;
     private CollectionsTreeAdapter treeAdapter;
     private ExpandableListView treeView;
@@ -121,13 +115,6 @@ public class LibraryFragment extends Fragment
         {
         	treeState = savedInstanceState.getParcelable(TREE_STATE);
         }
-
-        // Restore the previously serialized activated item position.
-        if (savedInstanceState != null
-                && savedInstanceState.containsKey(STATE_ACTIVATED_POSITION))
-        {
-            mActivatedPosition = savedInstanceState.getInt(STATE_ACTIVATED_POSITION);
-        }
     }
 
     @Override
@@ -157,11 +144,6 @@ public class LibraryFragment extends Fragment
         super.onSaveInstanceState(outState);
         Parcelable state = treeView.onSaveInstanceState();
         outState.putParcelable( TREE_STATE, state);
-        if (mActivatedPosition != ListView.INVALID_POSITION)
-        {
-            // Serialize and persist the activated item position.
-            outState.putInt(STATE_ACTIVATED_POSITION, mActivatedPosition);
-        }
     }
     
     
@@ -179,18 +161,7 @@ public class LibraryFragment extends Fragment
                 : ListView.CHOICE_MODE_NONE);*/
     }
 
-    private void setActivatedPosition(int position)
-    {
-       if (position == ListView.INVALID_POSITION)
-        {
-            treeView.setItemChecked(mActivatedPosition, false);
-        }
-        else
-        {
-        	treeView.setItemChecked(position, true);
-        }
-        mActivatedPosition = position;
-    }
+
 
     @Override
     public Loader<ZoteroCollection> onCreateLoader(int id, Bundle args)
@@ -213,8 +184,11 @@ public class LibraryFragment extends Fragment
     	if(treeState != null)
     	{
     		treeView.onRestoreInstanceState(treeState);
-            //setActivatedPosition(mActivatedPosition);
     	}
+        else
+        {
+            treeView.setItemChecked(0,true);
+        }
     }
 
     @Override
