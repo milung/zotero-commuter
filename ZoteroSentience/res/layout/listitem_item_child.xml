@@ -1,22 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+              android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:minHeight="48dp"
-              android:measureWithLargestChild="false"
-              android:background="@drawable/selector">
-
-    <TextView
-            android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:minHeight="56dp"
+              android:background="@drawable/selector"
+              android:padding="2dp"
+              android:paddingLeft="2dp"
+              android:paddingTop="2dp"
+              android:paddingRight="2dp"
+              android:paddingBottom="4dp">
+    <ImageView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Small"
-            android:id="@+id/textViewTitle"
-            android:layout_gravity="left|top"
-            android:maxLines="2"
-            android:ellipsize="end"/>
+            android:id="@+id/imageView"
+            android:layout_gravity="center_vertical|left|top"
+            android:background="@drawable/ic_document_pdf"
+            android:layout_margin="4dp"/>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:measureWithLargestChild="false">
+
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:text="Title"
+                android:id="@+id/textViewTitle"
+                android:layout_gravity="center_vertical|left"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:paddingBottom="2dp"/>
 
 
+    </LinearLayout>
 
 </LinearLayout>

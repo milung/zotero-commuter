@@ -1,11 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView">
+
+<LinearLayout
               android:id="@+id/item_view"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_weight="5">
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:padding="4dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginBottom="8dp">
+
 
     <TextView
             android:layout_width="fill_parent"
@@ -23,10 +38,25 @@
             android:text="Small Text"
             android:id="@+id/textViewCreator"
             android:layout_gravity="left|center_vertical"/>
+    </LinearLayout>
 
-    <ListView
-            android:layout_width="wrap_content"
-            android:layout_height="131dp"
+    <LinearLayout
+            android:id="@+id/itemsGroup"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"/>
+
+
+    <!-- ListView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/listViewChildren"
             android:layout_gravity="left|center_vertical"/>
+
+    <ListView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/listViewFields"/ -->
+
 </LinearLayout>
+</ScrollView>

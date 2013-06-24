@@ -28,7 +28,6 @@ public class ItemListAdapter extends BaseAdapter
         notifyDataSetChanged();
     }
 
-
     public ItemListAdapter(Context context, int layoutId)
     {
         this.context = context;
