@@ -6,4 +6,5 @@
     android:layout_height="match_parent"
     android:choiceMode="singleChoice"
     android:textIsSelectable="true"
-    tools:context=".LibraryItemDetailFragment" />
+    tools:context=".LibraryItemDetailFragment"
+        />

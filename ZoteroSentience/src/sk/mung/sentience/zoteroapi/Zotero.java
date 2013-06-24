@@ -1,9 +1,8 @@
 package sk.mung.sentience.zoteroapi;
 
+import android.net.Uri;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -162,8 +161,8 @@ public class Zotero
 	        }
 	}
 
-    public URL getAttachmentUrl(Item item) throws IOException
+    public Uri getAttachmentUri(Item item) throws IOException
     {
-        return restful.getAttachmentUrl(item);
+        return restful.getAttachmentUri(item);
     }
 }

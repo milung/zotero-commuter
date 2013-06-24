@@ -58,6 +58,7 @@ public class ItemLazyProxy implements Item
     @Override
     public List<Field> getFields()
     {
+        loadFields();
         return adaptee.getFields();
     }
 
@@ -187,6 +188,7 @@ public class ItemLazyProxy implements Item
     @Override
     public void addField(Field field)
     {
+        loadFields();
         adaptee.addField(field);
     }
 

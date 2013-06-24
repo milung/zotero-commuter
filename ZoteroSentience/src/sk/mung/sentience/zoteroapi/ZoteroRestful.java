@@ -102,12 +102,12 @@ public class ZoteroRestful {
         return "/users/" + userId;
     }
 
-    public URL getAttachmentUrl(Item item) throws IOException
+    public Uri getAttachmentUri(Item item) throws IOException
     {
         Uri.Builder builder =
                 Uri.parse(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
                         .buildUpon()
                         .appendQueryParameter("key", accessToken);
-        return new URL(builder.build().toString());
+        return builder.build();
     }
 }
