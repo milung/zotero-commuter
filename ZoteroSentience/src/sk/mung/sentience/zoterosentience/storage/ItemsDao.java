@@ -17,13 +17,13 @@ import sk.mung.sentience.zoteroapi.entities.Tag;
 public class ItemsDao extends BaseKeyDao<Item>
 {
     private static final String COLUMN_PARENT = "parent";
-    private static final String COLUMN_ITEM = "item";
+    static final String COLUMN_ITEM = "item";
     private static final String COLUMN_CREATOR = "creator";
     private static final String COLUMN_TAG = "tag";
     private static final String COLUMN_COLLECTION = "collection";
 
     private static final String TABLE_ITEMS_TO_CREATORS = "items_to_creators";
-    private static final String TABLE_ITEMS_TO_TAGS = "items_to_tags";
+    static final String TABLE_ITEMS_TO_TAGS = "items_to_tags";
     private static final String TABLE_ITEMS_TO_COLLECTIONS = "items_to_collections";
 
     private final CreatorsDao creatorsDao;
@@ -84,6 +84,11 @@ public class ItemsDao extends BaseKeyDao<Item>
     }
     private void updateItemCollections(Item item)
     {
+        getWritableDatabase().delete(
+                TABLE_ITEMS_TO_COLLECTIONS,
+                COLUMN_ITEM + QUESTION_MARK,
+                new String[]{Long.toString(item.getId())});
+
         for(CollectionEntity collectionKey: item.getCollections())
         {
             ContentValues collectionValues = new ContentValues();
@@ -137,7 +142,7 @@ public class ItemsDao extends BaseKeyDao<Item>
     @Override
     protected Item createEntity()
     {
-        return new ItemLazyProxy(new ItemEntity(),creatorsDao,this, fieldsDao);
+        return new ItemLazyProxy(new ItemEntity(),creatorsDao,this, fieldsDao, tagsDao);
     }
 
     @Override

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sk.mung.sentience.zoteroapi.entities.Item;
+import sk.mung.sentience.zoterosentience.renderers.ItemRenderer;
 
 /**
  *

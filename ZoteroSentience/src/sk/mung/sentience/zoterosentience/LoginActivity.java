@@ -82,9 +82,11 @@ public class LoginActivity extends Activity
             return zotero[0];
         }
         
-        protected void onPostExecute(ZoteroOauth oauth) {
+        protected void onPostExecute(ZoteroOauth oauth)
+        {
             GlobalState state = (GlobalState)getApplication();
-            state.saveZoteroState(oauth);            
+            state.saveZoteroState(oauth);
+            finish();
         } 
         
     }

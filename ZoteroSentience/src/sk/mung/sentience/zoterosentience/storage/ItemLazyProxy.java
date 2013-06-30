@@ -11,23 +11,27 @@ import sk.mung.sentience.zoteroapi.entities.ItemType;
 import sk.mung.sentience.zoteroapi.entities.Tag;
 
 
-public class ItemLazyProxy implements Item
+public class ItemLazyProxy implements Item, BaseDao.UpdateListener
 {
     private final Item adaptee;
     private final CreatorsDao creatorsDao;
     private final ItemsDao itemsDao;
     private final FieldsDao fieldsDao;
+    private final TagsDao tagsDao;
 
     private boolean areCreatorsLoaded = false;
     private boolean areChildrenLoaded = false;
     private boolean areFieldsLoaded = false;
+    private boolean areTagsLoaded = false;
 
-    public ItemLazyProxy(Item adaptee, CreatorsDao creatorsDao, ItemsDao itemsDao, FieldsDao fieldsDao)
+    public ItemLazyProxy(Item adaptee, CreatorsDao creatorsDao, ItemsDao itemsDao, FieldsDao fieldsDao, TagsDao tagsDao)
     {
         this.adaptee = adaptee;
         this.creatorsDao = creatorsDao;
         this.itemsDao = itemsDao;
         this.fieldsDao = fieldsDao;
+        this.tagsDao = tagsDao;
+        itemsDao.addUpdateListener(this);
     }
 
     @Override
@@ -97,6 +101,7 @@ public class ItemLazyProxy implements Item
     {
         if(!areCreatorsLoaded)
         {
+            adaptee.getCreators().clear();
             for(Creator creator : creatorsDao.findByItem(adaptee))
             {
                 adaptee.addCreator(creator);
@@ -108,6 +113,7 @@ public class ItemLazyProxy implements Item
     @Override
     public List<Tag> getTags()
     {
+        loadTags();
         return adaptee.getTags();
     }
 
@@ -144,7 +150,21 @@ public class ItemLazyProxy implements Item
     @Override
     public void addTag(Tag tag)
     {
+        loadTags();
         adaptee.addTag(tag);
+    }
+
+    private void loadTags()
+    {
+        if(!areTagsLoaded)
+        {
+            adaptee.getTags().clear();
+            for( Tag tag : tagsDao.findByItem(this))
+            {
+                adaptee.addTag(tag);
+            }
+            areTagsLoaded = true;
+        }
     }
 
     @Override
@@ -173,10 +193,17 @@ public class ItemLazyProxy implements Item
         adaptee.addChild(item);
     }
 
+    @Override
+    public void clearChildren()
+    {
+        adaptee.clearChildren();
+    }
+
     private synchronized void loadChildren()
     {
         if(!areChildrenLoaded)
         {
+            adaptee.clearChildren();
             for( Item item : itemsDao.findByParent(this))
             {
                 adaptee.addChild(item);
@@ -203,6 +230,7 @@ public class ItemLazyProxy implements Item
     {
         if(!areFieldsLoaded)
         {
+            adaptee.getFields().clear();
             for( Field field : fieldsDao.findByItem(this))
             {
                 adaptee.addField(field);
@@ -227,5 +255,17 @@ public class ItemLazyProxy implements Item
     public void setId(long id)
     {
         adaptee.setId(id);
+    }
+
+    @Override
+    public void onDataUpdated(BaseDao sender, Long entityId)
+    {
+        if(entityId == null || entityId.equals(getId()))
+        {
+            areFieldsLoaded = false;
+            areTagsLoaded = false;
+            areChildrenLoaded = false;
+            areCreatorsLoaded = false;
+        }
     }
 }

@@ -131,4 +131,7 @@ public class CollectionsTreeLoader extends AsyncTaskLoader<ZoteroCollection>
 
     }
 
+    @Override
+    public void onTagsUpdated() {}
+
 }

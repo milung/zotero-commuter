@@ -107,7 +107,8 @@ public enum ItemField
     MD5(107, "md5"),
     LINK_MODE(108,"linkMode"),
     MODIFICATION_TIME(109,"mtime"),
-    FILE_NAME(110,"filename");
+    FILE_NAME(110,"filename"),
+    NOTE(111,"note");
 	
 	private final String zoteroName;
 	private final int id;

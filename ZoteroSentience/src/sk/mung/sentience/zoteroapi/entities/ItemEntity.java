@@ -122,4 +122,10 @@ public class ItemEntity implements Item
     {
         children.add(item);
     }
+
+    @Override
+    public void clearChildren()
+    {
+        children.clear();
+    }
 }

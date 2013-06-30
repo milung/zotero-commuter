@@ -11,7 +11,7 @@
     <string name="callback">oauth://callback</string>
     <string name="zotero_api_key">50ef774d9807c97b4019</string>
     <string name="zotero_api_secret">046afdf8dffeaf8b62e3</string>
-    <string name="refresh">Refresh</string>
+    <string name="refresh">Synchronize</string>
     <string name="network_error">Network Error</string>
     <string name="group_indicator">Group Indicator</string>
     <string name="creator_sequence_format_first">%1$s, %2$s</string>
@@ -19,4 +19,12 @@
     <string name="attachment_no_viewer">No viewer installed for this type of attachment</string>
     <string name="attachment_download_description">Downloading zotero attachment</string>
     <string name="no_external_storage">External storage not available for downloading attachment</string>
+    <string name="attachment_removed">Document lost or already removed on the server</string>
+    <string name="zotero_field_date">Date:</string>
+    <string name="zotero_field_library_catalog">Library Catalog:</string>
+    <string name="zotero_field_publication_title">Publication Title:</string>
+    <string name="zotero_attachment"/>
+    <string name="tags_separator">;</string>
+    <string name="tags_no_tags">«no tags assigned»</string>
+    <string name="full_resync">Full Synchronization</string>
 </resources>

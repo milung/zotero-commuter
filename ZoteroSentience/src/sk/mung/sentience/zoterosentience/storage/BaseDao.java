@@ -15,6 +15,11 @@ import sk.mung.sentience.zoteroapi.entities.Entity;
 
 public abstract class BaseDao<T extends Entity>
 {
+    interface UpdateListener
+    {
+        void onDataUpdated(BaseDao sender, Long entityId);
+    }
+
 
     protected static final String COLUMN_ID = "_id";
     protected static final String COLUMN_SYNCED = "synced";
@@ -24,14 +29,58 @@ public abstract class BaseDao<T extends Entity>
 
     protected static final String QUESTION_MARK = "=?";
 
+    private final QueryDictionary queries;
+    private final ZoteroStorage.DatabaseConnection databaseConnection;
+    private final Map<Long,WeakReference<T>> cache = new HashMap<Long,WeakReference<T>>();
+
+    private List<WeakReference<UpdateListener>> listeners = new ArrayList<WeakReference<UpdateListener>>();
+
+    public synchronized void addUpdateListener(UpdateListener listener)
+    {
+        listeners.add(new WeakReference<UpdateListener>(listener));
+    }
+
+    public synchronized void removeUpdateListener(UpdateListener listener)
+    {
+        List<WeakReference<UpdateListener>> remainingListeners
+                = new ArrayList<WeakReference<UpdateListener>>(listeners.size());
+        for( WeakReference<UpdateListener> ref : listeners)
+        {
+            UpdateListener l = ref.get();
+            if(l != null && l != listener)
+            {
+                remainingListeners.add(ref);
+            }
+        }
+        listeners = remainingListeners;
+    }
+
+    protected synchronized void updateListeners(Long entityId)
+    {
+        List<WeakReference<UpdateListener>> remainingListeners
+                = new ArrayList<WeakReference<UpdateListener>>(listeners.size());
+        for( WeakReference<UpdateListener> ref : listeners)
+        {
+            UpdateListener l = ref.get();
+            if(l != null )
+            {
+                l.onDataUpdated(this, entityId);
+                remainingListeners.add(ref);
+            }
+        }
+        listeners = remainingListeners;
+    }
+
+    public synchronized void clearCaches()
+    {
+        cache.clear();
+        updateListeners(null);
+    }
+
     public QueryDictionary getQueries()
     {
         return queries;
     }
-
-    private final QueryDictionary queries;
-    private final ZoteroStorage.DatabaseConnection databaseConnection;
-    private final Map<Long,WeakReference<T>> cache = new HashMap<Long,WeakReference<T>>();
 
     public BaseDao(ZoteroStorage.DatabaseConnection databaseConnection,  QueryDictionary queries)
     {
@@ -52,6 +101,23 @@ public abstract class BaseDao<T extends Entity>
     public abstract void upsert( T entity);
 
     protected abstract String[] getSelectColumns();
+
+    protected final String expandSelectColumns()
+    {
+        StringBuilder builder = new StringBuilder();
+        boolean first = true;
+        String table = getTable()+ ".";
+        for(String column : getSelectColumns())
+        {
+            if(!first)
+            {
+                builder.append (", ");
+            }
+            builder.append(table).append(column);
+            first = false;
+        }
+        return builder.toString();
+    }
 
     protected final T cursorToEntity(Cursor cursor)
     {
@@ -185,5 +251,10 @@ public abstract class BaseDao<T extends Entity>
             refresh(entity);
         }
         return entity;
+    }
+
+    public void deleteAll()
+    {
+        getWritableDatabase().delete(getTable(),null,null);
     }
 }
