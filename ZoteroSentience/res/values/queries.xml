@@ -115,5 +115,14 @@
         ORDER BY items.title
     </string>
 
+    <string name="get_item_tags">
+        SELECT  tags._id, tags.tag
+        FROM items
+        LEFT JOIN items_to_tags ON items._id = items_to_tags.item
+        LEFT JOIN tags ON items_to_tags.tag = tags._id
+        WHERE items._id=?
+        ORDER BY tags.tag
+    </string>
+
 
 </resources>

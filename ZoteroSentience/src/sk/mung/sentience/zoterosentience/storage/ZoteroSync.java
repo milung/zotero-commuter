@@ -48,6 +48,13 @@ public class ZoteroSync
               
             storage.deleteCollections( collections);
         }
+
+        if( deletions.containsKey("items") )
+        {
+            List<String> items = deletions.get("items");
+
+            storage.deleteItems( items);
+        }
         
         storage.setDeletionsVersion(lastModifiedVersion);
     }

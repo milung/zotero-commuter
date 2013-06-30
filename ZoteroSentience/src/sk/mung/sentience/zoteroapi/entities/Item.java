@@ -53,4 +53,6 @@ public interface Item extends KeyEntity
     List<Item> getChildren();
 
     void addChild(Item item);
+
+    void clearChildren();
 }

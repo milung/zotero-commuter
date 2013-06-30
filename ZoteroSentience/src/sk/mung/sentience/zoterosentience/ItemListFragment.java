@@ -40,9 +40,9 @@ public class ItemListFragment
 
     public void scrollToPosition(int position)
     {
-
         ListView listView = (ListView) getActivity().findViewById(R.id.library_itemlist);
         listView.setItemChecked(position, true);
+        listView.smoothScrollToPosition(position);
     }
 
     public interface Callback

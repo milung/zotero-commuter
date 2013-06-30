@@ -134,4 +134,7 @@ implements ZoteroStorageListener
         onContentChanged();
     }
 
+    @Override
+    public void onTagsUpdated()  {}
+
 }

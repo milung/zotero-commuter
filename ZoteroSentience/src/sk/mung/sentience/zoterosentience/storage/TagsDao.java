@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.util.List;
+
+import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.Tag;
 
 
@@ -74,5 +77,18 @@ public class TagsDao extends BaseDao<Tag>
         ContentValues values = new ContentValues();
         values.put(COLUMN_TAG, entity.getTag());
         return values;
+    }
+
+    public List<Tag> findByItem(Item item)
+    {
+        Cursor c = getReadableDatabase().rawQuery(
+                getQueries().getItemTags(),
+                new String[]{ Long.toString(item.getId())});
+        return cursorToEntities( c );
+    }
+
+    public void deleteByName(String tag)
+    {
+        getWritableDatabase().delete(getTable(),COLUMN_TAG + QUESTION_MARK, new String[] { tag});
     }
 }

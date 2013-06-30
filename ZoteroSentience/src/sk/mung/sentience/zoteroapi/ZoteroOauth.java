@@ -45,7 +45,13 @@ public class ZoteroOauth
     public String getAuthorizationUrl()
     {        
         requestToken = getOAuthService().getRequestToken();
-        return getOAuthService().getAuthorizationUrl(requestToken);
+        String uri =  getOAuthService().getAuthorizationUrl(requestToken);
+        Uri.Builder builder =
+                Uri.parse(uri)
+                        .buildUpon()
+                        .appendQueryParameter("library_access", "1")
+                        .appendQueryParameter("notes_access", "1");
+        return builder.toString();
     }
     
     /** Processes authorization callback URL which includes verifier parameters and retrieves access 

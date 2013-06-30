@@ -215,7 +215,27 @@ public class LibraryActivity extends FragmentActivity
             
             
         }.execute();
-        
+    }
+
+    public void onResetVersionsOptionSelected(final MenuItem menuItem)
+    {
+        final Context context = this;
+        new AsyncTask<Void, Void, Void>(){
+
+            @Override
+            protected Void doInBackground(Void... arg0)
+            {
+                ((GlobalState)getApplication()).getStorage().deleteData();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid)
+            {
+                onRefreshOptionSelected(menuItem);
+            }
+        }.execute();
+
     }
 
     @Override

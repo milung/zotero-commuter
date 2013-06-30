@@ -55,4 +55,9 @@ public class QueryDictionary
     {
         return context.getResources().getString(R.string.get_item_children);
     }
+
+    public String getItemTags()
+    {
+        return context.getResources().getString(R.string.get_item_tags);
+    }
 }

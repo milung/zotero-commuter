@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="zotero_field_abstract_note">Abstract</string>
+    <string name="zotero_field_extra">Extra</string>
+    <string name="zotero_field_application_number">Application Number:</string>
+    <string name="zotero_field_archive">Archive:</string>
+    <string name="zotero_field_archive_location">Archive Location:</string>
+    <string name="zotero_field_short_title">Short Title:</string>
+    <string name="zotero_field_url">URL</string>
+    <string name="zotero_field_pages">Pages:</string>
+    <string name="zotero_field_volume">Volume:</string>
+    <string name="zotero_field_issn">ISNN:</string>
+    <string name="zotero_field_isbn">ISBN:</string>
+    <string name="zotero_field_issue">Issue:</string>
+    <string name="zotero_book">Book</string>
+    <string name="zotero_book_section">Book Section</string>
+    <string name="zotero_conference_paper">Conference Paper</string>
+    <string name="zotero_journal_article">Journal Article</string>
+    <string name="zotero_magazine_article">Magazine Article</string>
+    <string name="zotero_report">Report</string>
+</resources>

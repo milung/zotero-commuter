@@ -13,6 +13,9 @@ import sk.mung.sentience.zoteroapi.entities.ItemEntity;
 
 public class ZoteroStorage extends SQLiteOpenHelper
 {
+
+
+
     class DatabaseConnection
     {
         private final SQLiteOpenHelper sqlite;
@@ -82,7 +85,6 @@ public class ZoteroStorage extends SQLiteOpenHelper
     public ZoteroStorage(Context context, QueryDictionary queries)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-
 
         this.versionsDao = new VersionsDao(connection,queries);
 
@@ -187,6 +189,29 @@ public class ZoteroStorage extends SQLiteOpenHelper
         }
 	}
 
+    public void deleteItems(List<String> keys)
+    {
+        itemsDao.deleteForKeys(keys);
+
+        for( ZoteroStorageListener listener : listeners )
+        {
+            listener.onItemsUpdated();
+        }
+    }
+
+    public void deleteTags(List<String> tags)
+    {
+        for( String tag : tags)
+        {
+            tagsDao.deleteByName(tag);
+        }
+
+        for( ZoteroStorageListener listener : listeners )
+        {
+            listener.onTagsUpdated();
+        }
+    }
+
 	public void updateItems(List<ItemEntity> items)
 	{
 		SQLiteDatabase database = getWritableDatabase();
@@ -226,6 +251,34 @@ public class ZoteroStorage extends SQLiteOpenHelper
     public void setItemsVersion(int version)
     {
         versionsDao.setVersion( VERSION_ITEMS, version);
+    }
+
+    public void deleteData()
+    {
+        versionsDao.deleteAll();
+        collectionsDao.deleteAll();
+        itemsDao.deleteAll();
+        versionsDao.deleteAll();
+        personsDao.deleteAll();
+        creatorsDao.deleteAll();
+        tagsDao.deleteAll();
+        fieldsDao.deleteAll();
+
+        versionsDao.clearCaches();
+        collectionsDao.clearCaches();
+        itemsDao.clearCaches();
+        versionsDao.clearCaches();
+        personsDao.clearCaches();
+        creatorsDao.clearCaches();
+        tagsDao.clearCaches();
+        fieldsDao.clearCaches();
+
+        for( ZoteroStorageListener listener : listeners )
+        {
+            listener.onCollectionsUpdated();
+            listener.onItemsUpdated();
+            listener.onTagsUpdated();
+        }
     }
 
 }
