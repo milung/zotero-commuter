@@ -1,5 +1,6 @@
 package sk.mung.sentience.zoterosentience;
 
+import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -49,10 +50,12 @@ import static android.app.DownloadManager.STATUS_PENDING;
 
 public class ItemViewer extends Fragment implements AdapterView.OnItemClickListener
 {
+    private static final int REQUEST_EDIT_NOTE = 1;
     private Item item;
     private DownloadManager downloadManager=null;
     private Map<Long,Long> progressingDownloads = new HashMap<Long,Long>();
     private ItemRenderer renderer;
+    private Item editingChild = null;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
@@ -60,7 +63,7 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
         super.onActivityCreated(savedInstanceState);
         getActivity().registerReceiver(receiver, new IntentFilter(
                 DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-        displayItems((ViewGroup) getView().findViewById(R.id.itemsGroup));
+        displayItems();
     }
 
     @Override
@@ -96,8 +99,7 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
         this.item = item;
         if(item != null &&  getView() != null)
         {
-            ViewGroup parent = (ViewGroup) getView().findViewById(R.id.itemsGroup);
-            displayItems(parent);
+            displayItems();
         }
     }
 
@@ -139,9 +141,8 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
                                     .setDescription(getString(R.string.attachment_download_description))
                                     .setDestinationInExternalFilesDir(getActivity(), Environment.DIRECTORY_DOWNLOADS + "/" + item.getKey(), fileName));
             this.progressingDownloads.put(lastDownload,item.getId());
-            ViewGroup itemsView = (ViewGroup) getView().findViewById(R.id.itemsGroup);
-            itemsView.removeAllViews();
-            displayItems(itemsView);
+
+            displayItems();
         }
         catch (IOException e)
         {
@@ -185,9 +186,8 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
                 if(progressingDownloads.containsKey(downloadId))
                 {
                     progressingDownloads.remove(downloadId);
-                    ViewGroup itemsView = (ViewGroup) getActivity().findViewById(R.id.itemsGroup);
-                    itemsView.removeAllViews();
-                    displayItems(itemsView);
+
+                    displayItems();
 
                     Query query = new Query();
                     query.setFilterById(downloadId);
@@ -255,7 +255,7 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
 
     }
 
-    private void displayItems(ViewGroup parent)
+    private void displayItems()
     {
         if(item == null) return;
 
@@ -305,6 +305,9 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
             }
         };
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        ViewGroup parent = (ViewGroup) getView().findViewById(R.id.itemsGroup);
+        parent.removeAllViews();
 
         int position = 0;
         for(Item child : item.getChildren())
@@ -356,33 +359,15 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
 
     private void editNote(Item child)
     {
-        File dir = getActivity().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS + "/" + item.getKey() );
-        assert dir != null;
-        //noinspection ResultOfMethodCallIgnored
-        dir.mkdirs();
-        String filename="note.html";
-        File file  = new File(dir,filename);
+       Intent intent = new Intent();
 
-
-
-        Intent intent = new Intent();
-
+        intent.setAction(Intent.ACTION_EDIT);
+        intent.putExtra(Intent.EXTRA_HTML_TEXT, child.getField(ItemField.NOTE).getValue());
+        intent.setType("text/html");
+        editingChild = child;
         try
         {
-            FileWriter writer = new FileWriter(file);
-            writer.write(child.getField(ItemField.NOTE).getValue());
-            writer.close();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-            return;
-        }
-         intent.setAction(Intent.ACTION_EDIT);
-        intent.setDataAndType(Uri.fromFile(file), "text/html");
-        try
-        {
-            startActivityForResult(intent,0);
+            startActivityForResult(intent,REQUEST_EDIT_NOTE);
         }
         catch (ActivityNotFoundException ex)
         {
@@ -400,6 +385,21 @@ public class ItemViewer extends Fragment implements AdapterView.OnItemClickListe
             }
         }
 
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(REQUEST_EDIT_NOTE == requestCode && resultCode== Activity.RESULT_OK)
+        {
+            String text = data.getStringExtra(Intent.EXTRA_HTML_TEXT);
+            if(text != null && editingChild != null)
+            {
+                editingChild.getField(ItemField.NOTE).setValue(text);
+                displayItems();
+            }
+        }
     }
 
     private void renderStatusIcon(final ImageView imageView, Item child)

@@ -96,9 +96,8 @@ public class LoginActivity extends Activity
      */
     private void setupActionBar()
     {
-
         getActionBar().setDisplayHomeAsUpEnabled(true);
-
+        getActionBar().setTitle(R.string.login);
     }
 
     @Override

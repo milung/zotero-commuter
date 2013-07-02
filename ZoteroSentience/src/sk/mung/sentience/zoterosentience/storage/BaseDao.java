@@ -257,4 +257,13 @@ public abstract class BaseDao<T extends Entity>
     {
         getWritableDatabase().delete(getTable(),null,null);
     }
+
+    public void update(T entity)
+    {
+        getWritableDatabase().update(
+                getTable(),
+                entityToValues(entity),
+                COLUMN_ID + QUESTION_MARK,
+                new String[]{ Long.toString(entity.getId())});
+    }
 }

@@ -33,6 +33,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".LibraryActivity" />
         </activity>
+        <activity
+                android:name=".NoteEditor"
+                android:icon="@drawable/ic_note_editor_light"
+                android:label="@string/note_editor">
+            <intent-filter>
+                <action android:name="android.intent.action.EDIT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.ALTERNATIVE" />
+                <data android:mimeType="text/html" />
+            </intent-filter>
+        </activity>
 
     </application>
 

@@ -22,6 +22,7 @@ public class ItemsDao extends BaseKeyDao<Item>
     private static final String COLUMN_TAG = "tag";
     private static final String COLUMN_COLLECTION = "collection";
 
+    static final String TABLE_ITEMS = "items";
     private static final String TABLE_ITEMS_TO_CREATORS = "items_to_creators";
     static final String TABLE_ITEMS_TO_TAGS = "items_to_tags";
     private static final String TABLE_ITEMS_TO_COLLECTIONS = "items_to_collections";
@@ -41,7 +42,7 @@ public class ItemsDao extends BaseKeyDao<Item>
     @Override
     public String getTable()
     {
-        return "items";
+        return TABLE_ITEMS;
     }
 
     @Override

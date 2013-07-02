@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <string name="callback">oauth://callback</string>
+    <string name="zotero_api_key">50ef774d9807c97b4019</string>
+    <string name="zotero_api_secret">046afdf8dffeaf8b62e3</string>
+
+
     <string name="zotero_field_abstract_note">Abstract</string>
     <string name="zotero_field_extra">Extra</string>
     <string name="zotero_field_application_number">Application Number:</string>
