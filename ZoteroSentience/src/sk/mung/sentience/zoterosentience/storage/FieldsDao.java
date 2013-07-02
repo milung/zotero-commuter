@@ -65,18 +65,18 @@ public class FieldsDao extends BaseDao<Field>
     @Override
     protected Field createEntity()
     {
-        return new Field();
+        return new FieldLazyProxy(this);
     }
 
     @Override
     protected void cursorToEntity(Cursor cursor, Field entity)
     {
-        Item item = new ItemEntity();
-        entity.setId(cursor.getLong(0));
-        entity.setItem(item);
-        item.setId(cursor.getLong(1));
         entity.setType(ItemField.fromId(cursor.getInt(2)));
         entity.setValue(cursor.getString(3));
+        Item item = new ItemEntity();
+        entity.setItem(item);
+        item.setId(cursor.getLong(1));
+        entity.setId(cursor.getLong(0));
     }
 
     @Override
@@ -97,6 +97,26 @@ public class FieldsDao extends BaseDao<Field>
                 COLUMN_ITEM+QUESTION_MARK,
                 new String[]{ Long.toString(item.getId())},
                 null,null,null);
-        return cursorToEntities( c );
+        List<Field> fields = cursorToEntities( c );
+        for(Field field: fields)
+        {
+            field.setItem(item);
+        }
+        return fields;
+    }
+
+    @Override
+    public void update(Field field)
+    {
+        super.update(field);
+
+        // reset synced flag on the associated item
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_SYNCED, 0);
+        getWritableDatabase().update(
+                ItemsDao.TABLE_ITEMS,
+                values,
+                COLUMN_ID + QUESTION_MARK,
+                new String[]{ Long.toString(field.getItem().getId())});
     }
 }
