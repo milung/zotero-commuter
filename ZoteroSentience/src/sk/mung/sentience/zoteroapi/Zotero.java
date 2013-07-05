@@ -2,6 +2,7 @@ package sk.mung.sentience.zoteroapi;
 
 import android.net.Uri;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -164,5 +165,10 @@ public class Zotero
     public Uri getAttachmentUri(Item item) throws IOException
     {
         return restful.getAttachmentUri(item);
+    }
+
+    public UploadStatus uploadAttachment(File file, Item item)
+    {
+        return restful.uploadAttachment(file, item);
     }
 }

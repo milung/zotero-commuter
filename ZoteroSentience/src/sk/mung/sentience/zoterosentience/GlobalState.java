@@ -3,6 +3,10 @@ package sk.mung.sentience.zoterosentience;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
+
+import java.io.File;
+
 import sk.mung.sentience.zoteroapi.Zotero;
 import sk.mung.sentience.zoteroapi.ZoteroOauth;
 import sk.mung.sentience.zoteroapi.ZoteroRestful;
@@ -20,6 +24,7 @@ final public class GlobalState extends Application
     private Zotero zotero;
     private ZoteroStorage storage;
     private ZoteroSync zoteroSync;
+    private File downloadDir;
         
     @Override
     public void onCreate()
@@ -28,7 +33,7 @@ final public class GlobalState extends Application
         restoreZoteroState();
     }    
     
-    synchronized Zotero getZotero() 
+    public synchronized Zotero getZotero()
     { 
         if( zotero == null)
         {
@@ -50,7 +55,8 @@ final public class GlobalState extends Application
     {
         if(zoteroSync == null)
         {
-            zoteroSync = new ZoteroSync(getStorage(), getZotero());
+
+            zoteroSync = new ZoteroSync(getStorage(), getZotero(), getDownloadDirectory());
         }
         return zoteroSync;
     }
@@ -73,6 +79,13 @@ final public class GlobalState extends Application
         editor.putString(USERNAME, oauth.getUserName());
 
         editor.commit();
+
+        if(zotero != null)
+        {
+            ZoteroRestful restful = new ZoteroRestful(oauth.getUserId(), oauth.getAccessToken().getToken());
+            zotero.setRestfull(restful);
+        }
+
     }
     
     void restoreZoteroState()
@@ -95,7 +108,14 @@ final public class GlobalState extends Application
         zotero = new Zotero();
         zotero.setRestfull(restful);
     }
-    
-    
-    
+
+
+    public File getDownloadDirectory()
+    {
+        if(downloadDir == null)
+        {
+            downloadDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        }
+        return downloadDir;
+    }
 }

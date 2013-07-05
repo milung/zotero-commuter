@@ -89,6 +89,7 @@ abstract class BaseKeyDao<T extends KeyEntity> extends BaseDao<T>
         if( 0 > rowId )
         {
             values.remove(COLUMN_KEY);
+            values.remove(COLUMN_SYNCED);// do not change synced flag
             database.update(getTable(), values, COLUMN_KEY + "=?", new String[]{entity.getKey()});
             rowId = keyToId(entity.getKey());
         }

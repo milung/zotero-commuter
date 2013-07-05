@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
 import java.io.IOException;
 
 import sk.mung.sentience.zoteroapi.entities.Item;
@@ -172,7 +174,33 @@ public class LibraryActivity extends FragmentActivity
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }
-    
+
+    public void onWipeDownloadsOptionSelected(MenuItem menuItem)
+    {
+        File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS );
+        assert dir != null;
+        //noinspection ResultOfMethodCallIgnored
+        deleteDirectory(dir);
+    }
+
+    private boolean deleteDirectory(File directory)
+    {
+        if(directory.exists()){
+            File[] files = directory.listFiles();
+            if(null!=files){
+                for(int i=0; i<files.length; i++) {
+                    if(files[i].isDirectory()) {
+                        deleteDirectory(files[i]);
+                    }
+                    else {
+                        files[i].delete();
+                    }
+                }
+            }
+        }
+        return(directory.delete());
+    }
+
     public void onRefreshOptionSelected(MenuItem menuItem)
     {
         final Context context = this;
@@ -184,9 +212,7 @@ public class LibraryActivity extends FragmentActivity
                 try
                 {
                     ZoteroSync zoteroSync = ((GlobalState) getApplication()).getZoteroSync();
-                    zoteroSync.syncCollections();
-                    zoteroSync.syncDeletions();
-                    zoteroSync.syncItems();
+                    zoteroSync.fullSync();
                     return 0;
                 }
                 catch (IOException e)

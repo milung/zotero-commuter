@@ -209,6 +209,7 @@ public abstract class BaseDao<T extends Entity>
         {
             cursor.moveToFirst();
             cursorToEntity(cursor, entity);
+            cursor.close();
         }
         else
         {
@@ -223,10 +224,17 @@ public abstract class BaseDao<T extends Entity>
         String[] arguments = buildQueryArguments(values);
         Cursor cursor
                 = getReadableDatabase().query(getTable(), new String[]{COLUMN_ID}, query, arguments, null, null, null );
-        if(cursor.getCount() > 0)
+        try
         {
-            cursor.moveToFirst();
-            return cursor.getLong(0);
+            if(cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+                return cursor.getLong(0);
+            }
+        }
+        finally
+        {
+            cursor.close();
         }
         return -1;
     }

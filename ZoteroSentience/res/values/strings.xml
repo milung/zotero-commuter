@@ -28,4 +28,5 @@
     <string name="save">Save</string>
     <string name="save_short">Save</string>
     <string name="bold_text">Emphasize</string>
+    <string name="wipe_downloads">Delete all downloads</string>
 </resources>

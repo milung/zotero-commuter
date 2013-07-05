@@ -3,5 +3,6 @@
     <item android:id="@+id/login" android:title="@string/login" android:visible="true" android:titleCondensed="@string/login_short" android:alphabeticShortcut="L" android:onClick="onLoginOptionSelected" android:checkable="false" android:enabled="true"></item>
     <item android:id="@+id/refresh" android:title="@string/refresh" android:onClick="onRefreshOptionSelected"></item>
     <item android:id="@+id/full_resync" android:title="@string/full_resync" android:onClick="onResetVersionsOptionSelected"></item>
+    <item android:id="@+id/wipe_downloads" android:title="@string/wipe_downloads" android:onClick="onWipeDownloadsOptionSelected"></item>
 
 </menu>
