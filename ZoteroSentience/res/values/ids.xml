@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="position" type="id">item_position</item>
+    <item name="item_tag" type="id"/>
+    <item name="tag_download_in_progress" type="id"/>
 </resources>

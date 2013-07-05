@@ -9,12 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
+import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemEntity;
 
 public class ZoteroStorage extends SQLiteOpenHelper
 {
 
 
+    public Item findItemByKey(String key)
+    {
+        return itemsDao.findByKey(key);
+    }
 
     class DatabaseConnection
     {

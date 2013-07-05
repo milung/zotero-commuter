@@ -50,7 +50,8 @@ public class ZoteroOauth
                 Uri.parse(uri)
                         .buildUpon()
                         .appendQueryParameter("library_access", "1")
-                        .appendQueryParameter("notes_access", "1");
+                        .appendQueryParameter("notes_access", "1")
+                        .appendQueryParameter("write_access", "1");
         return builder.toString();
     }
     

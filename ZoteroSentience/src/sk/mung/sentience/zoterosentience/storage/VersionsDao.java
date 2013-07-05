@@ -119,20 +119,28 @@ class VersionsDao extends BaseDao<VersionsDao.Version>
                 COLUMN_QUERY + QUESTION_MARK,
                 new String[]{queryType},
                 null, null, null, null);
+        try
+        {
         if (cursor.getCount() > 0)
         {
             cursor.moveToFirst();
             return cursor.getInt(0);
         } else return 0;
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
-    void setVersion( String queryType, int version)
+    long  setVersion( String queryType, int version)
     {
         SQLiteDatabase database = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_QUERY, queryType);
         values.put(COLUMN_VERSION, version);
 
-        database.insert(getTable(), null, values);
+        long id = database.insertWithOnConflict(getTable(), null, values,SQLiteDatabase.CONFLICT_REPLACE);
+        return id;
     }
 }
