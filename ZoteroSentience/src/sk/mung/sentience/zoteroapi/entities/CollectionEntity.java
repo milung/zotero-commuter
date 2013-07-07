@@ -3,9 +3,6 @@ package sk.mung.sentience.zoteroapi.entities;
 import java.util.ArrayList;
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.Item;
-import sk.mung.sentience.zoteroapi.entities.KeyEntity;
-
 public class CollectionEntity implements KeyEntity
 {
 	private long id;
@@ -13,7 +10,7 @@ public class CollectionEntity implements KeyEntity
     private String key;
     private int version;
     private String parentKey;
-    private boolean isSynced;
+    private SyncStatus synced;
 
     private List<Item> items = new ArrayList<Item>();
     
@@ -25,13 +22,20 @@ public class CollectionEntity implements KeyEntity
 	}
 	public boolean isSynced()
     {
-        return isSynced;
+        return synced == SyncStatus.SYNC_OK;
     }
-    public void setSynced(boolean isSynced)
+
+    public void setSynced(SyncStatus synced)
     {
-        this.isSynced = isSynced;
+        this.synced = synced;
     }
-    
+
+    @Override
+    public SyncStatus getSynced()
+    {
+        return synced;
+    }
+
     public String getName()
     {
         return name;
@@ -39,7 +43,7 @@ public class CollectionEntity implements KeyEntity
     public void setName(String name)
     {
         this.name = name;
-        isSynced = false;
+        synced = SyncStatus.SYNC_LOCALLY_UPDATED;
     }
     public String getKey()
     {
@@ -48,7 +52,7 @@ public class CollectionEntity implements KeyEntity
     public void setKey(String key)
     {
         this.key = key;
-        isSynced = false;
+        synced = SyncStatus.SYNC_LOCALLY_UPDATED;
     }
     public int getVersion()
     {
@@ -57,7 +61,7 @@ public class CollectionEntity implements KeyEntity
     public void setVersion(int version)
     {
         this.version = version;
-        isSynced = false;
+        synced = SyncStatus.SYNC_LOCALLY_UPDATED;
     }
     public String getParentKey()
     {
@@ -66,7 +70,7 @@ public class CollectionEntity implements KeyEntity
     public void setParentKey(String parentKey)
     {
         this.parentKey = parentKey;
-        isSynced = false;
+        synced = SyncStatus.SYNC_LOCALLY_UPDATED;
     }
 
     public List<Item> getItems() { return items;}

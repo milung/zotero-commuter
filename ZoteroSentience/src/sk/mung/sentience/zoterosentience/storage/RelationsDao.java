@@ -6,18 +6,18 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.Field;
 import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemEntity;
-import sk.mung.sentience.zoteroapi.entities.ItemField;
+import sk.mung.sentience.zoteroapi.entities.Relation;
 import sk.mung.sentience.zoteroapi.entities.SyncStatus;
 
-public class FieldsDao extends BaseDao<Field>
+public class RelationsDao extends BaseDao<Relation>
 {
-    private static final String COLUMN_VALUE = "value";
-    private static final String COLUMN_ITEM = "item";
+    private static final String COLUMN_SUBJECT = "subject";
+    private static final String COLUMN_PREDICATE = "predicate";
+    private static final String COLUMN_OBJECT = "object";
 
-    public FieldsDao(ZoteroStorage.DatabaseConnection databaseConnection, QueryDictionary queries)
+    public RelationsDao(ZoteroStorage.DatabaseConnection databaseConnection, QueryDictionary queries)
     {
         super(databaseConnection, queries);
     }
@@ -25,14 +25,14 @@ public class FieldsDao extends BaseDao<Field>
     @Override
     public String getTable()
     {
-        return "fields";
+        return "relations";
     }
 
     @Override
     public void createTable()
     {
         SQLiteDatabase database = getWritableDatabase();
-        database.execSQL( getQueries().createFieldsTable() );
+        database.execSQL( getQueries().createRelationsTable() );
     }
 
     @Override
@@ -43,15 +43,19 @@ public class FieldsDao extends BaseDao<Field>
     }
 
     @Override
-    public void upsert(Field entity)
+    public void upsert(Relation entity)
     {
         ContentValues fieldValues = entityToValues(entity);
         SQLiteDatabase database = getWritableDatabase();
         long rowId =database.insertWithOnConflict(getTable(), null, fieldValues, SQLiteDatabase.CONFLICT_IGNORE);
         if( 0 > rowId)
         {
-            database.update(getTable(),fieldValues, COLUMN_ITEM + QUESTION_MARK + " AND " + COLUMN_TYPE + QUESTION_MARK,
-                    new String[]{Long.toString(entity.getItem().getId()), Integer.toString(entity.getType().getId())});
+            database.update(
+                    getTable(), fieldValues,
+                    COLUMN_SUBJECT + QUESTION_MARK + " AND " + COLUMN_PREDICATE + QUESTION_MARK,
+                    new String[]{
+                            Long.toString(entity.getSubject().getId()),
+                            entity.getPredicate()});
             rowId = searchIdOfEntity(entity);
         }
         entity.setId(rowId);
@@ -60,52 +64,52 @@ public class FieldsDao extends BaseDao<Field>
     @Override
     protected String[] getSelectColumns()
     {
-        return new String[]{COLUMN_ID, COLUMN_ITEM,COLUMN_TYPE,COLUMN_VALUE};
+        return new String[]{COLUMN_ID, COLUMN_SUBJECT,COLUMN_PREDICATE,COLUMN_OBJECT};
     }
 
     @Override
-    protected Field createEntity()
+    protected Relation createEntity()
     {
-        return new FieldLazyProxy(this);
+        return new Relation();
     }
 
     @Override
-    protected void cursorToEntity(Cursor cursor, Field entity)
+    protected void cursorToEntity(Cursor cursor, Relation entity)
     {
-        entity.setType(ItemField.fromId(cursor.getInt(2)));
-        entity.setValue(cursor.getString(3));
+        entity.setPredicate(cursor.getString(2));
+        entity.setObject(cursor.getString(3));
         Item item = new ItemEntity();
-        entity.setItem(item);
+        entity.setSubject(item);
         item.setId(cursor.getLong(1));
         entity.setId(cursor.getLong(0));
     }
 
     @Override
-    protected ContentValues entityToValues(Field entity)
+    protected ContentValues entityToValues(Relation entity)
     {
         ContentValues values = new ContentValues();
-        values.put(COLUMN_ITEM, entity.getItem().getId());
-        values.put(COLUMN_TYPE,entity.getType().getId());
-        values.put(COLUMN_VALUE, entity.getValue());
+        values.put(COLUMN_SUBJECT, entity.getSubject().getId());
+        values.put(COLUMN_PREDICATE,entity.getPredicate());
+        values.put(COLUMN_OBJECT, entity.getObject());
         return values;
     }
 
-    public List<Field> findByItem(Item item)
+    public List<Relation> findByItem(Item item)
     {
         Cursor c = getReadableDatabase().query(
                 getTable(),
                 getSelectColumns(),
-                COLUMN_ITEM+QUESTION_MARK,
+                COLUMN_SUBJECT+QUESTION_MARK,
                 new String[]{ Long.toString(item.getId())},
                 null,null,null);
         try
         {
-            List<Field> fields = cursorToEntities( c );
-            for(Field field: fields)
+            List<Relation> relations = cursorToEntities( c );
+            for(Relation relation: relations)
             {
-                field.setItem(item);
+                relation.setSubject(item);
             }
-            return fields;
+            return relations;
         }
         finally
         {
@@ -114,9 +118,9 @@ public class FieldsDao extends BaseDao<Field>
     }
 
     @Override
-    public void update(Field field)
+    public void update(Relation relation)
     {
-        super.update(field);
+        super.update(relation);
 
         // reset synced flag on the associated item
         ContentValues values = new ContentValues();
@@ -125,6 +129,6 @@ public class FieldsDao extends BaseDao<Field>
                 ItemsDao.TABLE_ITEMS,
                 values,
                 COLUMN_ID + QUESTION_MARK,
-                new String[]{ Long.toString(field.getItem().getId())});
+                new String[]{ Long.toString(relation.getSubject().getId())});
     }
 }

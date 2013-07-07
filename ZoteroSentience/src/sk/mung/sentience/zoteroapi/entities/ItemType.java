@@ -88,4 +88,9 @@ public enum ItemType
         }
         return null;
     }
+
+    public String getZoteroName()
+    {
+        return zoteroName;
+    }
 }

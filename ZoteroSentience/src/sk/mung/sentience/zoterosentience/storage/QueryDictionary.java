@@ -60,4 +60,9 @@ public class QueryDictionary
     {
         return context.getResources().getString(R.string.get_item_tags);
     }
+
+    public String createRelationsTable()
+    {
+        return context.getResources().getString(R.string.create_relations_table);
+    }
 }

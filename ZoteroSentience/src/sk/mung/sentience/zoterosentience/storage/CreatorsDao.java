@@ -53,17 +53,17 @@ public class CreatorsDao extends BaseDao<Creator>
     public void upsert(Creator creator)
     {
         personsDao.upsert(creator.getPerson());
-
+        long rowId = searchIdOfEntity(creator);
         SQLiteDatabase database = getWritableDatabase();
-        long rowId = database.insertWithOnConflict(
-                getTable(),
-                null,
-                entityToValues(creator),
-                SQLiteDatabase.CONFLICT_IGNORE);
 
         if( 0 > rowId)
         {
-            rowId = searchIdOfEntity(creator);
+            rowId = database.insertWithOnConflict(
+                    getTable(),
+                    null,
+                    entityToValues(creator),
+                    SQLiteDatabase.CONFLICT_IGNORE);
+
         }
         creator.setId(rowId);
     }

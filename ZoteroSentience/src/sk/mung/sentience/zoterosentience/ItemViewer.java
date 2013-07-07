@@ -22,6 +22,7 @@ import sk.mung.sentience.zoteroapi.entities.Field;
 import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemField;
 import sk.mung.sentience.zoteroapi.entities.ItemType;
+import sk.mung.sentience.zoteroapi.entities.SyncStatus;
 import sk.mung.sentience.zoteroapi.entities.Tag;
 import sk.mung.sentience.zoterosentience.renderers.AttachmentRenderer;
 import sk.mung.sentience.zoterosentience.renderers.FieldRenderer;

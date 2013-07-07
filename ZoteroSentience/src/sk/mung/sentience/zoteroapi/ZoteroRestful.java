@@ -2,7 +2,9 @@ package sk.mung.sentience.zoteroapi;
 
 import android.net.Uri;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -15,21 +17,20 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.SequenceInputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.DigestInputStream;
@@ -43,6 +44,7 @@ import java.util.Map;
 
 import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemField;
+import sk.mung.sentience.zoteroapi.parsers.ItemParser;
 
 public class ZoteroRestful {
 
@@ -50,6 +52,9 @@ public class ZoteroRestful {
     public static final String ZOTERO_API_VERSION_VALUE = "2";
     public static final String IF_MODIFIED_SINCE_VERSION_HEADER = "If-Modified-Since-Version";
     private static final String IF_MATCH = "If-Match";
+    public static final String CONTENT_TYPE = "Content-Type";
+    public static final String MIME_APPLICATION_JSON = "application/json";
+    public static final String IF_UNMODIFIED_SINCE_VERSION = "If-Unmodified-Since-Version";
 
 
     public class Response
@@ -104,15 +109,7 @@ public class ZoteroRestful {
         StatusLine statusLine = response.getStatusLine();
         
         int status = statusLine.getStatusCode();
-        Header header[]  = response.getHeaders("Last-Modified-Version");
-        if(header.length > 0)
-        {
-            lastModifiedVersion = Integer.parseInt(header[0].getValue());
-        }
-        else
-        {
-            lastModifiedVersion = ifModifiedSinceVersion; // keep expected version
-        }
+        storeLastModifiedVersion(response, ifModifiedSinceVersion);
 
         if(status == HttpStatus.SC_NOT_MODIFIED)
         {
@@ -131,7 +128,20 @@ public class ZoteroRestful {
             throw new IOException(statusLine.getReasonPhrase());
         }
     }
-   
+
+    private void storeLastModifiedVersion(HttpResponse response, int defaultValue)
+    {
+        Header header[]  = response.getHeaders("Last-Modified-Version");
+        if(header.length > 0)
+        {
+            lastModifiedVersion = Integer.parseInt(header[0].getValue());
+        }
+        else
+        {
+            lastModifiedVersion = defaultValue; // keep expected version
+        }
+    }
+
     private String getCurrentUserUriPrefix()
     {
         return "/users/" + userId;
@@ -333,4 +343,27 @@ public class ZoteroRestful {
         }
         return null;
     }
+
+    public Response uploadEntities(String json, String entity, int sinceVersion) throws IOException
+    {
+            Uri.Builder builder =
+                    Uri.parse(API_BASE + getCurrentUserUriPrefix() + "/" + entity)
+                            .buildUpon()
+                            .appendQueryParameter("key", accessToken);
+
+            HttpPost request = new HttpPost(builder.build().toString());
+            request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
+            request.addHeader(CONTENT_TYPE, MIME_APPLICATION_JSON);
+            request.addHeader(IF_UNMODIFIED_SINCE_VERSION, Integer.toString(sinceVersion ));
+
+            request.setEntity(new StringEntity(json));
+
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpResponse response = httpclient.execute(request);
+            storeLastModifiedVersion(response, sinceVersion);
+            return decodeResponse(response);
+
+    }
+
+
 }

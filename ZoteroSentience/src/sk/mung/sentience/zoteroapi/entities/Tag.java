@@ -7,6 +7,7 @@ public class Tag implements Entity
 {
     private long id;
     private String tag;
+    private int type;
 
     public long getId()
     {
@@ -26,5 +27,15 @@ public class Tag implements Entity
     public void setTag(String tag)
     {
         this.tag = tag;
+    }
+
+    public int getType()
+    {
+        return type;
+    }
+
+    public void setType(int type)
+    {
+        this.type = type;
     }
 }

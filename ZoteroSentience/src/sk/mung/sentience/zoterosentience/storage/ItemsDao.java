@@ -12,6 +12,8 @@ import sk.mung.sentience.zoteroapi.entities.Field;
 import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemEntity;
 import sk.mung.sentience.zoteroapi.entities.ItemType;
+import sk.mung.sentience.zoteroapi.entities.Relation;
+import sk.mung.sentience.zoteroapi.entities.SyncStatus;
 import sk.mung.sentience.zoteroapi.entities.Tag;
 
 public class ItemsDao extends BaseKeyDao<Item>
@@ -26,17 +28,27 @@ public class ItemsDao extends BaseKeyDao<Item>
     private static final String TABLE_ITEMS_TO_CREATORS = "items_to_creators";
     static final String TABLE_ITEMS_TO_TAGS = "items_to_tags";
     private static final String TABLE_ITEMS_TO_COLLECTIONS = "items_to_collections";
+    public static final String SYNC_FILTER = "{SYNC_FILTER}";
 
     private final CreatorsDao creatorsDao;
     private final TagsDao tagsDao;
     private final FieldsDao fieldsDao;
 
-    public ItemsDao(ZoteroStorage.DatabaseConnection sqlite, QueryDictionary queries, CreatorsDao creatorsDao, TagsDao tagsDao, FieldsDao fieldsDao)
+    private final RelationsDao relationsDao;
+
+    public ItemsDao(
+            ZoteroStorage.DatabaseConnection sqlite,
+            QueryDictionary queries,
+            CreatorsDao creatorsDao,
+            TagsDao tagsDao,
+            FieldsDao fieldsDao,
+            RelationsDao relationsDao)
     {
         super(sqlite, queries);
         this.creatorsDao = creatorsDao;
         this.tagsDao = tagsDao;
         this.fieldsDao = fieldsDao;
+        this.relationsDao = relationsDao;
     }
 
     @Override
@@ -69,12 +81,20 @@ public class ItemsDao extends BaseKeyDao<Item>
     @Override
     public void upsert(Item entity)
     {
-        long id = upsertByKey(entity);
-        entity.setId(id);
+        upsertByKey(entity);
         updateItemCreators(entity);
         updateTags(entity);
         updateFields(entity);
         updateItemCollections(entity);
+        updateRelations(entity);
+    }
+
+    private void updateRelations(Item entity)
+    {
+        for( Relation relation : entity.getRelations() )
+        {
+            relationsDao.upsert(relation);
+        }
     }
 
     private void updateFields( Item item) {
@@ -153,7 +173,7 @@ public class ItemsDao extends BaseKeyDao<Item>
         item.setKey( cursor.getString(1));
         item.setVersion( cursor.getInt(2));
         item.setItemType(ItemType.valueWithId(cursor.getInt(3)));
-        item.setSynced(0 != cursor.getInt(4));
+        item.setSynced(SyncStatus.fromStatusCode(cursor.getInt(4)));
         item.setTitle(cursor.getString(5));
         item.setParentKey(idToKey(cursor.getLong(6)));
     }
@@ -166,7 +186,7 @@ public class ItemsDao extends BaseKeyDao<Item>
         values.put(COLUMN_TYPE, item.getItemType().getId());
         values.put(COLUMN_VERSION, item.getVersion());
         values.put(COLUMN_TITLE, item.getTitle());
-        values.put(COLUMN_SYNCED, item.isSynced() ? 1 : 0);
+        values.put(COLUMN_SYNCED, item.getSynced().getStatusCode());
 
         if( item.getParentKey()!= null)
         {
@@ -182,7 +202,7 @@ public class ItemsDao extends BaseKeyDao<Item>
             parent = new ItemEntity();
             parent.setTitle("<missing parent>");
             parent.setKey(parentKey);
-            parent.setSynced(true); // do not update by mistake
+            parent.setSynced(SyncStatus.SYNC_OK); // do not update by mistake
             upsert(parent);
         }
 
@@ -201,7 +221,16 @@ public class ItemsDao extends BaseKeyDao<Item>
             selectionParams = new String[]{Long.toString(collection.getId())};
         }
 
-        return cursorToEntities(getReadableDatabase().rawQuery(query, selectionParams));
+        query= query.replace(SYNC_FILTER, getSyncFilter());
+        Cursor cursor = getReadableDatabase().rawQuery(query, selectionParams);
+        try
+        {
+            return cursorToEntities(cursor);
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
     public List<Item> findByParent(Item parent)
@@ -209,8 +238,17 @@ public class ItemsDao extends BaseKeyDao<Item>
         SQLiteDatabase database = getReadableDatabase();
         assert database != null;
 
-        return cursorToEntities(
-                database.rawQuery(getQueries().getChildrenItems(), new String[]{Long.toString(parent.getId())}));
+        String query = getQueries().getChildrenItems();
+        query= query.replace(SYNC_FILTER, getSyncFilter());
+        Cursor cursor =database.rawQuery(query, new String[]{Long.toString(parent.getId())});
+        try
+        {
+            return cursorToEntities(cursor);
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 }

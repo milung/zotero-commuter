@@ -55,7 +55,7 @@ public class TagsDao extends BaseDao<Tag>
     @Override
     protected String[] getSelectColumns()
     {
-        return new String[]{COLUMN_ID, COLUMN_TAG};
+        return new String[]{COLUMN_ID, COLUMN_TAG, COLUMN_TYPE};
     }
 
     @Override
@@ -69,6 +69,7 @@ public class TagsDao extends BaseDao<Tag>
     {
         entity.setId(cursor.getLong(0));
         entity.setTag(cursor.getString(1));
+        entity.setType(cursor.getInt(2));
     }
 
     @Override
@@ -76,15 +77,24 @@ public class TagsDao extends BaseDao<Tag>
     {
         ContentValues values = new ContentValues();
         values.put(COLUMN_TAG, entity.getTag());
+        values.put(COLUMN_TYPE, entity.getType());
         return values;
     }
 
     public List<Tag> findByItem(Item item)
     {
+
         Cursor c = getReadableDatabase().rawQuery(
                 getQueries().getItemTags(),
                 new String[]{ Long.toString(item.getId())});
-        return cursorToEntities( c );
+        try
+        {
+            return cursorToEntities( c );
+        }
+        finally
+        {
+            c.close();
+        }
     }
 
     public void deleteByName(String tag)
