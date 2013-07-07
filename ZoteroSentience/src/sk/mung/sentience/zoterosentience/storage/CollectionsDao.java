@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
+import sk.mung.sentience.zoteroapi.entities.SyncStatus;
 
 
 class CollectionsDao extends BaseKeyDao<CollectionEntity>
@@ -45,8 +46,7 @@ class CollectionsDao extends BaseKeyDao<CollectionEntity>
     @Override
     public void upsert( CollectionEntity entity )
     {
-        long id = upsertByKey( entity);
-        entity.setId(id);
+        upsertByKey( entity);
     }
 
     @Override
@@ -66,7 +66,8 @@ class CollectionsDao extends BaseKeyDao<CollectionEntity>
         SQLiteDatabase database = getReadableDatabase();
         Cursor cursor = database.query(
                 getTable(), getSelectColumns(),
-                null,null, null, null, null );
+                getSyncFilter(),
+                null, null, null, null );
 
         Map<String, ZoteroCollection> flatList = new HashMap<String,ZoteroCollection>();
         cursor.moveToFirst();
@@ -105,21 +106,18 @@ class CollectionsDao extends BaseKeyDao<CollectionEntity>
         ZoteroCollection root = new ZoteroCollection();
         root.setName("My Library");
         root.setKey("library");
-        root.setSynced(true);
         return root;
     }
 
     @Override
     protected void cursorToEntity(Cursor cursor, CollectionEntity entry)
     {
-
         entry.setKey(cursor.getString(0));
         entry.setName(cursor.getString(1));
         entry.setVersion(cursor.getInt(2));
-        entry.setSynced(cursor.getInt(3) != 0);
+        entry.setSynced(SyncStatus.fromStatusCode(cursor.getInt(3)));
         entry.setParentKey(cursor.getString(4));
         entry.setId(cursor.getInt(5));
-
     }
 
     @Override
@@ -130,7 +128,7 @@ class CollectionsDao extends BaseKeyDao<CollectionEntity>
         values.put(COLUMN_NAME, entity.getName());
         values.put(COLUMN_VERSION, entity.getVersion());
         values.put(COLUMN_PARENT, entity.getParentKey());
-        values.put(COLUMN_SYNCED, 1);
+        values.put(COLUMN_SYNCED, entity.getSynced().getStatusCode());
         return values;
     }
 
@@ -145,4 +143,6 @@ class CollectionsDao extends BaseKeyDao<CollectionEntity>
         }
         else return super.findById(id);
     }
+
+
 }

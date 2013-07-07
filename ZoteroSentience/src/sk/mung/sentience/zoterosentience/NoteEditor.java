@@ -48,7 +48,7 @@ public class NoteEditor extends FragmentActivity
         return true;
     }
 
-    public void onSaveSelected( MenuItem menuItem)
+    public void onSaveSelected( View button)
     {
         Intent intent = new Intent();
         EditText editText = ((EditText)findViewById(R.id.editTextNote));

@@ -11,7 +11,9 @@
     <string name="create_tags_table">
         CREATE TABLE tags (
             _id INTEGER PRIMARY KEY AUTOINCREMENT,
-            tag TEXT UNIQUE ON CONFLICT IGNORE )
+            tag TEXT UNIQUE ON CONFLICT IGNORE,
+            type INT
+        )
     </string>
 
     <string name="create_persons_table">
@@ -20,7 +22,7 @@
         firstName TEXT,
         lastName TEXT,
         shortName TEXT,
-        UNIQUE (firstName, lastName, shortName) ON CONFLICT IGNORE )
+        UNIQUE (firstName, lastName, shortName)  )
     </string>
 
     <string name="create_creators_table">
@@ -28,7 +30,7 @@
         _id INTEGER PRIMARY KEY AUTOINCREMENT,
         type INTEGER,
         person REFERENCES persons (_id),
-        UNIQUE ( type, person) ON CONFLICT IGNORE );
+        UNIQUE ( type, person)  );
     </string>
 
     <string name="create_fields_table">
@@ -40,25 +42,34 @@
         UNIQUE ( item, type ) ON CONFLICT REPLACE )
     </string>
 
+    <string name="create_relations_table">
+        CREATE TABLE IF NOT EXISTS relations (
+        _id INTEGER PRIMARY KEY AUTOINCREMENT,
+        predicate TEXT,
+        subject INTEGER REFERENCES items (_id),
+        object TEXT,
+        UNIQUE ( subject, predicate, object ) ON CONFLICT REPLACE )
+    </string>
+
     <string name="create_items_to_creators_table">
         CREATE TABLE  IF NOT EXISTS items_to_creators (
         item INTEGER REFERENCES items (_id),
         creator INTEGER REFERENCES creators (_id),
-        UNIQUE (item,creator) ON CONFLICT IGNORE)
+        UNIQUE (item,creator) ON CONFLICT REPLACE)
     </string>
 
     <string name="create_items_to_tags_table">
         CREATE TABLE  IF NOT EXISTS items_to_tags (
         item INTEGER REFERENCES items (_id),
         tag INTEGER REFERENCES tags (_id),
-        UNIQUE (item,tag) ON CONFLICT IGNORE)
+        UNIQUE (item,tag) ON CONFLICT REPLACE)
     </string>
 
     <string name="create_items_to_collections_table">
         CREATE TABLE  IF NOT EXISTS items_to_collections (
         item INTEGER REFERENCES items (_id),
         collection INTEGER REFERENCES collections (_id),
-        UNIQUE (item,collection) ON CONFLICT IGNORE)
+        UNIQUE (item,collection) ON CONFLICT REPLACE)
     </string>
 
     <string name="create_collections_table">
@@ -95,7 +106,7 @@
         FROM items
         LEFT JOIN items_to_collections ON items._id=items_to_collections.item
         LEFT JOIN collections ON items_to_collections.collection=collections._id
-        WHERE items.parent IS NULL AND collections._id=?
+        WHERE {SYNC_FILTER} AND items.parent IS NULL AND collections._id=?
         ORDER BY items.title
     </string>
 
@@ -104,19 +115,19 @@
         FROM items
         LEFT JOIN items_to_collections ON items._id=items_to_collections.item
         LEFT JOIN collections ON items_to_collections.collection=collections._id
-        WHERE items.parent IS NULL
+        WHERE {SYNC_FILTER} AND items.parent IS NULL
         ORDER BY items.title
     </string>
 
     <string name="get_item_children">
         SELECT  items._id, items.key, items.version, items.type, items.synced, items.title, items.parent
         FROM items
-        WHERE items.parent=?
+        WHERE {SYNC_FILTER} AND items.parent=?
         ORDER BY items.title
     </string>
 
     <string name="get_item_tags">
-        SELECT  tags._id, tags.tag
+        SELECT  tags._id, tags.tag, tags.type
         FROM items
         LEFT JOIN items_to_tags ON items._id = items_to_tags.item
         LEFT JOIN tags ON items_to_tags.tag = tags._id

@@ -1,14 +1,20 @@
 package sk.mung.sentience.zoteroapi.parsers;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import java.io.IOException;
 import java.util.Map;
 
 import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
 import sk.mung.sentience.zoteroapi.entities.Creator;
 import sk.mung.sentience.zoteroapi.entities.CreatorType;
 import sk.mung.sentience.zoteroapi.entities.Field;
+import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemEntity;
 import sk.mung.sentience.zoteroapi.entities.ItemField;
 import sk.mung.sentience.zoteroapi.entities.ItemType;
+import sk.mung.sentience.zoteroapi.entities.Relation;
+import sk.mung.sentience.zoteroapi.entities.SyncStatus;
 import sk.mung.sentience.zoteroapi.entities.Tag;
 
 public class ItemParser extends AbstractAtomParser<ItemEntity>
@@ -25,11 +31,13 @@ public class ItemParser extends AbstractAtomParser<ItemEntity>
 			item.setVersion((Integer) content.get("itemVersion"));
 			item.setKey((String) content.get("itemKey"));
 			item.setParentKey((String)content.get("parentItem"));
+            item.setSynced(SyncStatus.SYNC_OK);
 			
 			processItemFields(content, item);
 			processCreators(content, item);			
 			processCollections(content, item);
 			processTags(content, item);
+            processRelations(content, item);
 			
 			return item;
 		} 
@@ -47,15 +55,40 @@ public class ItemParser extends AbstractAtomParser<ItemEntity>
 		
 	}
 
-	@SuppressWarnings("unchecked")
+    private void processRelations(Map<String, Object> content, ItemEntity item)
+    {
+        if(content.containsKey("relations"))
+        {
+            //noinspection unchecked
+            for( Map.Entry<String,String> relation : ((Map<String,String>)content.get("relations")).entrySet())
+            {
+                    Relation relationEntity = new Relation();
+                    relationEntity.setSubject(item);
+                    relationEntity.setPredicate(relation.getKey());
+                    relationEntity.setObject(relation.getValue());
+                    item.addRelation(relationEntity);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
 	private void processTags(Map<String, Object> content, ItemEntity item) {
 		if(content.containsKey("tags"))
 		{
-			for( Map<String,String> tagFields : (Iterable<Map<String,String>>)content.get("tags"))
+			for( Map<String,Object> tagFields : (Iterable<Map<String,Object>>)content.get("tags"))
 			{
-                Tag tag = new Tag();
-                tag.setTag(tagFields.get("tag"));
-				item.addTag(tag);
+                if(tagFields.containsKey("tag") && tagFields.get("tag") != null)
+                {
+                    Tag tag = new Tag();
+                    tag.setTag(tagFields.get("tag").toString());
+
+                    if(tagFields.containsKey("type"))
+                    {
+                        tag.setType(Integer.valueOf(tagFields.get("type").toString()));
+                    }
+                    item.addTag(tag);
+                }
+
 			}
 		}
 	}
@@ -110,5 +143,74 @@ public class ItemParser extends AbstractAtomParser<ItemEntity>
 			}
 		}
 	}
+
+    public void itemToJson(Item item, JsonGenerator generator ) throws IOException
+    {
+        generator.writeStartObject(); // item
+        {
+            generator.writeStringField("itemType", item.getItemType().getZoteroName());
+            generator.writeStringField("itemKey", item.getKey());
+            if(item.getParentKey()!=null)
+            {
+                generator.writeStringField("parentItem", item.getParentKey());
+            }
+
+            generator.writeArrayFieldStart("creators");
+            {
+                for(Creator creator : item.getCreators())
+                {
+                    generator.writeStartObject();
+
+                    generator.writeStringField("creatorType", creator.getType().getZoteroName());
+                    generator.writeStringField("firstName", creator.getFirstName());
+                    generator.writeStringField("lastName", creator.getLastName());
+                    generator.writeStringField("shortName", creator.getShortName());
+
+                    generator.writeEndObject(); //creator
+                }
+            }
+            generator.writeEndArray(); //creators
+
+            for(Field field : item.getFields())
+            {
+                generator.writeStringField(field.getType().getZoteroName(),field.getValue());
+            }
+
+            generator.writeArrayFieldStart("tags");
+            {
+                for( Tag tag : item.getTags())
+                {
+                    if(tag.getTag() != null && !tag.getTag().trim().isEmpty())
+                    {
+                        generator.writeStartObject();
+                        {
+                            generator.writeStringField("tag", tag.getTag());
+                        }
+                        generator.writeEndObject(); //tag
+                    }
+                }
+            }
+            generator.writeEndArray(); //tags
+
+            generator.writeArrayFieldStart("collections");
+            {
+                for(CollectionEntity collection : item.getCollections())
+                {
+                    generator.writeString(collection.getKey());
+                }
+            }
+            generator.writeEndArray(); //collections
+
+            generator.writeObjectFieldStart("relations");
+            {
+                for(Relation relation : item.getRelations())
+                {
+                    generator.writeStringField(relation.getPredicate(), relation.getObject());
+                }
+            }
+            generator.writeEndObject(); //relations
+        }
+        generator.writeEndObject(); // item
+    }
 
 }

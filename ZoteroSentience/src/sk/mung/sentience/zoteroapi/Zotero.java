@@ -2,31 +2,33 @@ package sk.mung.sentience.zoteroapi;
 
 import android.net.Uri;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.apache.http.HttpStatus;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.xmlpull.v1.XmlPullParserException;
-
 import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
 import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemEntity;
+import sk.mung.sentience.zoteroapi.entities.SyncStatus;
 import sk.mung.sentience.zoteroapi.parsers.AbstractAtomParser;
 import sk.mung.sentience.zoteroapi.parsers.CollectionParser;
 import sk.mung.sentience.zoteroapi.parsers.ItemParser;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Zotero
 {    
@@ -37,6 +39,7 @@ public class Zotero
 	private static final int CHUNK_SIZE = 50;
     
     private ZoteroRestful restful;
+    private final ObjectMapper mapper = new ObjectMapper();
         
     public void setRestfull( ZoteroRestful restful) { this.restful = restful; }   
     
@@ -53,8 +56,8 @@ public class Zotero
     }
 
 	private Map<String, Integer> getVersions(String sectionName,
-			Integer sinceVersion) throws IOException, ClientProtocolException,
-			JsonProcessingException {
+			Integer sinceVersion) throws IOException
+    {
 		ZoteroRestful.Response response = restful.callCurrentUserApi(
             sectionName, 
             new String[][]{ 
@@ -100,7 +103,7 @@ public class Zotero
 			String section,
 			Collection<String> versions, int startPosition, int endPosition,
 			AbstractAtomParser<T> parser) 
-					throws IOException, ClientProtocolException, XmlPullParserException 
+					throws IOException, XmlPullParserException
 	{
 		List<T> entities = new ArrayList<T>();
         if( endPosition < 0 ) { endPosition = versions.size(); }
@@ -115,7 +118,7 @@ public class Zotero
                     position < startPosition + (chunk + 1) * CHUNK_SIZE && position < endPosition && iterator.hasNext();
                     ++position)
             {
-                builder.append(separator + iterator.next());
+                builder.append(separator).append(iterator.next());
                 separator = ",";
             }
             ZoteroRestful.Response response = restful.callCurrentUserApi(
@@ -137,7 +140,8 @@ public class Zotero
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Map<String, List<String>> getDeletions(int sinceVersion) throws JsonParseException, JsonMappingException, IOException {
+	public Map<String, List<String>> getDeletions(int sinceVersion) throws IOException
+    {
 		ZoteroRestful.Response response = restful.callCurrentUserApi(
 	            "deleted", 
 	            new String[][]{ 
@@ -170,5 +174,115 @@ public class Zotero
     public UploadStatus uploadAttachment(File file, Item item)
     {
         return restful.uploadAttachment(file, item);
+    }
+
+    public List<UploadStatus> updateItems(List<Item> items, int sinceVersion)
+    {
+        if(items.size() == 0)
+        {
+            return new ArrayList<UploadStatus>();
+        }
+        UploadStatus status[] = new UploadStatus[items.size()];
+        Arrays.fill(status,UploadStatus.NETWORK_ERROR);
+
+        try
+        {
+            ZoteroRestful.Response response = restful.uploadEntities(
+                    multiUploadToJson(items), ITEMS, sinceVersion);
+            int version = getLastModifiedVersion();
+            if(response.StatusCode == HttpStatus.SC_OK)
+            {
+
+                JsonNode root =  mapper.readValue(response.ResponseString, JsonNode.class);
+                JsonNode success = root.get("success");
+                if(success != null)
+                {
+                    Iterator<Map.Entry<String,JsonNode>> elements = success.fields();
+                    while( elements.hasNext() )
+                    {
+                        Map.Entry<String,JsonNode> el = elements.next();
+                        int ix = Integer.valueOf(el.getKey());
+                        status[ix] = UploadStatus.SUCCESS;
+                        Item item = items.get(ix);
+                        item.setKey(el.getValue().asText());
+                        item.setSynced(SyncStatus.SYNC_OK);
+                        item.setVersion(version);
+                    }
+                }
+                JsonNode unchanged = root.get("unchanged");
+                if(unchanged != null)
+                {
+                    Iterator<Map.Entry<String,JsonNode>> elements = unchanged.fields();
+                    while( elements.hasNext() )
+                    {
+                        Map.Entry<String,JsonNode> el = elements.next();
+                        int ix = Integer.valueOf(el.getKey());
+                        status[ix] = UploadStatus.SUCCESS;
+                        Item item = items.get(ix);
+                        item.setSynced(SyncStatus.SYNC_OK);
+                        item.setVersion(version);
+                    }
+                }
+
+                JsonNode failed = root.get("failed");
+                if(unchanged != null)
+                {
+                    Iterator<Map.Entry<String,JsonNode>> elements = failed.fields();
+                    while( elements.hasNext() )
+                    {
+                        Map.Entry<String,JsonNode> el = elements.next();
+                        int ix = Integer.valueOf(el.getKey());
+                        JsonNode failure = el.getValue();
+                        Item item = items.get(ix);
+                        switch( failure.get("code").asInt())
+                        {
+                            case HttpStatus.SC_OK:
+                                status[ix] = UploadStatus.SUCCESS;
+                                item.setSynced(SyncStatus.SYNC_OK);
+                                item.setVersion(version);
+                                break;
+                            case HttpStatus.SC_PRECONDITION_FAILED:
+                                status[ix] = UploadStatus.UPDATE_CONFLICTS;
+                                item.setSynced(SyncStatus.SYNC_CONFLICT);
+                                break;
+                            default:
+                                status[ix] = UploadStatus.NETWORK_ERROR;
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        catch (JsonProcessingException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return Arrays.asList(status);
+    }
+
+    private String multiUploadToJson(List<Item> items) throws IOException
+    {
+        StringWriter writer = new StringWriter();
+        JsonFactory f = new JsonFactory();
+        JsonGenerator g = f.createGenerator(writer);
+        ItemParser itemParser = new ItemParser();
+
+        g.writeStartObject();
+        {
+            g.writeArrayFieldStart("items");
+            for(Item item : items)
+            {
+                itemParser.itemToJson(item, g);
+            }
+            g.writeEndArray(); //items
+        }
+        g.writeEndObject(); // result
+        g.flush();
+        g.close();
+        return writer.getBuffer().toString();
     }
 }

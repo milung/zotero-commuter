@@ -15,6 +15,7 @@ import sk.mung.sentience.zoteroapi.entities.Field;
 import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemEntity;
 import sk.mung.sentience.zoteroapi.entities.ItemField;
+import sk.mung.sentience.zoteroapi.entities.SyncStatus;
 
 public class ZoteroSync
 {
@@ -107,7 +108,15 @@ public class ZoteroSync
             collectionsVersion = storage.getCollectionsVersion();
             deletionsVersion = storage.getDeletionsVersion();
         } while( collectionsVersion != deletionsVersion);
+        uploadUpdatedItems();
         uploadAttachments();
+    }
+
+    private void uploadUpdatedItems()
+    {
+        List<Item> items =  storage.findItemsBySynced(SyncStatus.SYNC_LOCALLY_UPDATED);
+        List<UploadStatus> status = zotero.updateItems(items, storage.getItemsVersion());
+        storage.setItemsVersion(zotero.getLastModifiedVersion());
     }
 
     private void uploadAttachments()

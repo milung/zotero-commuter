@@ -11,7 +11,7 @@ public class ItemEntity implements Item
     private String title;
     private int version;
     private ItemType itemType = ItemType.OTHER;
-    private boolean isSynced = true;
+    private SyncStatus synced = SyncStatus.SYNC_UNKNOWN;
     private String key;
     private String parentKey;
     
@@ -20,6 +20,7 @@ public class ItemEntity implements Item
     private final List<CollectionEntity> collections = new ArrayList<CollectionEntity>();
     private final List<Tag> tags = new ArrayList<Tag>();
     private final List<Item> children = new ArrayList<Item>();
+    private final List<Relation> relations = new ArrayList<Relation>();
 
     @Override
     public long getId()
@@ -69,11 +70,11 @@ public class ItemEntity implements Item
         return null;
     }
 
-	@Override
-    public ItemField[] getSupportedFields() { return ItemField.values(); }
+	@Override public ItemField[] getSupportedFields() { return ItemField.values(); }
 
 	@Override
-    public void addField(Field field) {
+    public void addField(Field field)
+    {
 		fields.add(field);
 		if(title == null && field.getType().isTitle())
 		{
@@ -81,51 +82,41 @@ public class ItemEntity implements Item
 		}
 	}
 
-	@Override
-    public boolean isSynced() { return isSynced; }
+	@Override public boolean isSynced() { return synced == SyncStatus.SYNC_OK; }
+	@Override public void setSynced(SyncStatus status) { this.synced = status; }
+    @Override public SyncStatus getSynced() { return synced; }
 
-	@Override
-    public void setSynced(boolean isSynced) { this.isSynced = isSynced; }
+    @Override public List<Creator> getCreators() { return creators; }
+	@Override public void addCreator(Creator creator) { creators.add(creator); }
 
-	@Override
-    public List<Creator> getCreators() { return creators; }
+	@Override public List<Tag> getTags() { return tags; }
+	@Override public void addTag(Tag tag) { tags.add(tag); }
 
-	@Override
-    public void addCreator(Creator creator) { creators.add(creator); }
+    @Override public void addCollection(CollectionEntity key) { collections.add(key); }
+    @Override public List<CollectionEntity> getCollections() { return collections; }
 
-	@Override
-    public List<CollectionEntity> getCollections() { return collections; }
+    @Override public String getParentKey() { return parentKey; }
+	@Override public void setParentKey(String parentKey) { this.parentKey = parentKey; }
 
-	@Override
-    public List<Tag> getTags() { return tags; }
-
-	@Override
-    public void addCollection(CollectionEntity key) { collections.add(key); }
-	
-	@Override
-    public void addTag(Tag tag) { tags.add(tag); }
-
-	@Override
-    public String getParentKey() { return parentKey; }
-
-	@Override
-    public void setParentKey(String parentKey) { this.parentKey = parentKey; }
+    @Override public List<Item> getChildren() { return Collections.unmodifiableList(children); }
+    @Override public void addChild(Item item) { children.add(item); }
+    @Override public void clearChildren() { children.clear(); }
 
     @Override
-    public List<Item> getChildren()
+    public List<Relation> getRelations()
     {
-        return Collections.unmodifiableList(children);
+        return Collections.unmodifiableList(relations);
     }
 
     @Override
-    public void addChild(Item item)
+    public void addRelation(Relation relation)
     {
-        children.add(item);
+        relations.add(relation);
     }
 
     @Override
-    public void clearChildren()
+    public void clearRelations()
     {
-        children.clear();
+        relations.clear();
     }
 }

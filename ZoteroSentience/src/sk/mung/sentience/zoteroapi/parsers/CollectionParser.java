@@ -3,6 +3,7 @@ package sk.mung.sentience.zoteroapi.parsers;
 import java.util.Map;
 
 import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
+import sk.mung.sentience.zoteroapi.entities.SyncStatus;
 
 public class CollectionParser extends AbstractAtomParser<CollectionEntity>
 {
@@ -20,7 +21,7 @@ public class CollectionParser extends AbstractAtomParser<CollectionEntity>
         {
             result.setParentKey(parent);
         }
-        result.setSynced(true);
+        result.setSynced(SyncStatus.SYNC_OK);
         return result;
     }
 }

@@ -10,4 +10,8 @@ public interface KeyEntity extends Entity
 
     int getVersion();
     void setVersion(int version);
+
+    boolean isSynced();
+    SyncStatus getSynced();
+    void setSynced(SyncStatus synced);
 }

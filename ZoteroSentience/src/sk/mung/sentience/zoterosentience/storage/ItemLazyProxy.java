@@ -8,14 +8,13 @@ import sk.mung.sentience.zoteroapi.entities.Field;
 import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemField;
 import sk.mung.sentience.zoteroapi.entities.ItemType;
+import sk.mung.sentience.zoteroapi.entities.Relation;
 import sk.mung.sentience.zoteroapi.entities.Tag;
 
 
-public class ItemLazyProxy implements Item, BaseDao.UpdateListener
+public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseDao.UpdateListener
 {
-    private final Item adaptee;
     private final CreatorsDao creatorsDao;
-    private final ItemsDao itemsDao;
     private final FieldsDao fieldsDao;
     private final TagsDao tagsDao;
 
@@ -26,85 +25,60 @@ public class ItemLazyProxy implements Item, BaseDao.UpdateListener
 
     public ItemLazyProxy(Item adaptee, CreatorsDao creatorsDao, ItemsDao itemsDao, FieldsDao fieldsDao, TagsDao tagsDao)
     {
-        this.adaptee = adaptee;
+        super(itemsDao, adaptee);
         this.creatorsDao = creatorsDao;
-        this.itemsDao = itemsDao;
         this.fieldsDao = fieldsDao;
         this.tagsDao = tagsDao;
         itemsDao.addUpdateListener(this);
     }
 
     @Override
-    public long getId()
-    {
-        return adaptee.getId();
-    }
-
-    @Override
     public ItemType getItemType()
     {
-        return adaptee.getItemType();
+        return getAdaptee().getItemType();
     }
 
     @Override
     public List<Creator> getCreators()
     {
         loadCreators();
-        return adaptee.getCreators();
-    }
-
-    @Override
-    public String getKey()
-    {
-        return adaptee.getKey();
+        return getAdaptee().getCreators();
     }
 
     @Override
     public List<Field> getFields()
     {
         loadFields();
-        return adaptee.getFields();
-    }
-
-    @Override
-    public int getVersion()
-    {
-        return adaptee.getVersion();
-    }
-
-    @Override
-    public void setVersion(int version)
-    {
-        adaptee.setVersion(version);
+        return getAdaptee().getFields();
     }
 
     @Override
     public void addCollection(CollectionEntity key)
     {
-        adaptee.addCollection(key);
+        getAdaptee().addCollection(key);
     }
 
     @Override
     public void setItemType(ItemType itemType)
     {
-        adaptee.setItemType(itemType);
+        getAdaptee().setItemType(itemType);
     }
 
     @Override
     public void addCreator(Creator creator)
     {
         loadCreators();
-        adaptee.addCreator(creator);
+        getAdaptee().addCreator(creator);
     }
 
     private synchronized void loadCreators()
     {
         if(!areCreatorsLoaded)
         {
-            adaptee.getCreators().clear();
-            for(Creator creator : creatorsDao.findByItem(adaptee))
+            getAdaptee().getCreators().clear();
+            for(Creator creator : creatorsDao.findByItem(getAdaptee()))
             {
-                adaptee.addCreator(creator);
+                getAdaptee().addCreator(creator);
             }
             areCreatorsLoaded = true;
         }
@@ -114,54 +88,48 @@ public class ItemLazyProxy implements Item, BaseDao.UpdateListener
     public List<Tag> getTags()
     {
         loadTags();
-        return adaptee.getTags();
+        return getAdaptee().getTags();
     }
 
     @Override
     public List<CollectionEntity> getCollections()
     {
-        return adaptee.getCollections();
+        return getAdaptee().getCollections();
     }
 
     @Override
     public ItemField[] getSupportedFields()
     {
-        return adaptee.getSupportedFields();
+        return getAdaptee().getSupportedFields();
     }
 
     @Override
     public String getTitle()
     {
-        return adaptee.getTitle();
+        return getAdaptee().getTitle();
     }
 
     @Override
     public String getParentKey()
     {
-        return adaptee.getParentKey();
-    }
-
-    @Override
-    public boolean isSynced()
-    {
-        return adaptee.isSynced();
+        return getAdaptee().getParentKey();
     }
 
     @Override
     public void addTag(Tag tag)
     {
         loadTags();
-        adaptee.addTag(tag);
+        getAdaptee().addTag(tag);
     }
 
     private void loadTags()
     {
         if(!areTagsLoaded)
         {
-            adaptee.getTags().clear();
+            getAdaptee().getTags().clear();
             for( Tag tag : tagsDao.findByItem(this))
             {
-                adaptee.addTag(tag);
+                getAdaptee().addTag(tag);
             }
             areTagsLoaded = true;
         }
@@ -170,43 +138,66 @@ public class ItemLazyProxy implements Item, BaseDao.UpdateListener
     @Override
     public void setTitle(String title)
     {
-        adaptee.setTitle(title);
+        getAdaptee().setTitle(title);
     }
 
     @Override
     public void setParentKey(String parentKey)
     {
-        adaptee.setParentKey(parentKey);
+        getAdaptee().setParentKey(parentKey);
     }
 
     @Override
     public List<Item> getChildren()
     {
         loadChildren();
-        return adaptee.getChildren();
+        return getAdaptee().getChildren();
     }
 
     @Override
     public void addChild(Item item)
     {
         loadChildren();
-        adaptee.addChild(item);
+        getAdaptee().addChild(item);
     }
 
     @Override
     public void clearChildren()
     {
-        adaptee.clearChildren();
+        getAdaptee().clearChildren();
+    }
+
+    @Override
+    public List<Relation> getRelations()
+    {
+        return getAdaptee().getRelations();
+    }
+
+    @Override
+    public void addRelation(Relation relation)
+    {
+        getAdaptee().addRelation(relation);
+    }
+
+    @Override
+    public void clearRelations()
+    {
+        getAdaptee().clearRelations();
+    }
+
+    private ItemsDao getItemsDao()
+    {
+        return (ItemsDao) getDao();
     }
 
     private synchronized void loadChildren()
     {
         if(!areChildrenLoaded)
         {
-            adaptee.clearChildren();
-            for( Item item : itemsDao.findByParent(this))
+            getAdaptee().clearChildren();
+            for( Item item : getItemsDao().findByParent(this))
             {
-                adaptee.addChild(item);
+                getAdaptee().addChild(item);
             }
             areChildrenLoaded = true;
         }
@@ -216,45 +207,27 @@ public class ItemLazyProxy implements Item, BaseDao.UpdateListener
     public void addField(Field field)
     {
         loadFields();
-        adaptee.addField(field);
+        getAdaptee().addField(field);
     }
 
     @Override
     public Field getField(ItemField fieldType)
     {
         loadFields();
-        return adaptee.getField(fieldType);
+        return getAdaptee().getField(fieldType);
     }
 
     private synchronized void loadFields()
     {
         if(!areFieldsLoaded)
         {
-            adaptee.getFields().clear();
+            getAdaptee().getFields().clear();
             for( Field field : fieldsDao.findByItem(this))
             {
-                adaptee.addField(field);
+                getAdaptee().addField(field);
             }
             areFieldsLoaded = true;
         }
-    }
-
-    @Override
-    public void setKey(String key)
-    {
-        adaptee.setKey(key);
-    }
-
-    @Override
-    public void setSynced(boolean isSynced)
-    {
-        adaptee.setSynced(isSynced);
-    }
-
-    @Override
-    public void setId(long id)
-    {
-        adaptee.setId(id);
     }
 
     @Override

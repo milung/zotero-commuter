@@ -50,13 +50,16 @@ class PersonsDao extends BaseDao<Person>
     {
         ContentValues values = entityToValues(entity);
         SQLiteDatabase database = getWritableDatabase();
-        long rowId = database.insertWithOnConflict(getTable(), null, values, SQLiteDatabase.CONFLICT_IGNORE);
-        if(0 > rowId )
+        long rowId = searchIdOfEntity(entity);
+        if(rowId < 0)
         {
-            rowId = searchIdOfEntity(entity);
+            rowId = database.insertWithOnConflict(getTable(), null, values, SQLiteDatabase.CONFLICT_IGNORE);
         }
+
         entity.setId(rowId);
     }
+
+
 
 
 

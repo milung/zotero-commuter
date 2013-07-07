@@ -11,14 +11,18 @@ import java.util.List;
 import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
 import sk.mung.sentience.zoteroapi.entities.Item;
 import sk.mung.sentience.zoteroapi.entities.ItemEntity;
+import sk.mung.sentience.zoteroapi.entities.SyncStatus;
 
 public class ZoteroStorage extends SQLiteOpenHelper
 {
-
-
     public Item findItemByKey(String key)
     {
         return itemsDao.findByKey(key);
+    }
+
+    public List<Item> findItemsBySynced(SyncStatus syncStatus)
+    {
+        return itemsDao.findBySynced(syncStatus);
     }
 
     class DatabaseConnection
@@ -60,7 +64,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
 	private static final String VERSION_DELETIONS = "deletions";
 
     private static final String DATABASE_NAME = "ZoteroStorage";
-    private static final int DATABASE_VERSION = 15;
+    private static final int DATABASE_VERSION = 19;
     public static final String VERSION_ITEMS = "items";
 
     private List<ZoteroStorageListener> listeners = new ArrayList<ZoteroStorageListener>();
@@ -71,6 +75,7 @@ public class ZoteroStorage extends SQLiteOpenHelper
     private final CreatorsDao creatorsDao;
     private final TagsDao tagsDao;
     private final FieldsDao fieldsDao;
+    private final RelationsDao relationsDao;
 
     public static ZoteroCollection getEmptyLibrary()
     {
@@ -97,7 +102,8 @@ public class ZoteroStorage extends SQLiteOpenHelper
         this.creatorsDao = new CreatorsDao(connection,queries, personsDao);
         this.tagsDao = new TagsDao(connection, queries);
         this.fieldsDao = new FieldsDao(connection, queries);
-        this.itemsDao = new ItemsDao(connection,queries, creatorsDao, tagsDao, fieldsDao);
+        this.relationsDao = new RelationsDao(connection, queries);
+        this.itemsDao = new ItemsDao(connection,queries, creatorsDao, tagsDao, fieldsDao, relationsDao);
         this.collectionsDao = new CollectionsDao(connection,queries, itemsDao);
     }
 
@@ -113,22 +119,27 @@ public class ZoteroStorage extends SQLiteOpenHelper
         personsDao.createTable();
         creatorsDao.createTable();
         itemsDao.createTable();
+        relationsDao.createTable();
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion)
     {
         connection.putDatabase(database);
-    	collectionsDao.upgrade( oldVersion, newVersion);
+        if(oldVersion < 20)
+        {
+            collectionsDao.upgrade( oldVersion, newVersion);
 
-        fieldsDao.upgrade(oldVersion,newVersion);
-    	itemsDao.upgrade(oldVersion, newVersion);
-        creatorsDao.upgrade(oldVersion, newVersion);
-        personsDao.upgrade(oldVersion,newVersion);
+            fieldsDao.upgrade(oldVersion,newVersion);
+            itemsDao.upgrade(oldVersion, newVersion);
+            creatorsDao.upgrade(oldVersion, newVersion);
+            personsDao.upgrade(oldVersion,newVersion);
 
-    	tagsDao.upgrade(oldVersion, newVersion);
-        versionsDao.upgrade( oldVersion, newVersion);
-        onCreate(database);
+            tagsDao.upgrade(oldVersion, newVersion);
+            versionsDao.upgrade( oldVersion, newVersion);
+            relationsDao.upgrade(oldVersion,newVersion);
+            onCreate(database);
+        }
     }
 
     public int getCollectionsVersion()

@@ -17,11 +17,13 @@ class FieldLazyProxy extends Field
     @Override
     public void setValue(String value)
     {
-        super.setValue(value);
-        if(this.getId() != 0)
+        if(!value.equals(getValue()))
         {
-            fieldsDao.update(this);
-
+            super.setValue(value);
+            if(this.getId() != 0)
+            {
+                fieldsDao.update(this);
+            }
         }
     }
 }
