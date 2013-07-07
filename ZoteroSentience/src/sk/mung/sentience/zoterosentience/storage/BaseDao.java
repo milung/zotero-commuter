@@ -15,6 +15,17 @@ import sk.mung.sentience.zoteroapi.entities.Entity;
 
 public abstract class BaseDao<T extends Entity>
 {
+    public void updateProperty(T entity, String columnName, Object value)
+    {
+        ContentValues values = new ContentValues();
+        values.put(columnName,value.toString());
+        getWritableDatabase().update(
+          getTable(),
+                values,
+                COLUMN_ID + QUESTION_MARK,
+                new String[] { Long.toString(entity.getId())});
+    }
+
     interface UpdateListener
     {
         void onDataUpdated(BaseDao sender, Long entityId);
