@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import sk.mung.sentience.zoteroapi.entities.Entity;
+import sk.mung.zoteroapi.entities.Entity;
 
 class VersionsDao extends BaseDao<VersionsDao.Version>
 {
@@ -49,7 +49,7 @@ class VersionsDao extends BaseDao<VersionsDao.Version>
         }
     }
 
-    public VersionsDao(ZoteroStorage.DatabaseConnection databaseConnection, QueryDictionary queries)
+    public VersionsDao(ZoteroStorageImpl.DatabaseConnection databaseConnection, QueryDictionary queries)
     {
         super(databaseConnection, queries);
     }

@@ -8,9 +8,9 @@ import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Map;
 
-import sk.mung.sentience.zoteroapi.entities.Creator;
-import sk.mung.sentience.zoteroapi.entities.Item;
-import sk.mung.sentience.zoteroapi.entities.ItemType;
+import sk.mung.zoteroapi.entities.Creator;
+import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.ItemType;
 import sk.mung.sentience.zoterosentience.R;
 
 /**

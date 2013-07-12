@@ -1,6 +1,6 @@
 package sk.mung.sentience.zoterosentience.storage;
 
-import sk.mung.sentience.zoteroapi.entities.Field;
+import sk.mung.zoteroapi.entities.Field;
 
 /**
  * Created by sk1u00e5 on 1.7.2013.

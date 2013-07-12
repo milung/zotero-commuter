@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sk.mung.sentience.zoteroapi.entities.Field;
-import sk.mung.sentience.zoteroapi.entities.ItemField;
+import sk.mung.zoteroapi.entities.Field;
+import sk.mung.zoteroapi.entities.ItemField;
 import sk.mung.sentience.zoterosentience.R;
 
 /**

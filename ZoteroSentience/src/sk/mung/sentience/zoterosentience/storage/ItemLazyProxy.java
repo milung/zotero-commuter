@@ -1,19 +1,22 @@
 package sk.mung.sentience.zoterosentience.storage;
 
+import android.util.Log;
+
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
-import sk.mung.sentience.zoteroapi.entities.Creator;
-import sk.mung.sentience.zoteroapi.entities.Field;
-import sk.mung.sentience.zoteroapi.entities.Item;
-import sk.mung.sentience.zoteroapi.entities.ItemField;
-import sk.mung.sentience.zoteroapi.entities.ItemType;
-import sk.mung.sentience.zoteroapi.entities.Relation;
-import sk.mung.sentience.zoteroapi.entities.Tag;
+import sk.mung.zoteroapi.entities.CollectionEntity;
+import sk.mung.zoteroapi.entities.Creator;
+import sk.mung.zoteroapi.entities.Field;
+import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.ItemField;
+import sk.mung.zoteroapi.entities.ItemType;
+import sk.mung.zoteroapi.entities.Relation;
+import sk.mung.zoteroapi.entities.Tag;
 
 
 public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseDao.UpdateListener
 {
+    private static final String TAG = "ItemLazyProxy";
     private final CreatorsDao creatorsDao;
     private final FieldsDao fieldsDao;
     private final TagsDao tagsDao;
@@ -75,6 +78,7 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     {
         if(!areCreatorsLoaded)
         {
+            Log.d(TAG, "loading creators for item ID:" + getId());
             getAdaptee().getCreators().clear();
             for(Creator creator : creatorsDao.findByItem(getAdaptee()))
             {
@@ -126,6 +130,7 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     {
         if(!areTagsLoaded)
         {
+            Log.d(TAG, "loading tags for item ID:" + getId());
             getAdaptee().getTags().clear();
             for( Tag tag : tagsDao.findByItem(this))
             {
@@ -194,6 +199,7 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     {
         if(!areChildrenLoaded)
         {
+            Log.d(TAG, "loading children for item ID:" + getId());
             getAdaptee().clearChildren();
             for( Item item : getItemsDao().findByParent(this))
             {
@@ -221,6 +227,7 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     {
         if(!areFieldsLoaded)
         {
+            Log.d(TAG, "loading fields for item ID:" + getId());
             getAdaptee().getFields().clear();
             for( Field field : fieldsDao.findByItem(this))
             {

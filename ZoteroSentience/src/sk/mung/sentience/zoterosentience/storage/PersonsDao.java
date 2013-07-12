@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import sk.mung.sentience.zoteroapi.entities.Person;
+import sk.mung.zoteroapi.entities.Person;
 
 
 class PersonsDao extends BaseDao<Person>
@@ -14,7 +14,7 @@ class PersonsDao extends BaseDao<Person>
     private static final String COLUMN_LAST_NAME = "lastName";
     private static final String COLUMN_FIRST_NAME = "firstName";
 
-    public PersonsDao(ZoteroStorage.DatabaseConnection databaseConnection, QueryDictionary queries)
+    public PersonsDao(ZoteroStorageImpl.DatabaseConnection databaseConnection, QueryDictionary queries)
     {
         super(databaseConnection, queries);
     }

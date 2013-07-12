@@ -21,6 +21,9 @@
     <orderEntry type="jdk" jdkName="Android 4.2.2" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="libs" level="project" />
+    <orderEntry type="module" module-name="ZoteroApi" exported="" />
+    <orderEntry type="library" exported="" name="httpclient-4.2.5" level="project" />
+    <orderEntry type="library" exported="" name="httpcore-4.2.4" level="project" />
   </component>
 </module>
 

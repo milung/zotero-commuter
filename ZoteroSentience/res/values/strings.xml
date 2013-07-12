@@ -29,4 +29,13 @@
     <string name="save_short">Save</string>
     <string name="bold_text">Emphasize</string>
     <string name="wipe_downloads">Delete all downloads</string>
+    <string name="pref_sync_frequency">Synchronization period</string>
+    <string name="sync_on_mobile_allowed">Synchronize over mobile connections</string>
+    <string name="summary_sync_on_mobile">Mobile data can be costly</string>
+    <string name="prefs_clear_library">Clear library</string>
+    <string name="prefs_summary_clear_library">Useful if your local library is inconsistent with Zotero server</string>
+    <string name="prefs_delete_attachment">Delete downloaded documents</string>
+    <string name="prefs_summary_delete_attachment">Removes all downloaded attachment from the memory</string>
+    <string name="prefs_login">Login to Zotero</string>
+    <string name="settings">Settings</string>
 </resources>

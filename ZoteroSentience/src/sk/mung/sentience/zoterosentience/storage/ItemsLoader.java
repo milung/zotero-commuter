@@ -5,18 +5,18 @@ import android.support.v4.content.AsyncTaskLoader;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.Item;
 
 
 public class ItemsLoader extends AsyncTaskLoader<List<Item>>
 implements ZoteroStorageListener
 {
-    private ZoteroStorage storage;
+    private ZoteroStorageImpl storage;
     private List<Item> loadedItems;
     private boolean wasChanged = true;
     private final Long collectionId;
 
-    public ItemsLoader(Context context, Long collectionId, ZoteroStorage storage)
+    public ItemsLoader(Context context, Long collectionId, ZoteroStorageImpl storage)
     {
         super(context);
         this.collectionId = collectionId;

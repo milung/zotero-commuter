@@ -18,12 +18,11 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.Field;
-import sk.mung.sentience.zoteroapi.entities.Item;
-import sk.mung.sentience.zoteroapi.entities.ItemField;
-import sk.mung.sentience.zoteroapi.entities.ItemType;
-import sk.mung.sentience.zoteroapi.entities.SyncStatus;
-import sk.mung.sentience.zoteroapi.entities.Tag;
+import sk.mung.zoteroapi.entities.Field;
+import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.ItemField;
+import sk.mung.zoteroapi.entities.ItemType;
+import sk.mung.zoteroapi.entities.Tag;
 import sk.mung.sentience.zoterosentience.renderers.AttachmentRenderer;
 import sk.mung.sentience.zoterosentience.renderers.FieldRenderer;
 import sk.mung.sentience.zoterosentience.renderers.ItemRenderer;

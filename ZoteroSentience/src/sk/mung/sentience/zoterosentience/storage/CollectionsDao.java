@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.HashMap;
 import java.util.Map;
 
-import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
-import sk.mung.sentience.zoteroapi.entities.SyncStatus;
+import sk.mung.zoteroapi.entities.CollectionEntity;
+import sk.mung.zoteroapi.entities.SyncStatus;
 
 
 class CollectionsDao extends BaseKeyDao<CollectionEntity>
@@ -20,7 +20,7 @@ class CollectionsDao extends BaseKeyDao<CollectionEntity>
     public static final String[] SELECT_COLUMNS = new String[]{COLUMN_KEY, COLUMN_NAME, COLUMN_VERSION, COLUMN_SYNCED, COLUMN_PARENT, COLUMN_ID};
 
     public final ItemsDao itemsDao;
-    public CollectionsDao(ZoteroStorage.DatabaseConnection sqlite, QueryDictionary queries, ItemsDao itemsDao)
+    public CollectionsDao(ZoteroStorageImpl.DatabaseConnection sqlite, QueryDictionary queries, ItemsDao itemsDao)
     {
         super(sqlite, queries);
         this.itemsDao = itemsDao;

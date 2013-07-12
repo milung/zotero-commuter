@@ -6,9 +6,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.Creator;
-import sk.mung.sentience.zoteroapi.entities.CreatorType;
-import sk.mung.sentience.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.Creator;
+import sk.mung.zoteroapi.entities.CreatorType;
+import sk.mung.zoteroapi.entities.Item;
 
 
 public class CreatorsDao extends BaseDao<Creator>
@@ -17,7 +17,7 @@ public class CreatorsDao extends BaseDao<Creator>
 
     private final PersonsDao personsDao;
 
-    public CreatorsDao(ZoteroStorage.DatabaseConnection databaseConnection, QueryDictionary queries, PersonsDao personsDao)
+    public CreatorsDao(ZoteroStorageImpl.DatabaseConnection databaseConnection, QueryDictionary queries, PersonsDao personsDao)
     {
         super(databaseConnection, queries);
         this.personsDao = personsDao;
@@ -99,7 +99,14 @@ public class CreatorsDao extends BaseDao<Creator>
         Cursor cursor = database.rawQuery(
                 getQueries().getItemCreators(),
                 new String [] {Long.toString(item.getId())});
-        return cursorToEntities(cursor);
+        try
+        {
+            return cursorToEntities(cursor);
+        }
+        finally
+        {
+            cursor.close();
+        }
     }
 
 }

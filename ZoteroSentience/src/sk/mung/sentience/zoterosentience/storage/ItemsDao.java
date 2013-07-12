@@ -3,18 +3,19 @@ package sk.mung.sentience.zoterosentience.storage;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
-import sk.mung.sentience.zoteroapi.entities.Creator;
-import sk.mung.sentience.zoteroapi.entities.Field;
-import sk.mung.sentience.zoteroapi.entities.Item;
-import sk.mung.sentience.zoteroapi.entities.ItemEntity;
-import sk.mung.sentience.zoteroapi.entities.ItemType;
-import sk.mung.sentience.zoteroapi.entities.Relation;
-import sk.mung.sentience.zoteroapi.entities.SyncStatus;
-import sk.mung.sentience.zoteroapi.entities.Tag;
+import sk.mung.zoteroapi.entities.CollectionEntity;
+import sk.mung.zoteroapi.entities.Creator;
+import sk.mung.zoteroapi.entities.Field;
+import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.ItemEntity;
+import sk.mung.zoteroapi.entities.ItemType;
+import sk.mung.zoteroapi.entities.Relation;
+import sk.mung.zoteroapi.entities.SyncStatus;
+import sk.mung.zoteroapi.entities.Tag;
 
 public class ItemsDao extends BaseKeyDao<Item>
 {
@@ -29,6 +30,7 @@ public class ItemsDao extends BaseKeyDao<Item>
     static final String TABLE_ITEMS_TO_TAGS = "items_to_tags";
     private static final String TABLE_ITEMS_TO_COLLECTIONS = "items_to_collections";
     public static final String SYNC_FILTER = "{SYNC_FILTER}";
+    private static final String TAG = "ItemsDao";
 
     private final CreatorsDao creatorsDao;
     private final TagsDao tagsDao;
@@ -37,7 +39,7 @@ public class ItemsDao extends BaseKeyDao<Item>
     private final RelationsDao relationsDao;
 
     public ItemsDao(
-            ZoteroStorage.DatabaseConnection sqlite,
+            ZoteroStorageImpl.DatabaseConnection sqlite,
             QueryDictionary queries,
             CreatorsDao creatorsDao,
             TagsDao tagsDao,
@@ -169,6 +171,7 @@ public class ItemsDao extends BaseKeyDao<Item>
     @Override
     protected void cursorToEntity(Cursor cursor, Item item)
     {
+        Log.d(TAG, ">> cursorToEntity - enter");
         item.setId( cursor.getLong(0));
         item.setKey( cursor.getString(1));
         item.setVersion( cursor.getInt(2));
@@ -176,6 +179,7 @@ public class ItemsDao extends BaseKeyDao<Item>
         item.setSynced(SyncStatus.fromStatusCode(cursor.getInt(4)));
         item.setTitle(cursor.getString(5));
         item.setParentKey(idToKey(cursor.getLong(6)));
+        Log.d(TAG, "<< cursorToEntity - leave");
     }
 
     @Override
@@ -212,6 +216,7 @@ public class ItemsDao extends BaseKeyDao<Item>
 
     public List<Item> findByCollection(CollectionEntity collection)
     {
+        Log.d(TAG, ">> findByCollection - enter");
         String query = getQueries().getLibraryItems();
 
         String[] selectionParams = null;
@@ -222,14 +227,17 @@ public class ItemsDao extends BaseKeyDao<Item>
         }
 
         query= query.replace(SYNC_FILTER, getSyncFilter());
+        Log.d(TAG, ">> findByCollection - do query");
         Cursor cursor = getReadableDatabase().rawQuery(query, selectionParams);
         try
         {
+            Log.d(TAG, ">> findByCollection - transforming cursor");
             return cursorToEntities(cursor);
         }
         finally
         {
             cursor.close();
+            Log.d(TAG, ">> findByCollection - leave");
         }
     }
 

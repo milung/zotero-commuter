@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import sk.mung.sentience.zoterosentience.storage.ZoteroCollection;
-import sk.mung.sentience.zoterosentience.storage.ZoteroStorage;
+import sk.mung.sentience.zoterosentience.storage.ZoteroStorageImpl;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -139,7 +139,7 @@ public class CollectionsTreeAdapter extends BaseExpandableListAdapter
 		
 		if (tree == null) 
 		{
-			root = ZoteroStorage.getEmptyLibrary();
+			root = ZoteroStorageImpl.getEmptyLibrary();
 		}
 		else
 		{

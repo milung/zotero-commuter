@@ -6,10 +6,10 @@ import java.io.InputStreamReader;
 import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
-import sk.mung.sentience.zoteroapi.entities.Creator;
-import sk.mung.sentience.zoteroapi.entities.CreatorType;
-import sk.mung.sentience.zoteroapi.entities.ItemEntity;
-import sk.mung.sentience.zoteroapi.parsers.ItemParser;
+import sk.mung.zoteroapi.entities.Creator;
+import sk.mung.zoteroapi.entities.CreatorType;
+import sk.mung.zoteroapi.entities.ItemEntity;
+import sk.mung.zoteroapi.parsers.ItemParser;
 
 import junit.framework.TestCase;
 

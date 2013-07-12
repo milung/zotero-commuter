@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.Item;
 
 
 public class ItemPagerAdapter extends FragmentStatePagerAdapter

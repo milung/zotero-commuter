@@ -7,11 +7,11 @@ import android.support.v4.content.AsyncTaskLoader;
 public class CollectionsTreeLoader extends AsyncTaskLoader<ZoteroCollection> 
     implements ZoteroStorageListener
 {
-    private ZoteroStorage storage;
+    private ZoteroStorageImpl storage;
     private ZoteroCollection loadedTree;
     private boolean wasChanged = true;
     
-    public CollectionsTreeLoader(Context context, ZoteroStorage storage)
+    public CollectionsTreeLoader(Context context, ZoteroStorageImpl storage)
     {
         super(context);
         this.storage = storage;

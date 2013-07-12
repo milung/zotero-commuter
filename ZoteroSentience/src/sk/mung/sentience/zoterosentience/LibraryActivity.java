@@ -17,9 +17,10 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
-import sk.mung.sentience.zoteroapi.entities.Item;
-import sk.mung.sentience.zoterosentience.storage.ZoteroSync;
+import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.ZoteroSync;
 
 /**
  * An activity representing a list of LibraryItems. This activity has different
@@ -52,6 +53,8 @@ public class LibraryActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        BootSchedulerReceiver.scheduleSynchronizing(this,false);
         setContentView(R.layout.activity_library);
 
         if (findViewById(R.id.library_itemlist_container) != null)
@@ -95,13 +98,14 @@ public class LibraryActivity extends FragmentActivity
         }
 
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity, menu);
         return true;
     }
+
 
     /**
      * Callback method from {@link LibraryFragment.Callbacks} indicating
@@ -175,6 +179,12 @@ public class LibraryActivity extends FragmentActivity
         startActivity(intent);
     }
 
+    public void onSettingsOptionSelected( MenuItem menuItem)
+    {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
     public void onWipeDownloadsOptionSelected(MenuItem menuItem)
     {
         File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS );
@@ -188,12 +198,14 @@ public class LibraryActivity extends FragmentActivity
         if(directory.exists()){
             File[] files = directory.listFiles();
             if(null!=files){
-                for(int i=0; i<files.length; i++) {
-                    if(files[i].isDirectory()) {
-                        deleteDirectory(files[i]);
-                    }
-                    else {
-                        files[i].delete();
+                for (File file : files)
+                {
+                    if (file.isDirectory())
+                    {
+                        deleteDirectory(file);
+                    } else
+                    {
+                        file.delete();
                     }
                 }
             }
@@ -224,6 +236,10 @@ public class LibraryActivity extends FragmentActivity
                 {
                     e.printStackTrace();
                     return 2;
+                } catch (URISyntaxException e)
+                {
+                    e.printStackTrace();
+                    return 3;
                 }
             }
 
