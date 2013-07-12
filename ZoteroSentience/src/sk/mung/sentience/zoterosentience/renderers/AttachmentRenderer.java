@@ -23,11 +23,12 @@ import org.apache.http.HttpStatus;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
-import sk.mung.sentience.zoteroapi.entities.Field;
-import sk.mung.sentience.zoteroapi.entities.Item;
-import sk.mung.sentience.zoteroapi.entities.ItemField;
-import sk.mung.sentience.zoteroapi.entities.ItemType;
+import sk.mung.zoteroapi.entities.Field;
+import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.ItemField;
+import sk.mung.zoteroapi.entities.ItemType;
 import sk.mung.sentience.zoterosentience.GlobalState;
 import sk.mung.sentience.zoterosentience.R;
 
@@ -208,6 +209,10 @@ public class AttachmentRenderer
             catch (IOException e)
             {
                 inProgressId = -1L;
+            } catch (URISyntaxException e)
+            {
+                e.printStackTrace();
+                inProgressId = -1L;
             }
             view.setTag(R.id.tag_download_in_progress, inProgressId);
             return inProgressId > 0;
@@ -221,7 +226,7 @@ public class AttachmentRenderer
         Drawable icon = r.getDrawable(R.drawable.ic_document_pdf);
         assert icon != null;
         final ImageView imageView = (ImageView) view.findViewWithTag("icon_status");
-
+        assert imageView != null;
         if(isDownloadInprogress(view, child))
         {
             icon = r.getDrawable(R.drawable.animation_download);
@@ -258,7 +263,7 @@ public class AttachmentRenderer
         GlobalState state = (GlobalState) context.getApplication();
         String fileName =  item.getTitle();
         File dir = new File(downloadDir, item.getKey() );
-        assert dir != null;
+
         //noinspection ResultOfMethodCallIgnored
         dir.mkdirs();
 
@@ -283,7 +288,8 @@ public class AttachmentRenderer
             }
             long lastDownload=
                     downloadManager.enqueue(
-                            new DownloadManager.Request(state.getZotero().getAttachmentUri(item))
+                            new DownloadManager.Request(
+                                    Uri.parse(state.getZotero().getAttachmentUri(item).toString()))
                                     .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
                                             DownloadManager.Request.NETWORK_MOBILE)
                                     .setAllowedOverRoaming(false)
@@ -294,6 +300,13 @@ public class AttachmentRenderer
             renderStatusIcon(view, item);
         }
         catch (IOException e)
+        {
+            e.printStackTrace();
+            Toast.makeText(
+                    context,
+                    R.string.network_error,
+                    Toast.LENGTH_SHORT).show();
+        } catch (URISyntaxException e)
         {
             e.printStackTrace();
             Toast.makeText(

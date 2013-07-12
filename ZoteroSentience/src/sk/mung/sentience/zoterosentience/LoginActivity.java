@@ -1,15 +1,17 @@
 package sk.mung.sentience.zoterosentience;
 
-import sk.mung.sentience.zoteroapi.ZoteroOauth;
+import android.app.ActionBar;
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Activity;
+import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.support.v4.app.NavUtils;
+
+import sk.mung.zoteroapi.ZoteroOauth;
 
 public class LoginActivity extends Activity
 {       
@@ -60,8 +62,8 @@ public class LoginActivity extends Activity
         @Override
         protected String doInBackground(ZoteroOauth... zotero)
         {
-            // TODO Auto-generated method stub
             return zotero[0].getAuthorizationUrl();
+
         }
         
         protected void onPostExecute(String authorizationUrl) {
@@ -78,7 +80,8 @@ public class LoginActivity extends Activity
         @Override
         protected ZoteroOauth doInBackground(ZoteroOauth... zotero)
         {
-            zotero[0].processAuthorizationCallbackUrl(callbackUrl); 
+            zotero[0].processAuthorizationCallbackUrl(callbackUrl);
+
             return zotero[0];
         }
         
@@ -96,8 +99,10 @@ public class LoginActivity extends Activity
      */
     private void setupActionBar()
     {
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setTitle(R.string.login);
+        ActionBar actionBar = getActionBar();
+        assert actionBar != null;
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setTitle(R.string.login);
     }
 
     @Override

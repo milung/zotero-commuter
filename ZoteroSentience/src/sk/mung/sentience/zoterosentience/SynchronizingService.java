@@ -1,0 +1,133 @@
+package sk.mung.sentience.zoterosentience;
+
+import android.app.IntentService;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.BatteryManager;
+
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+public class SynchronizingService extends IntentService
+{
+    public static final int MSG_SYNCHRONIZE = 1;
+    public static final int MSG_FULL_SYNCHRONIZE_MANUAL = 2;
+    public static final int MSG_SYNCHRONIZE_MANUAL = 3;
+
+    public static final String SYNCHRONIZATION_TYPE = "sync_type";
+    private static final long PERIOD_TOLERANCE = 10000;
+    public static final String SYNC_FREQUENCY_NEVER = "sync_never";
+    public static final String SYNC_FREQUENCY_CHARGING = "sync_charging";
+    public static final String SYNC_FREQUENCY_FIFTEEN_MINUTES = "sync_fifteen_minutes";
+    public static final String SYNC_FREQUENCY_ONE_HOUR = "sync_one_hour";
+    public static final String SYNC_FREQUENCY_SIX_HOURS = "sync_six_hours";
+    public static final String SYNC_FREQUENCY_ONE_DAY = "sync_one_day";
+
+    /**
+     * Creates an IntentService.  Invoked by your subclass's constructor.
+     *
+     *
+     */
+    public SynchronizingService()
+    {
+        super("SynchronizingService");
+    }
+
+    @Override
+    protected void onHandleIntent(Intent intent)
+    {
+        try
+        {
+            int mode = intent.getIntExtra(SYNCHRONIZATION_TYPE, MSG_SYNCHRONIZE);
+
+            GlobalState globalState = ((GlobalState)getApplication());
+            assert globalState != null;
+            SharedPreferences preferences = globalState.getPreferences();
+            long lastUpdate = preferences.getLong("last_update", 0L);
+            int period = getDownloadPeriod(this, preferences );
+
+            if(     globalState.isUserLogged() &&
+                    (   mode != MSG_SYNCHRONIZE ||
+                        period > 0 &&
+                        (System.currentTimeMillis() - PERIOD_TOLERANCE - lastUpdate) > period*60*1000))
+            {
+                preferences.edit().putLong( "last_update", System.currentTimeMillis() );
+
+                switch (mode)
+                {
+                    case MSG_SYNCHRONIZE:
+                    case MSG_SYNCHRONIZE_MANUAL:
+                        globalState.getZoteroSync().fullSync();
+                        break;
+
+                    case MSG_FULL_SYNCHRONIZE_MANUAL:
+                        globalState.getStorage().deleteData();
+                        globalState.getZoteroSync().fullSync();
+                        break;
+                }
+            }
+
+        }
+        catch (URISyntaxException e)
+        {
+            e.printStackTrace();
+        }
+        catch (XmlPullParserException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private int getDownloadPeriod(Context context, SharedPreferences preferences )
+    {
+        String frequency = preferences.getString("sync_frequency", "sync_one_hour");
+
+        if(SYNC_FREQUENCY_NEVER.equals(frequency))
+        {
+            return 0;
+        }
+
+        ConnectivityManager cm =
+                (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        assert activeNetwork != null;
+        boolean isConnected = activeNetwork.isConnected();
+        if(!isConnected) return 0;
+
+        boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+        if(!isWiFi)
+        {
+            boolean mobileDataAllowed = preferences.getBoolean("mobile_sync",false);
+            if(!mobileDataAllowed) return 0;
+        }
+
+        if(SYNC_FREQUENCY_CHARGING.equals(frequency))
+        {
+            IntentFilter batteryFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            Intent batteryStatus = context.registerReceiver(null, batteryFilter);
+            assert batteryStatus != null;
+            int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING;
+
+            if(!isCharging) return 0;
+            else return 60;
+        }
+
+        if(SYNC_FREQUENCY_FIFTEEN_MINUTES.equals(frequency)) return 15;
+        if(SYNC_FREQUENCY_ONE_HOUR.equals(frequency)) return 60;
+        if(SYNC_FREQUENCY_SIX_HOURS.equals(frequency)) return 360;
+        if(SYNC_FREQUENCY_ONE_DAY.equals(frequency)) return 24*60;
+        return 60;
+    }
+}

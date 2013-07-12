@@ -6,8 +6,8 @@ import java.io.InputStreamReader;
 import java.util.List;
 import org.xmlpull.v1.XmlPullParserException;
 
-import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
-import sk.mung.sentience.zoteroapi.parsers.CollectionParser;
+import sk.mung.zoteroapi.entities.CollectionEntity;
+import sk.mung.zoteroapi.parsers.CollectionParser;
 
 import junit.framework.TestCase;
 

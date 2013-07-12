@@ -2,8 +2,8 @@ package sk.mung.sentience.zoterosentience.storage;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
-import sk.mung.sentience.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.CollectionEntity;
+import sk.mung.zoteroapi.entities.Item;
 
 /**
  * Created by sk1u00e5 on 19.6.2013.

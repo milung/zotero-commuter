@@ -13,7 +13,7 @@ import android.widget.ListView;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.Item;
 import sk.mung.sentience.zoterosentience.storage.ItemsLoader;
 
 /**

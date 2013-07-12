@@ -7,8 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.KeyEntity;
-import sk.mung.sentience.zoteroapi.entities.SyncStatus;
+import sk.mung.zoteroapi.entities.KeyEntity;
+import sk.mung.zoteroapi.entities.SyncStatus;
 
 
 abstract class BaseKeyDao<T extends KeyEntity> extends BaseDao<T>
@@ -16,7 +16,7 @@ abstract class BaseKeyDao<T extends KeyEntity> extends BaseDao<T>
     protected static final String COLUMN_KEY = "key";
     public static final String CONFLICTED_KEY_PREFIX = "conflicted_";
 
-    public BaseKeyDao(ZoteroStorage.DatabaseConnection databaseConnection, QueryDictionary queries)
+    public BaseKeyDao(ZoteroStorageImpl.DatabaseConnection databaseConnection, QueryDictionary queries)
     {
         super(databaseConnection, queries);
     }
@@ -56,7 +56,7 @@ abstract class BaseKeyDao<T extends KeyEntity> extends BaseDao<T>
     }
 
 
-    public void deleteForKeys( List<String> keys) {
+    public void deleteForKeys( Iterable<String> keys) {
         SQLiteDatabase database = getWritableDatabase();
         for( String key : keys)
         {

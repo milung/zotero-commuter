@@ -1,7 +1,7 @@
 package sk.mung.sentience.zoterosentience.storage;
 
-import sk.mung.sentience.zoteroapi.entities.KeyEntity;
-import sk.mung.sentience.zoteroapi.entities.SyncStatus;
+import sk.mung.zoteroapi.entities.KeyEntity;
+import sk.mung.zoteroapi.entities.SyncStatus;
 
 
 public class BaseLazyKeyProxy<T extends KeyEntity> implements KeyEntity

@@ -6,18 +6,18 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.Field;
-import sk.mung.sentience.zoteroapi.entities.Item;
-import sk.mung.sentience.zoteroapi.entities.ItemEntity;
-import sk.mung.sentience.zoteroapi.entities.ItemField;
-import sk.mung.sentience.zoteroapi.entities.SyncStatus;
+import sk.mung.zoteroapi.entities.Field;
+import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.ItemEntity;
+import sk.mung.zoteroapi.entities.ItemField;
+import sk.mung.zoteroapi.entities.SyncStatus;
 
 public class FieldsDao extends BaseDao<Field>
 {
     private static final String COLUMN_VALUE = "value";
     private static final String COLUMN_ITEM = "item";
 
-    public FieldsDao(ZoteroStorage.DatabaseConnection databaseConnection, QueryDictionary queries)
+    public FieldsDao(ZoteroStorageImpl.DatabaseConnection databaseConnection, QueryDictionary queries)
     {
         super(databaseConnection, queries);
     }

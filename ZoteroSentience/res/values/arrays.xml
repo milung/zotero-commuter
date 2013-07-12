@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_sync_type_entries">
+        <item>Never</item>
+        <item>When charging</item>
+        <item>Fifteen minutes</item>
+        <item>One hour</item>
+        <item>Six hours</item>
+        <item>One day</item>
+    </string-array>
+    <string-array name="pref_sync_type_values">
+        <item>sync_never</item>
+        <item>sync_charging</item>
+        <item>sync_fifteen_minutes</item>
+        <item>sync_one_hour</item>
+        <item>sync_six_hours</item>
+        <item>sync_one_day</item>
+    </string-array>
+</resources>

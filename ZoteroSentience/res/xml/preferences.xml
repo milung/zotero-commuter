@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+            android:key="sync_frequency"
+            android:title="@string/pref_sync_frequency"
+            android:dialogTitle="@string/pref_sync_frequency"
+            android:entries="@array/pref_sync_type_entries"
+            android:entryValues="@array/pref_sync_type_values"
+            android:defaultValue="sync_one_hour" />
+
+    <CheckBoxPreference
+            android:key="mobile_sync"
+            android:defaultValue="false"
+            android:title="@string/sync_on_mobile_allowed"
+            android:summary="@string/summary_sync_on_mobile"
+            />
+
+    <Preference
+            android:title="@string/prefs_login">
+        <intent
+                android:targetClass="sk.mung.sentience.zoterosentience.LoginActivity"
+                android:targetPackage="sk.mung.sentience.zoterosentience"
+                android:action="sk.mung.sentience.zoterosentience.login">
+        </intent>
+    </Preference>
+
+    <Preference
+            android:title="@string/prefs_clear_library"
+            android:summary="@string/prefs_summary_clear_library">
+        <intent
+                android:targetClass="sk.mung.sentience.zoterosentience.SettingsIntentActivity"
+                android:targetPackage="sk.mung.sentience.zoterosentience"
+                android:action="sk.mung.sentience.zoterosentience.clear_library">
+        </intent>
+    </Preference>
+
+    <Preference
+            android:title="@string/prefs_delete_attachment"
+            android:summary="@string/prefs_summary_delete_attachment">
+        <intent
+                android:targetClass="sk.mung.sentience.zoterosentience.SettingsIntentActivity"
+                android:targetPackage="sk.mung.sentience.zoterosentience"
+                android:action="sk.mung.sentience.zoterosentience.delete_attachments">
+        </intent>
+    </Preference>
+</PreferenceScreen>

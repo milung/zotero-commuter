@@ -6,10 +6,10 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.Item;
-import sk.mung.sentience.zoteroapi.entities.ItemEntity;
-import sk.mung.sentience.zoteroapi.entities.Relation;
-import sk.mung.sentience.zoteroapi.entities.SyncStatus;
+import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.ItemEntity;
+import sk.mung.zoteroapi.entities.Relation;
+import sk.mung.zoteroapi.entities.SyncStatus;
 
 public class RelationsDao extends BaseDao<Relation>
 {
@@ -17,7 +17,7 @@ public class RelationsDao extends BaseDao<Relation>
     private static final String COLUMN_PREDICATE = "predicate";
     private static final String COLUMN_OBJECT = "object";
 
-    public RelationsDao(ZoteroStorage.DatabaseConnection databaseConnection, QueryDictionary queries)
+    public RelationsDao(ZoteroStorageImpl.DatabaseConnection databaseConnection, QueryDictionary queries)
     {
         super(databaseConnection, queries);
     }

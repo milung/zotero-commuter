@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.CollectionEntity;
+import sk.mung.zoteroapi.entities.CollectionEntity;
 
 public class ZoteroCollection extends CollectionEntity
 {

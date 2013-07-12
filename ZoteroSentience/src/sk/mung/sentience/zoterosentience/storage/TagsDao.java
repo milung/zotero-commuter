@@ -6,15 +6,15 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.util.List;
 
-import sk.mung.sentience.zoteroapi.entities.Item;
-import sk.mung.sentience.zoteroapi.entities.Tag;
+import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.Tag;
 
 
 public class TagsDao extends BaseDao<Tag>
 {
     private static final String COLUMN_TAG = "tag";
 
-    public TagsDao(ZoteroStorage.DatabaseConnection databaseConnection, QueryDictionary queries)
+    public TagsDao(ZoteroStorageImpl.DatabaseConnection databaseConnection, QueryDictionary queries)
     {
         super(databaseConnection, queries);
     }

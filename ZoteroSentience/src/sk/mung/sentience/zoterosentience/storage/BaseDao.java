@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sk.mung.sentience.zoteroapi.entities.Entity;
+import sk.mung.zoteroapi.entities.Entity;
 
 
 public abstract class BaseDao<T extends Entity>
@@ -41,7 +41,7 @@ public abstract class BaseDao<T extends Entity>
     protected static final String QUESTION_MARK = "=?";
 
     private final QueryDictionary queries;
-    private final ZoteroStorage.DatabaseConnection databaseConnection;
+    private final ZoteroStorageImpl.DatabaseConnection databaseConnection;
     private final Map<Long,WeakReference<T>> cache = new HashMap<Long,WeakReference<T>>();
 
     private List<WeakReference<UpdateListener>> listeners = new ArrayList<WeakReference<UpdateListener>>();
@@ -93,7 +93,7 @@ public abstract class BaseDao<T extends Entity>
         return queries;
     }
 
-    public BaseDao(ZoteroStorage.DatabaseConnection databaseConnection,  QueryDictionary queries)
+    public BaseDao(ZoteroStorageImpl.DatabaseConnection databaseConnection,  QueryDictionary queries)
     {
         this.queries = queries;
         this.databaseConnection = databaseConnection;
