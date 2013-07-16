@@ -76,4 +76,9 @@ public class CollectionEntity implements KeyEntity
     public List<Item> getItems() { return items;}
     public void addItem(Item item) { items.add(item);}
 
+    public int getItemsCount()
+    {
+        return items.size();
+    }
+
 }

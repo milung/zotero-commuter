@@ -1,5 +1,7 @@
 package sk.mung.sentience.zoterosentience.storage;
 
+import android.database.Cursor;
+
 import java.util.List;
 
 import sk.mung.zoteroapi.entities.CollectionEntity;
@@ -12,6 +14,8 @@ class CollectionLazyProxy extends CollectionEntity
 {
     private final ItemsDao itemsDao;
     private boolean areItemsLoaded = false;
+    private int itemsCount = -1;
+
     CollectionLazyProxy(ItemsDao dao)
     {
         this.itemsDao = dao;
@@ -22,6 +26,33 @@ class CollectionLazyProxy extends CollectionEntity
     {
         loadItems();
         return super.getItems();
+    }
+
+    @Override
+    public int getItemsCount()
+    {
+        if(areItemsLoaded)
+        {
+            return super.getItemsCount();
+        }
+        else if(0 <= itemsCount )
+        {
+            return itemsCount;
+        }
+        else
+        {
+            Cursor cursor = itemsDao.cursorByCollectionId(getId());
+            try
+            {
+                itemsCount = cursor.getCount();
+                return itemsCount;
+            }
+            finally
+            {
+                cursor.close();
+            }
+        }
+
     }
 
     private synchronized void loadItems()

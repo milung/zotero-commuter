@@ -2,8 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="fill_parent"
-              android:minHeight="56dp"
+              android:layout_height="wrap_content"
               android:background="@drawable/selector"
               android:padding="2dp"
               android:paddingLeft="2dp"
@@ -15,15 +14,16 @@
             android:layout_height="wrap_content"
             android:tag="icon_status"
             android:layout_gravity="center_vertical|left|top"
-            android:layout_margin="4dp"
-            android:adjustViewBounds="false"/>
+            android:adjustViewBounds="false"
+            android:layout_marginTop="4dp"/>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:orientation="vertical"
                   android:layout_width="match_parent"
-                  android:layout_height="match_parent"
+                  android:layout_height="wrap_content"
                   android:measureWithLargestChild="false"
-            >
+                  android:layout_marginTop="2dp"
+                  android:layout_marginBottom="2dp">
 
         <TextView
                 android:layout_width="fill_parent"
@@ -36,6 +36,14 @@
                 android:maxLines="2"
                 android:ellipsize="end"
                 android:paddingBottom="2dp"/>
+
+        <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Status"
+                android:id="@+id/textViewStatus"
+                android:layout_gravity="left|center_vertical"/>
 
 
     </LinearLayout>

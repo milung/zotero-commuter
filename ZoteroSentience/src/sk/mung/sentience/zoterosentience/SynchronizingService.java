@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.BatteryManager;
+import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -28,6 +29,7 @@ public class SynchronizingService extends IntentService
     public static final String SYNC_FREQUENCY_ONE_HOUR = "sync_one_hour";
     public static final String SYNC_FREQUENCY_SIX_HOURS = "sync_six_hours";
     public static final String SYNC_FREQUENCY_ONE_DAY = "sync_one_day";
+    private static final String TAG = "SynchronizingService";
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -44,6 +46,7 @@ public class SynchronizingService extends IntentService
     {
         try
         {
+            Log.d(TAG, "--> processing the intent");
             int mode = intent.getIntExtra(SYNCHRONIZATION_TYPE, MSG_SYNCHRONIZE);
 
             GlobalState globalState = ((GlobalState)getApplication());
@@ -63,16 +66,20 @@ public class SynchronizingService extends IntentService
                 {
                     case MSG_SYNCHRONIZE:
                     case MSG_SYNCHRONIZE_MANUAL:
+                        Log.d(TAG, "--> Synchronization started");
                         globalState.getZoteroSync().fullSync();
+                        Log.d(TAG, "<-- Synchronization ended");
                         break;
 
                     case MSG_FULL_SYNCHRONIZE_MANUAL:
+                        Log.d(TAG, "--> Full synchronization started");
                         globalState.getStorage().deleteData();
                         globalState.getZoteroSync().fullSync();
+                        Log.d(TAG, "<-- Full synchronization ended");
                         break;
                 }
             }
-
+            Log.d(TAG, "<-- processing the intent stopped");
         }
         catch (URISyntaxException e)
         {
@@ -101,8 +108,7 @@ public class SynchronizingService extends IntentService
                 (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        assert activeNetwork != null;
-        boolean isConnected = activeNetwork.isConnected();
+        boolean isConnected = activeNetwork == null ? false : activeNetwork.isConnected();
         if(!isConnected) return 0;
 
         boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;

@@ -14,7 +14,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,7 +24,6 @@ import java.util.Map;
 
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;
-import sk.mung.zoteroapi.entities.ItemEntity;
 import sk.mung.zoteroapi.entities.SyncStatus;
 import sk.mung.zoteroapi.parsers.AbstractAtomParser;
 import sk.mung.zoteroapi.parsers.CollectionParser;
@@ -45,19 +43,19 @@ public class Zotero
     public void setRestfull( ZoteroRestful restful) { this.restful = restful; }   
     
 	public Map<String, Integer> getCollectionsVersions(Integer sinceVersion)
-            throws IOException, URISyntaxException
+            throws IOException
     {
 		return getVersions(COLLECTIONS, sinceVersion);
     }
 	
 	public Map<String, Integer> getItemsVersions(Integer sinceVersion)
-            throws IOException, URISyntaxException
+            throws IOException
     {
 		return getVersions(ITEMS, sinceVersion);
     }
 
 	private Map<String, Integer> getVersions(String sectionName,
-			Integer sinceVersion) throws IOException, URISyntaxException
+			Integer sinceVersion) throws IOException
     {
 		ZoteroRestful.Response response = restful.callCurrentUserApi(
             sectionName, 
@@ -86,7 +84,7 @@ public class Zotero
         
     public List<CollectionEntity> getCollections(
     		Collection<String> versions, int startPosition, int endPosition )
-            throws IOException, XmlPullParserException, URISyntaxException
+            throws IOException, XmlPullParserException
     {   	
         return loadEntities(
         		COLLECTIONS, versions, startPosition, endPosition, new CollectionParser());
@@ -94,7 +92,7 @@ public class Zotero
 
     public List<Item> getItems(
             Collection<String> versions, int startPosition, int endPosition )
-            throws IOException, XmlPullParserException, URISyntaxException
+            throws IOException, XmlPullParserException
     {
         return loadEntities(
                 ITEMS, versions, startPosition, endPosition, new ItemParser());
@@ -104,7 +102,7 @@ public class Zotero
 			String section,
 			Collection<String> versions, int startPosition, int endPosition,
 			AbstractAtomParser<T> parser)
-            throws IOException, XmlPullParserException, URISyntaxException
+            throws IOException, XmlPullParserException
     {
 		List<T> entities = new ArrayList<T>();
         if( endPosition < 0 ) { endPosition = versions.size(); }
@@ -141,7 +139,7 @@ public class Zotero
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Map<String, List<String>> getDeletions(int sinceVersion) throws IOException, URISyntaxException
+	public Map<String, List<String>> getDeletions(int sinceVersion) throws IOException
     {
 		ZoteroRestful.Response response = restful.callCurrentUserApi(
 	            "deleted", 
@@ -167,7 +165,7 @@ public class Zotero
 	        }
 	}
 
-    public Uri getAttachmentUri(Item item) throws IOException, URISyntaxException
+    public Uri getAttachmentUri(Item item) throws IOException
     {
         return restful.getAttachmentUri(item);
     }

@@ -1,37 +1,38 @@
 package sk.mung.sentience.zoterosentience;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import sk.mung.zoteroapi.entities.Item;
 import sk.mung.sentience.zoterosentience.storage.ItemsLoader;
 
 public class ItemPager extends Fragment
-        implements LoaderManager.LoaderCallbacks<List<Item>>,
+        implements LoaderManager.LoaderCallbacks<Cursor>,
             ViewPager.OnPageChangeListener
 {
 
-    public static final String ITEM_PAGER_COLLECTION_ID = "itemPager.collectionId";
-    public static final String ITEM_PAGER_POSITION = "itemPager.position";
+    public static final String ARG_COLLECTION_ID = "collection_id";
+    public static final String ARG_CURRENT_POSITION = "item_position";
+    private static final String TAG = "ItemPager";
+    public static final String ARG_COLLECTION_NAME = "collection_name";
+    public static final String ARG_ITEMS_COUNT = "items_count";
 
     interface Callback
     {
-        public void onItemScrolled(int position, Item selectedItem);
+        public void onItemScrolled(int position, long itemId);
     }
 
     private Callback dummyCallback = new Callback()
     {
         @Override
-        public void onItemScrolled(int position, Item selectedItem)
+        public void onItemScrolled(int position, long itemId)
         {
 
         }
@@ -39,15 +40,15 @@ public class ItemPager extends Fragment
 
     private Callback callback = dummyCallback;
 
-    private List<Item> items = new ArrayList<Item>();
+    private Cursor cursor = null;
 
     private GlobalState getGlobalState()
     {
         return (GlobalState) getActivity().getApplication();
     }
 
-    private Long collectionId;
-    private int positionId;
+    private long collectionId = -1;
+    private int positionId = -1;
 
 
     void setCallback(Callback callback)
@@ -59,29 +60,33 @@ public class ItemPager extends Fragment
         else this.callback = callback;
     }
 
-    public void setCollectionId( Long collectionId)
+    public void setCollectionId( long collectionId)
     {
-        ((ViewPager)getActivity().findViewById(R.id.pager))
-                .setAdapter(new ItemPagerAdapter(new ArrayList<Item>(), getActivity().getSupportFragmentManager()));
-        this.collectionId = collectionId;
-        Bundle bundle = new Bundle();
-        bundle.putLong(ItemListFragment.ARG_COLLECTION_KEY,collectionId);
+        Log.d(TAG,"setCollectionId=" + collectionId);
+        if(collectionId != this.collectionId || cursor == null )
+        {
+            ((ViewPager)getActivity().findViewById(R.id.pager))
+                    .setAdapter(
+                            new ItemPagerAdapter(
+                                    null,
+                                    getActivity().getSupportFragmentManager(),
+                                    getGlobalState().getStorage()));
+            Cursor oldCursor = cursor;
+            cursor = null;
+            this.collectionId = collectionId;
 
-        getLoaderManager().restartLoader(2, bundle, this);
+            Bundle bundle = new Bundle();
+            bundle.putLong(ItemListFragment.ARG_COLLECTION_KEY,collectionId);
+            getLoaderManager().restartLoader(R.id.loder_item_pager, bundle, this);
+            if(oldCursor != null) oldCursor.close();
+        }
     }
 
-    public void setPosition(Item item)
+    public void setPosition(int position)
     {
-        int position = -1;
-        for( int ix = 0 ; ix < items.size(); ix ++ )
-        {
-            if(items.get(ix).getId() == item.getId())
-            {
-                position = ix;
-                break;
-            }
-        }
-        if(position >=0 )
+        Log.d(TAG,"setPosition=" + position);
+        this.positionId = position;
+        if(this.cursor != null)
         {
             ViewPager pager = ((ViewPager)getActivity().findViewById(R.id.pager));
             pager.setCurrentItem(position, true);
@@ -94,8 +99,8 @@ public class ItemPager extends Fragment
         super.onCreate(savedInstanceState);
         ViewPager pager = ((ViewPager)getActivity().findViewById(R.id.pager));
         pager.setAdapter(new ItemPagerAdapter(
-                new ArrayList<Item>(),
-                getActivity().getSupportFragmentManager()));
+                null,
+                getActivity().getSupportFragmentManager(),getGlobalState().getStorage()));
         pager.setOnPageChangeListener(this);
         Bundle bundle;
         if(savedInstanceState != null)  bundle = savedInstanceState; // 1
@@ -104,12 +109,20 @@ public class ItemPager extends Fragment
 
         if(bundle != null)
         {
-            collectionId = bundle.getLong(ITEM_PAGER_COLLECTION_ID, 0);
-            positionId = bundle.getInt(ITEM_PAGER_POSITION, 0);
+            long id = bundle.getLong(ARG_COLLECTION_ID, 0);
+            int position = bundle.getInt(ARG_CURRENT_POSITION, 0);
+            setCollectionId(id);
+            setPosition(position);
         }
-
-        getLoaderManager().restartLoader(2, null, this);
     }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        if(this.cursor != null) cursor.close();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
@@ -119,7 +132,7 @@ public class ItemPager extends Fragment
     }
 
     @Override
-    public Loader<List<Item>> onCreateLoader(int id, Bundle args)
+    public Loader<Cursor> onCreateLoader(int id, Bundle args)
     {
         ItemsLoader loader
                 = new ItemsLoader(this.getActivity(), this.collectionId, getGlobalState().getStorage());
@@ -128,24 +141,29 @@ public class ItemPager extends Fragment
     }
 
     @Override
-    public void onLoadFinished(Loader<List<Item>> loader, List<Item> items)
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
     {
-        this.items = items;
+        if(this.cursor != null) cursor.close();
+        this.cursor = cursor;
         ViewPager pager = ((ViewPager)getActivity().findViewById(R.id.pager));
         pager.setAdapter(new ItemPagerAdapter(
-                items, getActivity().getSupportFragmentManager()));
+                cursor, getActivity().getSupportFragmentManager(),getGlobalState().getStorage()));
         pager.setCurrentItem(positionId,true);
-
     }
 
     @Override
-    public void onLoaderReset(Loader<List<Item>> loader)
+    public void onLoaderReset(Loader<Cursor> loader)
     {
-        ((ViewPager)getActivity().findViewById(R.id.pager))
-                .setAdapter(new ItemPagerAdapter(
-                        new ArrayList<Item>(),
-                        getActivity().getSupportFragmentManager()));
-
+        if(getActivity() != null)
+        {
+            ViewPager pager = (ViewPager)getActivity().findViewById(R.id.pager);
+            if(pager != null)
+            {
+                pager.setAdapter(new ItemPagerAdapter(
+                        null,
+                        getActivity().getSupportFragmentManager(), getGlobalState().getStorage()));
+            }
+        }
     }
 
     @Override
@@ -154,7 +172,8 @@ public class ItemPager extends Fragment
     @Override
     public void onPageSelected(int position)
     {
-        callback.onItemScrolled(position, items.get(position));
+        cursor.moveToPosition(position);
+        callback.onItemScrolled(position, cursor.getLong(0));
     }
 
     @Override
@@ -164,8 +183,7 @@ public class ItemPager extends Fragment
     public void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        outState.putLong(ITEM_PAGER_COLLECTION_ID, collectionId == null ? 0 : collectionId);
-        outState.putInt(ITEM_PAGER_POSITION,
-                ((ViewPager)getActivity().findViewById(R.id.pager)).getCurrentItem());
+        outState.putLong(ARG_COLLECTION_ID, collectionId);
+        outState.putInt(ARG_CURRENT_POSITION,positionId);
     }
 }

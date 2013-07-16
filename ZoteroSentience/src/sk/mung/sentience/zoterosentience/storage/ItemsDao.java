@@ -241,6 +241,31 @@ public class ItemsDao extends BaseKeyDao<Item>
         }
     }
 
+    public Cursor cursorByCollectionId(long collectionId)
+    {
+        Log.d(TAG, "--> cursorByCollection - enter");
+        String query = getQueries().getLibraryItems();
+
+        String[] selectionParams = null;
+        if(collectionId > 0)
+        {
+            query = getQueries().getCollectionItems();
+            selectionParams = new String[]{Long.toString(collectionId)};
+        }
+
+        query= query.replace(SYNC_FILTER, getSyncFilter());
+        Log.d(TAG, "... cursorByCollection - do query");
+
+        try
+        {
+            return getReadableDatabase().rawQuery(query, selectionParams);
+        }
+        finally
+        {
+            Log.d(TAG, "<-- cursorByCollection - leave");
+        }
+    }
+
     public List<Item> findByParent(Item parent)
     {
         SQLiteDatabase database = getReadableDatabase();

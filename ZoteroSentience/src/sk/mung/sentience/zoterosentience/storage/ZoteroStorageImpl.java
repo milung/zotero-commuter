@@ -1,6 +1,7 @@
 package sk.mung.sentience.zoterosentience.storage;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -11,7 +12,6 @@ import java.util.List;
 import sk.mung.zoteroapi.ZoteroStorage;
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;
-import sk.mung.zoteroapi.entities.ItemEntity;
 import sk.mung.zoteroapi.entities.SyncStatus;
 
 public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
@@ -24,6 +24,16 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
     public List<Item> findItemsBySynced(SyncStatus syncStatus)
     {
         return itemsDao.findBySynced(syncStatus);
+    }
+
+    public Cursor findItemsCursorByCollectionId(long collectionId)
+    {
+        return itemsDao.cursorByCollectionId(collectionId);
+    }
+
+    public Item cursorToItem(Cursor cursor)
+    {
+        return itemsDao.cursorToEntity(cursor);
     }
 
     class DatabaseConnection

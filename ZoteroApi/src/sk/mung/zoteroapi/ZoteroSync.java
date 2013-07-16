@@ -17,6 +17,8 @@ import sk.mung.zoteroapi.entities.SyncStatus;
 
 public class ZoteroSync
 {
+    public static final String IMPORTED_URL = "imported_url";
+    public static final int MODIFICATION_TOLERANCE_MILISECONDS = 3000;
     private final ZoteroStorage storage;
     private final Zotero zotero;
     private final File downloadDir;
@@ -122,6 +124,12 @@ public class ZoteroSync
         List<ItemFilePair> pairs =  scanForUpdates();
         for( ItemFilePair pair : pairs)
         {
+            // do not try upload imported urls - they are not editable
+            Field linkMode = pair.getItem().getField(ItemField.LINK_MODE);
+            if(linkMode != null && IMPORTED_URL.equals(linkMode.getValue()))
+            {
+                continue;
+            }
             UploadStatus status = zotero.uploadAttachment(pair.getFile(), pair.getItem());
             if(status == UploadStatus.SUCCESS)
             {
@@ -187,7 +195,8 @@ public class ZoteroSync
                             if(field != null)
                             {
                                 long libraryTime = Long.valueOf(field.getValue());
-                                if(modificationTime > libraryTime)
+
+                                if((modificationTime - libraryTime) > MODIFICATION_TOLERANCE_MILISECONDS)
                                 {
                                     pairs.add(new ItemFilePair(attachments[0],item));
                                 }

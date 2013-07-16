@@ -52,9 +52,17 @@
                 <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".LibraryActivity" />
         </activity>
         <activity android:name=".SettingsIntentActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar">
 
+        </activity>
+        <activity android:name=".ItemPagerActivity">
+        <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LibraryActivity" />
         </activity>
 
 
