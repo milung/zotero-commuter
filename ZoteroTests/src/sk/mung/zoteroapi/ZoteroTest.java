@@ -1,19 +1,22 @@
 package sk.mung.zoteroapi;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import static org.mockito.Mockito.*;
-
-import java.util.List;
-import java.util.Map;
+import junit.framework.TestCase;
 
 import org.apache.http.HttpStatus;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Map;
+
 import sk.mung.zoteroapi.ZoteroRestful.Response;
 
-import junit.framework.TestCase;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ZoteroTest extends TestCase 
 {
@@ -58,7 +61,7 @@ public class ZoteroTest extends TestCase
     }
 
 	public void test_getCollectionVersions_emptyResponse_validMap() throws IOException
-	{
+    {
 		Zotero subject = new Zotero();
 		ZoteroRestful restfulMock = mock(ZoteroRestful.class);
 		Response response = restfulMock.new Response(HttpStatus.SC_OK, "{}");

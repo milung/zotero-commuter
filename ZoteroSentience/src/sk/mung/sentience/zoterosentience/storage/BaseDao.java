@@ -130,7 +130,7 @@ public abstract class BaseDao<T extends Entity>
         return builder.toString();
     }
 
-    protected final T cursorToEntity(Cursor cursor)
+    public final T cursorToEntity(Cursor cursor)
     {
         long id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID));
 

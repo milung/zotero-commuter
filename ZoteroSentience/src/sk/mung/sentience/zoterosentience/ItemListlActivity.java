@@ -1,5 +1,6 @@
 package sk.mung.sentience.zoterosentience;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -24,7 +25,8 @@ public class ItemListlActivity extends FragmentActivity
         setContentView(R.layout.activity_item_list);
 
         // Show the Up button in the action bar.
-        getActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getActionBar();
+        if(actionBar != null) actionBar.setDisplayHomeAsUpEnabled(true);
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity

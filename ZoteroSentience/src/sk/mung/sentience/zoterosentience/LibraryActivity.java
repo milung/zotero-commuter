@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.ZoteroSync;
 
@@ -39,7 +40,7 @@ import sk.mung.zoteroapi.ZoteroSync;
  * selections.
  */
 public class LibraryActivity extends FragmentActivity
-        implements LibraryFragment.Callbacks, ItemListFragment.Callback, ItemPager.Callback
+        implements LibraryFragment.Callbacks, ItemListFragment.Callback
 {
 
     public static final String LIBRARY_ACTIVITY_DETAILS_MODE = "libraryActivity.detailsMode";
@@ -48,6 +49,7 @@ public class LibraryActivity extends FragmentActivity
      * device.
      */
     private boolean mTwoPane;
+    private long collectionId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -72,8 +74,6 @@ public class LibraryActivity extends FragmentActivity
                     .findFragmentById(R.id.library_collection_list))
                     .setActivateOnItemClick(true);
 
-            ItemPager pager = ((ItemPager)fragmentManager.findFragmentById(R.id.library_itemviewer));
-            pager.setCallback(this);
 
             boolean isDetailMode = false;
             if(savedInstanceState != null)
@@ -114,18 +114,13 @@ public class LibraryActivity extends FragmentActivity
     @Override
     public void onCollectionSelected(long id)
     {
+        collectionId=id;
         if (mTwoPane)
         {
             Bundle arguments = new Bundle();
             arguments.putLong(ItemListFragment.ARG_COLLECTION_KEY, id);
             ItemListFragment fragment = new ItemListFragment();
             fragment.setArguments(arguments);
-
-            ItemPager pager = (ItemPager) getSupportFragmentManager().findFragmentById(R.id.library_itemviewer);
-            if(pager != null)
-            {
-                pager.setCollectionId(id);
-            }
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.library_itemlist_container, fragment)
@@ -142,35 +137,16 @@ public class LibraryActivity extends FragmentActivity
     }
 
     @Override
-    public void onItemSelected(Item item)
+    public void onItemSelected(int position, Item item)
     {
-        if (mTwoPane)
-        {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            ((ItemPager)fragmentManager.findFragmentById(R.id.library_itemviewer)).setPosition(item);
-            fragmentManager.beginTransaction()
-                .hide(fragmentManager.findFragmentById(R.id.library_collection_list))
-                .show(fragmentManager.findFragmentById(R.id.library_itemviewer))
-                .addToBackStack(null)
-            .commit();
+        Intent detailIntent = new Intent(this, ItemPagerActivity.class);
+        detailIntent.putExtra(ItemPager.ARG_COLLECTION_ID, collectionId);
+        detailIntent.putExtra(ItemPager.ARG_CURRENT_POSITION, position);
 
-            ItemPager pager = (ItemPager) fragmentManager.findFragmentById(R.id.library_itemviewer);
-            pager.setPosition(item);
-        }
-        else
-        {
-            // In single-pane mode, simply start the detail activity
-            // for the selected item ID.
-            // Intent detailIntent = new Intent(this, ItemListlActivity.class);
-            // detailIntent.putExtra(ItemListFragment.ARG_COLLECTION_KEY, id);
-            // startActivity(detailIntent);
-        }
-    }
-
-    @Override
-    public void onItemScrolled(int position, Item selectedItem)
-    {
-        ((ItemListFragment)getSupportFragmentManager().findFragmentById(R.id.library_itemlist_container)).scrollToPosition(position);
+        CollectionEntity entity = ((GlobalState)getApplication()).getStorage().findCollectionById(collectionId);
+        detailIntent.putExtra(ItemPager.ARG_COLLECTION_NAME, entity.getName());
+        detailIntent.putExtra(ItemPager.ARG_ITEMS_COUNT, entity.getItemsCount());
+        startActivity(detailIntent);
     }
 
     public void onLoginOptionSelected( MenuItem menuItem)
@@ -205,6 +181,7 @@ public class LibraryActivity extends FragmentActivity
                         deleteDirectory(file);
                     } else
                     {
+                        //noinspection ResultOfMethodCallIgnored
                         file.delete();
                     }
                 }
@@ -284,8 +261,5 @@ public class LibraryActivity extends FragmentActivity
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        ItemPager pager = ((ItemPager)getSupportFragmentManager().findFragmentById(R.id.library_itemviewer));
-
-        outState.putBoolean(LIBRARY_ACTIVITY_DETAILS_MODE,pager.isVisible());
     }
 }

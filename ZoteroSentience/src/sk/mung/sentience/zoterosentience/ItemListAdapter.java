@@ -1,71 +1,51 @@
 package sk.mung.sentience.zoterosentience;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import sk.mung.zoteroapi.entities.Item;
 import sk.mung.sentience.zoterosentience.renderers.ItemRenderer;
+import sk.mung.sentience.zoterosentience.storage.ZoteroStorageImpl;
+import sk.mung.zoteroapi.entities.Item;
 
 /**
  *
  */
-public class ItemListAdapter extends BaseAdapter
+public class ItemListAdapter extends CursorAdapter
 {
-    private final Context context;
-    private List<Item> items = new ArrayList<Item>();
     private final ItemRenderer renderer;
     private final int layoutId;
 
-    public void setItems(List<Item> items)
-    {
-        this.items = items;
-        if(items == null) this.items = new ArrayList<Item>();
-        notifyDataSetChanged();
-    }
+    private final ZoteroStorageImpl storage;
 
-    public ItemListAdapter(Context context, int layoutId)
+
+    public ItemListAdapter(Context context, int layoutId, ZoteroStorageImpl storage)
     {
-        this.context = context;
+        super(context,null,0);
         this.layoutId = layoutId;
+        this.storage = storage;
         this.renderer = new ItemRenderer(context);
     }
 
     @Override
-    public int getCount()
+    public View newView(Context context, Cursor cursor, ViewGroup viewGroup)
     {
-        return items.size();
+        View view
+                = ((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                .inflate(layoutId, null);
+        assert view != null;
+        Item item =storage.cursorToItem(cursor);
+        renderer.render(item,view);
+        view.setTag(R.id.tag_item,item);
+        return view;
     }
 
     @Override
-    public Object getItem(int position)
+    public void bindView(View view, Context context, Cursor cursor)
     {
-        return items.get(position);
-    }
-
-    @Override
-    public long getItemId(int position)
-    {
-        return items.get(position).getId();
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup viewGroup)
-    {
-        if(convertView == null)
-        {
-            convertView
-                    = ((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                    .inflate(layoutId, null);
-        }
-
-        assert convertView != null;
-        renderer.render(items.get(position),convertView);
-        return convertView;
+        renderer.render(storage.cursorToItem(cursor),view);
     }
 }

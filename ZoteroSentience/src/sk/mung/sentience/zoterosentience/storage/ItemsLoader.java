@@ -1,18 +1,15 @@
 package sk.mung.sentience.zoterosentience.storage;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v4.content.AsyncTaskLoader;
 
-import java.util.List;
 
-import sk.mung.zoteroapi.entities.Item;
-
-
-public class ItemsLoader extends AsyncTaskLoader<List<Item>>
+public class ItemsLoader extends AsyncTaskLoader<Cursor>
 implements ZoteroStorageListener
 {
     private ZoteroStorageImpl storage;
-    private List<Item> loadedItems;
+    private Cursor loadedItems;
     private boolean wasChanged = true;
     private final Long collectionId;
 
@@ -25,9 +22,9 @@ implements ZoteroStorageListener
     }
 
     @Override
-    public List<Item> loadInBackground()
+    public Cursor loadInBackground()
     {
-        List<Item> items = storage.findCollectionById(collectionId == null ? 0 : collectionId).getItems();
+        Cursor items = storage.findItemsCursorByCollectionId(collectionId == null ? 0 : collectionId);
         wasChanged = false;
         return items;
     }
@@ -37,7 +34,7 @@ implements ZoteroStorageListener
      * super class will take care of delivering it; the implementation
      * here just adds a little more logic.
      */
-    @Override public void deliverResult(List<Item> items) {
+    @Override public void deliverResult(Cursor items) {
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
@@ -45,8 +42,13 @@ implements ZoteroStorageListener
                 onReleaseResources(items);
             }
         }
-        List<Item> oldItems = loadedItems;
-        loadedItems = items;
+
+        Cursor oldItems = null;
+        if(items != loadedItems)
+        {
+            oldItems = loadedItems;
+            loadedItems = items;
+        }
 
         if (isStarted()) {
             // If the Loader is currently started, we can immediately
@@ -57,7 +59,8 @@ implements ZoteroStorageListener
         // At this point we can release the resources associated with
         // 'oldApps' if needed; now that the new result is delivered we
         // know that it is no longer in use.
-        if (oldItems != null) {
+        if (oldItems != null)
+        {
             onReleaseResources(oldItems);
         }
     }
@@ -90,7 +93,7 @@ implements ZoteroStorageListener
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(List<Item> tree)
+    @Override public void onCanceled(Cursor tree)
     {
         super.onCanceled(tree);
         onReleaseResources(tree);
@@ -117,9 +120,9 @@ implements ZoteroStorageListener
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    protected void onReleaseResources(List<Item> items)
+    protected void onReleaseResources(Cursor items)
     {
-        // noop
+        items.close();
     }
 
     @Override

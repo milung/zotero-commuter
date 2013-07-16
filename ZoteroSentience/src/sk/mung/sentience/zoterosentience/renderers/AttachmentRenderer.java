@@ -17,25 +17,33 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpStatus;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+import sk.mung.sentience.zoterosentience.GlobalState;
+import sk.mung.sentience.zoterosentience.R;
+import sk.mung.zoteroapi.ZoteroSync;
 import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.ItemField;
 import sk.mung.zoteroapi.entities.ItemType;
-import sk.mung.sentience.zoterosentience.GlobalState;
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.zoteroapi.entities.SyncStatus;
 
 import static android.app.DownloadManager.STATUS_PENDING;
 
 public class AttachmentRenderer
 {
+    public static final String IMPORTED_URL = "imported_url";
     private final LayoutInflater inflater;
     private final ItemRenderer renderer;
     private final ViewGroup parent;
@@ -169,15 +177,16 @@ public class AttachmentRenderer
             renderer.render(child,view);
             assert view != null;
             renderStatusIcon(view, child);
-            view.setTag(R.id.item_tag,child);
+            view.setTag(R.id.item_tag, child);
             view.setOnClickListener(downloadListener);
             view.setBackgroundResource(R.drawable.selector);
+            TextView statusView = (TextView) view.findViewById(R.id.textViewStatus);
+            statusView.setText(getStatusText(child,context.getResources()));
             parent.addView(view);
         }
-
     }
 
-    private boolean isDownloadInprogress(View view, Item item)
+    private boolean isDownloadInProgress(View view, Item item)
     {
         Long inProgressId = (Long) view.getTag(R.id.tag_download_in_progress);
         if(inProgressId != null)
@@ -209,10 +218,6 @@ public class AttachmentRenderer
             catch (IOException e)
             {
                 inProgressId = -1L;
-            } catch (URISyntaxException e)
-            {
-                e.printStackTrace();
-                inProgressId = -1L;
             }
             view.setTag(R.id.tag_download_in_progress, inProgressId);
             return inProgressId > 0;
@@ -222,14 +227,14 @@ public class AttachmentRenderer
 
     private void renderStatusIcon(final View view, Item child)
     {
-        Resources r = context.getResources();
-        Drawable icon = r.getDrawable(R.drawable.ic_document_pdf);
+        Resources resources = context.getResources();
+        Drawable icon = resolveAttachmentIcon(resources);
         assert icon != null;
         final ImageView imageView = (ImageView) view.findViewWithTag("icon_status");
         assert imageView != null;
-        if(isDownloadInprogress(view, child))
+        if(isDownloadInProgress(view, child))
         {
-            icon = r.getDrawable(R.drawable.animation_download);
+            icon = resources.getDrawable(R.drawable.animation_download);
             assert icon != null;
             icon.setAlpha(255);
             imageView.post(new Runnable()
@@ -246,7 +251,8 @@ public class AttachmentRenderer
         }
         else
         {
-            String fileName =  child.getTitle();
+            String fileName;
+            fileName = getFileName(child, true);
 
             File file  = new File(downloadDir,child.getKey() + "/" + fileName);
             if (!file.exists())
@@ -258,24 +264,30 @@ public class AttachmentRenderer
         imageView.setBackground(icon);
     }
 
+    private Drawable resolveAttachmentIcon(Resources resources)
+    {
+
+        return resources.getDrawable(R.drawable.ic_document_pdf);
+    }
+
     private void downloadAttachment(Item item, View view)
     {
-        GlobalState state = (GlobalState) context.getApplication();
-        String fileName =  item.getTitle();
-        File dir = new File(downloadDir, item.getKey() );
-
-        //noinspection ResultOfMethodCallIgnored
-        dir.mkdirs();
-
-        File file  = new File(dir, fileName);
-        if (file.exists())
-        {
-            showDownloadedAttachment(file, item);
-            return;
-        }
         try
         {
-            if(isDownloadInprogress(view, item))
+            GlobalState state = (GlobalState) context.getApplication();
+            String fileName = getFileName(item, true);
+            File dir = new File(downloadDir, item.getKey() );
+
+            //noinspection ResultOfMethodCallIgnored
+            dir.mkdirs();
+
+            File file  = new File(dir, fileName);
+            if (file.exists())
+            {
+                showDownloadedAttachment(file, item);
+                return;
+            }
+            if(isDownloadInProgress(view, item))
             {
                 return;
             }
@@ -306,20 +318,39 @@ public class AttachmentRenderer
                     context,
                     R.string.network_error,
                     Toast.LENGTH_SHORT).show();
-        } catch (URISyntaxException e)
-        {
-            e.printStackTrace();
-            Toast.makeText(
-                    context,
-                    R.string.network_error,
-                    Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private String getFileName(Item item, boolean withSuffix)
+    {
+
+        String fileName = item.getKey();
+        Field fileNameField = item.getField(ItemField.FILE_NAME);
+        if(fileNameField != null)
+        {
+            fileName = fileNameField.getValue();
+        }
+
+        Field linkMode = item.getField(ItemField.LINK_MODE);
+        String suffix = "";
+        if( withSuffix && linkMode != null && IMPORTED_URL.equals(linkMode.getValue()))
+        {
+             suffix = ".zip";
+        }
+
+        return fileName + suffix;
     }
 
     private void showDownloadedAttachment(File file, Item item)
     {
         try
         {
+            Field linkMode = item.getField(ItemField.LINK_MODE);
+            if(linkMode != null && IMPORTED_URL.equals(linkMode.getValue()))
+            {
+                file = decompressUrl(file,item);
+            }
+
             Field field = item.getField(ItemField.CONTENT_TYPE);
             String contentType = field == null ? null : field.getValue();
             Intent intent = new Intent();
@@ -334,5 +365,113 @@ public class AttachmentRenderer
                     R.string.attachment_no_viewer,
                     Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private File decompressUrl(File file, Item item)
+    {
+
+        File targetDir = new File(file.getParent(),"content");
+        File targetFile = new File(targetDir, getFileName(item, false));
+        boolean isUnpacked = true;
+        if(!targetFile.exists())
+        {
+            //noinspection ResultOfMethodCallIgnored
+            targetDir.mkdir();
+            isUnpacked = unpackZip(targetDir, file);
+        }
+        return isUnpacked ? targetFile : file;
+    }
+
+    private boolean unpackZip(File targetDir, File zippedFile)
+    {
+        ZipInputStream zipInputStream;
+        try
+        {
+            zipInputStream = new ZipInputStream(new BufferedInputStream(new FileInputStream(zippedFile)));
+            ZipEntry zipEntry;
+            byte[] buffer = new byte[1024];
+            int count;
+
+            while ((zipEntry = zipInputStream.getNextEntry()) != null)
+            {
+                String filename = zipEntry.getName();
+
+                if (zipEntry.isDirectory()) {
+                    //noinspection ResultOfMethodCallIgnored
+                    new File(targetDir,filename).mkdirs();
+                }
+                else
+                {
+                    FileOutputStream outputStream = new FileOutputStream(new File(targetDir, filename));
+                    while ((count = zipInputStream.read(buffer)) != -1)
+                    {
+                        outputStream.write(buffer, 0, count);
+                    }
+
+                    outputStream.close();
+                    zipInputStream.closeEntry();
+                }
+            }
+            zipInputStream.close();
+            return true;
+        }
+
+        catch(IOException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    private String getStatusText(Item item, Resources resources)
+    {
+        String fileName = getFileName(item, true);
+        File file = new File(downloadDir, item.getKey() + "/" + fileName );
+        Field modificationField = item.getField(ItemField.MODIFICATION_TIME);
+        long serverModificationTime = 0;
+
+        if(modificationField!= null)
+        {
+            serverModificationTime = Long.valueOf(modificationField.getValue());
+        }
+        long localModificationTime = file.lastModified();
+        if(!file.exists())
+        {
+            return resources.getString(R.string.attachment_status_on_server, serverModificationTime);
+        }
+        else if(SyncStatus.SYNC_ATTACHMENT_CONFLICT == item.getSynced())
+        {
+            return resources.getString(
+                    R.string.attachment_status_conflict,
+                    serverModificationTime,
+                    localModificationTime);
+        }
+        else
+        {
+            long delta = localModificationTime - serverModificationTime;
+            if(Math.abs(delta) < ZoteroSync.MODIFICATION_TOLERANCE_MILISECONDS)
+            {
+                return resources.getString(
+                        R.string.attachment_status_synced,
+                        serverModificationTime,
+                        localModificationTime);
+            }
+            else if (localModificationTime < serverModificationTime )
+            {
+                return resources.getString(
+                        R.string.attachment_status_server_updated,
+                        serverModificationTime,
+                        localModificationTime);
+            }
+            else
+            {
+                return resources.getString(
+                        R.string.attachment_status_locally_updated,
+                        serverModificationTime,
+                        localModificationTime);
+            }
+        }
+
     }
 }

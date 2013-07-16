@@ -3,4 +3,7 @@
     <item name="position" type="id">item_position</item>
     <item name="item_tag" type="id"/>
     <item name="tag_download_in_progress" type="id"/>
+    <item name="tag_item" type="id"/>
+    <item name="loader_item_list" type="id"/>
+    <item name="loder_item_pager" type="id"/>
 </resources>
