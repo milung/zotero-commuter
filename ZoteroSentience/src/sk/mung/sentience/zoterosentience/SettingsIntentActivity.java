@@ -7,6 +7,8 @@ import android.os.Environment;
 
 import java.io.File;
 
+import sk.mung.zoteroapi.ZoteroSync;
+
 public class SettingsIntentActivity extends Activity
 {
     public void onCreate(Bundle savedInstanceState)
@@ -25,34 +27,9 @@ public class SettingsIntentActivity extends Activity
         }
         if("sk.mung.sentience.zoterosentience.delete_attachments".equals(action))
         {
-            File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS );
-            assert dir != null;
-            //noinspection ResultOfMethodCallIgnored
-            deleteDirectory(dir);
+            ZoteroSync sync = ((GlobalState)getApplication()).getZoteroSync();
+            sync.deleteAllAttachments();
             finish();
         }
     }
-
-
-    private boolean deleteDirectory(File directory)
-    {
-        if(directory.exists()){
-            File[] files = directory.listFiles();
-            if(null!=files){
-                for (File file : files)
-                {
-                    if (file.isDirectory())
-                    {
-                        deleteDirectory(file);
-                    } else
-                    {
-                        //noinspection ResultOfMethodCallIgnored
-                        file.delete();
-                    }
-                }
-            }
-        }
-        return(directory.delete());
-    }
-
 }

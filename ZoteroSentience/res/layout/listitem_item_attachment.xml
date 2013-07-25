@@ -23,19 +23,20 @@
                   android:layout_height="wrap_content"
                   android:measureWithLargestChild="false"
                   android:layout_marginTop="2dp"
-                  android:layout_marginBottom="2dp">
+                  android:layout_marginBottom="2dp"
+                  android:layout_marginLeft="8dp">
 
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium"
+                android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Title"
                 android:id="@+id/textViewTitle"
                 android:layout_gravity="center_vertical|left"
-                android:textStyle="bold"
                 android:maxLines="2"
                 android:ellipsize="end"
-                android:paddingBottom="2dp"/>
+                android:paddingBottom="2dp"
+                android:textStyle="italic"/>
 
         <TextView
                 android:layout_width="fill_parent"

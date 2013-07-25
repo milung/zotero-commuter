@@ -1,26 +1,27 @@
 package sk.mung.sentience.zoterosentience.renderers;
 
-import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.apache.http.HttpStatus;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -47,7 +48,7 @@ public class AttachmentRenderer
     private final LayoutInflater inflater;
     private final ItemRenderer renderer;
     private final ViewGroup parent;
-    private final Activity context;
+    private final FragmentActivity context;
     private final DownloadManager downloadManager;
     private final File downloadDir;
 
@@ -61,76 +62,49 @@ public class AttachmentRenderer
         }
     };
 
+
+    private View.OnLongClickListener resolutionListener = new View.OnLongClickListener() {
+
+
+        @Override
+        public boolean onLongClick(View view) {
+            Integer position = (Integer)view.getTag(R.id.position);
+            Item target = (Item) view.getTag(R.id.item_tag);
+            DialogFragment dialog = new AttachmentConflictFragment(target);
+            dialog.show(context.getSupportFragmentManager(),"conflict_dialog");
+            return true;
+        }
+    };
+
     private BroadcastReceiver receiver = new BroadcastReceiver()
     {
         @Override
-        public void onReceive(Context context, Intent intent)
+        public void onReceive(Context context, final Intent intent)
         {
-            String action = intent.getAction();
-            if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action))
+            // execute delayed so that central receiver can update the modification time
+            new Handler().postDelayed(new Runnable()
             {
-                Long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
-                View childView = findViewByProgressTag(downloadId);
-
-                if(childView != null)
+                @Override
+                public void run()
                 {
-                    Item item = (Item) childView.getTag(R.id.item_tag);
-                    DownloadManager.Query query = new DownloadManager.Query();
-                    query.setFilterById(downloadId);
-                    Cursor cursor = downloadManager.query(query);
-                    assert cursor != null;
-                    if (cursor.moveToFirst())
+                    String action = intent.getAction();
+                    if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action)   )
                     {
-                        int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
-                        int status = cursor.getInt(columnIndex);
-                        if (DownloadManager.STATUS_SUCCESSFUL == status)
+                        Long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
+                        View childView = findViewByProgressTag(downloadId);
+
+                        if(childView != null)
                         {
-                            updateModificationTime(item, cursor);
-                        }
-                        else if (DownloadManager.STATUS_FAILED == status)
-                        {
-                            showFailureToast(context, cursor);
+                            Item item = (Item) childView.getTag(R.id.item_tag);
+                            renderStatus(item, childView);
                         }
                     }
-                    cursor.close();
-                    renderStatusIcon(childView, item);
                 }
-            }
+            }, 2000);
+
         }
 
-        private void showFailureToast(Context context, Cursor cursor)
-        {
-            int columnIndex;
-            columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
-            if(HttpStatus.SC_NOT_FOUND == cursor.getInt(columnIndex))
-            {
-                Toast.makeText(
-                        context,
-                        R.string.attachment_removed,
-                        Toast.LENGTH_LONG).show();
-            }
-            else
-            {
-                Toast.makeText(
-                        context,
-                        R.string.network_error,
-                        Toast.LENGTH_LONG).show();
-            }
-        }
 
-        private void updateModificationTime(Item item, Cursor cursor)
-        {
-            int filenameIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
-            String filename = cursor.getString(filenameIndex);
-            File file = new File(filename);
-
-            Field modificationTime = item.getField(ItemField.MODIFICATION_TIME);
-            if(modificationTime != null)
-            {
-                //noinspection ResultOfMethodCallIgnored
-                file.setLastModified(Long.valueOf(modificationTime.getValue()));
-            }
-        }
     };
 
     private View findViewByProgressTag(Long downloadId)
@@ -152,17 +126,22 @@ public class AttachmentRenderer
         return childView;
     }
 
-    public AttachmentRenderer(Activity context, ItemRenderer renderer, ViewGroup parent)
+    public AttachmentRenderer(FragmentActivity context, ItemRenderer renderer, ViewGroup parent)
     {
         this.context = context;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.renderer = renderer;
         this.parent = parent;
         this.downloadManager=(DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
-        this.downloadDir = ((GlobalState)this.context.getApplication()).getDownloadDirectory();
+        this.downloadDir = getGlobalState().getDownloadDirectory();
 
         context.registerReceiver(receiver, new IntentFilter(
                 DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+    }
+
+    private GlobalState getGlobalState()
+    {
+        return (GlobalState)this.context.getApplication();
     }
 
     public void onDestroy()
@@ -176,56 +155,56 @@ public class AttachmentRenderer
             View view = inflater.inflate(R.layout.listitem_item_attachment, parent, false);
             renderer.render(child,view);
             assert view != null;
-            renderStatusIcon(view, child);
-            view.setTag(R.id.item_tag, child);
-            view.setOnClickListener(downloadListener);
-            view.setBackgroundResource(R.drawable.selector);
-            TextView statusView = (TextView) view.findViewById(R.id.textViewStatus);
-            statusView.setText(getStatusText(child,context.getResources()));
+
+            renderStatus(child, view);
             parent.addView(view);
         }
     }
 
-    private boolean isDownloadInProgress(View view, Item item)
+    private void renderStatus(Item child, View view)
     {
-        Long inProgressId = (Long) view.getTag(R.id.tag_download_in_progress);
-        if(inProgressId != null)
-        {
-            return inProgressId > 0;
-        }
-        else
-        {
-            inProgressId = -1L;
-            try
-            {
-                String uri = ((GlobalState)context.getApplication()).getZotero().getAttachmentUri(item).toString();
-
-                DownloadManager.Query query = new DownloadManager.Query();
-                query.setFilterByStatus(DownloadManager.STATUS_RUNNING | DownloadManager.STATUS_PAUSED | STATUS_PENDING);
-                Cursor cursor = downloadManager.query(query);
-                assert cursor != null;
-                assert uri!=null;
-                while (cursor.moveToNext()) {
-                    int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_URI);
-                    if ( uri.equals(cursor.getString(columnIndex)))
-                    {
-                        columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_ID);
-                        inProgressId = cursor.getLong(columnIndex);
-                    }
-                }
-                cursor.close();
-            }
-            catch (IOException e)
-            {
-                inProgressId = -1L;
-            }
-            view.setTag(R.id.tag_download_in_progress, inProgressId);
-            return inProgressId > 0;
-        }
-
+        EditStatus status = getEditStatus(child);
+        renderStatusIcon(view, child, status);
+        view.setTag(R.id.item_tag, child);
+        view.setOnClickListener(downloadListener);
+        view.setOnLongClickListener(resolutionListener);
+        view.setBackgroundResource(R.drawable.selector);
+        TextView statusView = (TextView) view.findViewById(R.id.textViewStatus);
+        statusView.setText(context.getResources().getString(status.getResourceId()));
     }
 
-    private void renderStatusIcon(final View view, Item child)
+    private boolean isDownloadInProgress(View view, Item item)
+    {
+        long inProgressId = -1L;
+        try
+        {
+            String uri = (getGlobalState()).getZotero().getAttachmentUri(item).toString();
+
+            DownloadManager.Query query = new DownloadManager.Query();
+            query.setFilterByStatus(DownloadManager.STATUS_RUNNING | DownloadManager.STATUS_PAUSED | STATUS_PENDING);
+            Cursor cursor = downloadManager.query(query);
+            assert cursor != null;
+            assert uri!=null;
+            while (cursor.moveToNext())
+            {
+                int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_URI);
+                if ( uri.equals(cursor.getString(columnIndex)))
+                {
+                    columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_ID);
+                    inProgressId = cursor.getLong(columnIndex);
+                }
+            }
+            cursor.close();
+        }
+        catch (IOException e)
+        {
+            inProgressId = -1L;
+        }
+        view.setTag(R.id.tag_download_in_progress, inProgressId);
+        return inProgressId > 0;
+    }
+
+    private void renderStatusIcon(final View view, Item child, EditStatus status)
     {
         Resources resources = context.getResources();
         Drawable icon = resolveAttachmentIcon(resources);
@@ -236,14 +215,15 @@ public class AttachmentRenderer
         {
             icon = resources.getDrawable(R.drawable.animation_download);
             assert icon != null;
-            icon.setAlpha(255);
+            imageView.setImageDrawable(icon);
+            imageView.setImageAlpha(255);
             imageView.post(new Runnable()
             {
                 @Override
                 public void run()
                 {
                     AnimationDrawable frameAnimation =
-                            (AnimationDrawable) imageView.getBackground();
+                            (AnimationDrawable) imageView.getDrawable();
                     assert frameAnimation != null;
                     frameAnimation.start();
                 }
@@ -251,17 +231,17 @@ public class AttachmentRenderer
         }
         else
         {
-            String fileName;
-            fileName = getFileName(child, true);
-
-            File file  = new File(downloadDir,child.getKey() + "/" + fileName);
-            if (!file.exists())
+            imageView.setImageDrawable(icon);
+            if (EditStatus.REMOTE == status)
             {
-                icon.setAlpha(64);
+                imageView.setImageAlpha(64);
             }
-            else{icon.setAlpha(255);}
+            else
+            {
+                imageView.setImageAlpha(255);
+            }
         }
-        imageView.setBackground(icon);
+
     }
 
     private Drawable resolveAttachmentIcon(Resources resources)
@@ -274,8 +254,8 @@ public class AttachmentRenderer
     {
         try
         {
-            GlobalState state = (GlobalState) context.getApplication();
-            String fileName = getFileName(item, true);
+            GlobalState state = getGlobalState();
+            String fileName = ZoteroSync.getFileName(item, true);
             File dir = new File(downloadDir, item.getKey() );
 
             //noinspection ResultOfMethodCallIgnored
@@ -298,18 +278,24 @@ public class AttachmentRenderer
                         R.string.no_external_storage,
                         Toast.LENGTH_SHORT).show();
             }
+            int networkTypes = DownloadManager.Request.NETWORK_WIFI;
+            SharedPreferences preferences = getGlobalState().getPreferences();
+            if(preferences.getBoolean("mobile_download", false))
+            {
+                networkTypes = networkTypes | DownloadManager.Request.NETWORK_MOBILE;
+            }
+
             long lastDownload=
                     downloadManager.enqueue(
                             new DownloadManager.Request(
                                     Uri.parse(state.getZotero().getAttachmentUri(item).toString()))
-                                    .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI |
-                                            DownloadManager.Request.NETWORK_MOBILE)
-                                    .setAllowedOverRoaming(false)
+                                    .setAllowedNetworkTypes(networkTypes)
+                                    .setAllowedOverRoaming(preferences.getBoolean("roaming_download", false))
                                     .setTitle(item.getTitle())
                                     .setDescription(context.getString(R.string.attachment_download_description))
                                     .setDestinationInExternalFilesDir(context, Environment.DIRECTORY_DOWNLOADS + "/" + item.getKey(), fileName));
             view.setTag(R.id.tag_download_in_progress, lastDownload);
-            renderStatusIcon(view, item);
+            renderStatus(item, view);
         }
         catch (IOException e)
         {
@@ -319,26 +305,6 @@ public class AttachmentRenderer
                     R.string.network_error,
                     Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private String getFileName(Item item, boolean withSuffix)
-    {
-
-        String fileName = item.getKey();
-        Field fileNameField = item.getField(ItemField.FILE_NAME);
-        if(fileNameField != null)
-        {
-            fileName = fileNameField.getValue();
-        }
-
-        Field linkMode = item.getField(ItemField.LINK_MODE);
-        String suffix = "";
-        if( withSuffix && linkMode != null && IMPORTED_URL.equals(linkMode.getValue()))
-        {
-             suffix = ".zip";
-        }
-
-        return fileName + suffix;
     }
 
     private void showDownloadedAttachment(File file, Item item)
@@ -371,7 +337,7 @@ public class AttachmentRenderer
     {
 
         File targetDir = new File(file.getParent(),"content");
-        File targetFile = new File(targetDir, getFileName(item, false));
+        File targetFile = new File(targetDir, ZoteroSync.getFileName(item, false));
         boolean isUnpacked = true;
         if(!targetFile.exists())
         {
@@ -424,54 +390,58 @@ public class AttachmentRenderer
 
     }
 
-    private String getStatusText(Item item, Resources resources)
+    private EditStatus getEditStatus(Item item)
     {
-        String fileName = getFileName(item, true);
+        String fileName = ZoteroSync.getFileName(item, true);
         File file = new File(downloadDir, item.getKey() + "/" + fileName );
         Field modificationField = item.getField(ItemField.MODIFICATION_TIME);
+        Field downloadTimeField = item.getField(ItemField.DOWNLOAD_TIME);
         long serverModificationTime = 0;
+        long downloadTime = 0;
 
         if(modificationField!= null)
         {
             serverModificationTime = Long.valueOf(modificationField.getValue());
         }
-        long localModificationTime = file.lastModified();
+        if(downloadTimeField != null)
+        {
+            downloadTime = Long.valueOf(downloadTimeField.getValue());
+        }
+        long localModificationTime;
+        EditStatus editStatus;
+
         if(!file.exists())
         {
-            return resources.getString(R.string.attachment_status_on_server, serverModificationTime);
+            editStatus = EditStatus.REMOTE;
         }
         else if(SyncStatus.SYNC_ATTACHMENT_CONFLICT == item.getSynced())
         {
-            return resources.getString(
-                    R.string.attachment_status_conflict,
-                    serverModificationTime,
-                    localModificationTime);
+            editStatus = EditStatus.CONFLICT;
         }
         else
         {
-            long delta = localModificationTime - serverModificationTime;
-            if(Math.abs(delta) < ZoteroSync.MODIFICATION_TOLERANCE_MILISECONDS)
+            localModificationTime = file.lastModified();
+
+            boolean isLocallyModified = Math.abs(localModificationTime - downloadTime) > ZoteroSync.MODIFICATION_TOLERANCE_MILISECONDS;
+            boolean isServerModified = Math.abs(serverModificationTime - downloadTime) > ZoteroSync.MODIFICATION_TOLERANCE_MILISECONDS;
+
+            if(!isLocallyModified && !isServerModified)
             {
-                return resources.getString(
-                        R.string.attachment_status_synced,
-                        serverModificationTime,
-                        localModificationTime);
+                editStatus = EditStatus.SYNCED;
             }
-            else if (localModificationTime < serverModificationTime )
+            else if (!isLocallyModified )
             {
-                return resources.getString(
-                        R.string.attachment_status_server_updated,
-                        serverModificationTime,
-                        localModificationTime);
+                editStatus = EditStatus.SERVER_UPDATE;
+            }
+            else if(!isServerModified )
+            {
+                editStatus = EditStatus.LOCAL_UPDATE;
             }
             else
             {
-                return resources.getString(
-                        R.string.attachment_status_locally_updated,
-                        serverModificationTime,
-                        localModificationTime);
+                editStatus = EditStatus.CONFLICT;
             }
         }
-
+        return editStatus;
     }
 }

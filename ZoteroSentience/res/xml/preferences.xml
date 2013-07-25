@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory
+            android:title="@string/pref_synchronizing"
+            android:key="pref_key_synchronizing">
     <ListPreference
             android:key="sync_frequency"
             android:title="@string/pref_sync_frequency"
@@ -16,6 +19,19 @@
             android:summary="@string/summary_sync_on_mobile"
             />
 
+    <CheckBoxPreference
+            android:key="mobile_download"
+            android:defaultValue="false"
+            android:title="@string/download_on_mobile_allowed"
+            android:summary="@string/summary_download_on_mobile"
+            />
+    <CheckBoxPreference
+            android:key="roaming_download"
+            android:defaultValue="false"
+            android:title="@string/download_on_roaming_allowed"
+            android:summary="@string/summary_download_on_roaming"
+            />
+    </PreferenceCategory>
     <Preference
             android:title="@string/prefs_login">
         <intent

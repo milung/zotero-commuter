@@ -24,6 +24,16 @@ public class ItemPager extends Fragment
     public static final String ARG_COLLECTION_NAME = "collection_name";
     public static final String ARG_ITEMS_COUNT = "items_count";
 
+    public long getCollectionId()
+    {
+        return collectionId;
+    }
+
+    public int getPosition()
+    {
+        return positionId;
+    }
+
     interface Callback
     {
         public void onItemScrolled(int position, long itemId);
@@ -71,14 +81,13 @@ public class ItemPager extends Fragment
                                     null,
                                     getActivity().getSupportFragmentManager(),
                                     getGlobalState().getStorage()));
-            Cursor oldCursor = cursor;
             cursor = null;
             this.collectionId = collectionId;
 
             Bundle bundle = new Bundle();
             bundle.putLong(ItemListFragment.ARG_COLLECTION_KEY,collectionId);
             getLoaderManager().restartLoader(R.id.loder_item_pager, bundle, this);
-            if(oldCursor != null) oldCursor.close();
+
         }
     }
 
@@ -120,7 +129,6 @@ public class ItemPager extends Fragment
     public void onDestroy()
     {
         super.onDestroy();
-        if(this.cursor != null) cursor.close();
     }
 
     @Override
@@ -143,7 +151,6 @@ public class ItemPager extends Fragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
     {
-        if(this.cursor != null) cursor.close();
         this.cursor = cursor;
         ViewPager pager = ((ViewPager)getActivity().findViewById(R.id.pager));
         pager.setAdapter(new ItemPagerAdapter(
@@ -157,6 +164,7 @@ public class ItemPager extends Fragment
         if(getActivity() != null)
         {
             ViewPager pager = (ViewPager)getActivity().findViewById(R.id.pager);
+
             if(pager != null)
             {
                 pager.setAdapter(new ItemPagerAdapter(
@@ -173,6 +181,7 @@ public class ItemPager extends Fragment
     public void onPageSelected(int position)
     {
         cursor.moveToPosition(position);
+        this.positionId = position;
         callback.onItemScrolled(position, cursor.getLong(0));
     }
 

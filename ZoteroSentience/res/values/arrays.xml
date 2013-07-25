@@ -16,4 +16,8 @@
         <item>sync_six_hours</item>
         <item>sync_one_day</item>
     </string-array>
+    <string-array name="attachment_resolution_options">
+        <item>Remove local version</item>
+        <item>Replace remote version</item>
+    </string-array>
 </resources>
