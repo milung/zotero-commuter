@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 
 import java.io.File;
 
@@ -43,7 +44,7 @@ final public class GlobalState extends Application
         return zotero; 
     } 
     
-    synchronized ZoteroStorageImpl getStorage()
+    public synchronized ZoteroStorageImpl getStorage()
     {
         if( storage == null)
         {
@@ -52,7 +53,7 @@ final public class GlobalState extends Application
         return storage;
     }
     
-    synchronized ZoteroSync getZoteroSync()
+    public synchronized ZoteroSync getZoteroSync()
     {
         if(zoteroSync == null)
         {
@@ -70,9 +71,9 @@ final public class GlobalState extends Application
     		getResources().getString(R.string.callback));
     }
 
-    SharedPreferences getPreferences()
+    public SharedPreferences getPreferences()
     {
-        return getSharedPreferences(PREFERENCES_SPACE, Context.MODE_PRIVATE);
+        return PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     void saveZoteroState( ZoteroOauth oauth)

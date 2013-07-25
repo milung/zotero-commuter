@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sk.mung.sentience.zoterosentience"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0"
+        >
 
     <uses-sdk
         android:minSdkVersion="17"
@@ -17,6 +18,7 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:debuggable="true"
         android:theme="@style/AppTheme" android:name="sk.mung.sentience.zoterosentience.GlobalState">
         <activity
             android:name=".LibraryActivity"
@@ -56,15 +58,16 @@
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".LibraryActivity" />
         </activity>
+
         <activity android:name=".SettingsIntentActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar">
 
         </activity>
+
         <activity android:name=".ItemPagerActivity">
-        <meta-data
+            <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".LibraryActivity" />
         </activity>
-
 
         <service android:name=".SynchronizingService"/>
 
@@ -80,6 +83,13 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".DownloadReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.DOWNLOAD_COMPLETE" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

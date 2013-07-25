@@ -37,6 +37,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.ItemField;
 
@@ -276,21 +277,40 @@ public class ZoteroRestful {
     private Response getUploadAuthorization(File file, Item item) throws IOException
     {
         String md5 = calculateFileHash(file);
-        String oldHash = item.getField(ItemField.MD5).getValue();
+        Field oldHashField = item.getField(ItemField.DOWNLOAD_MD5);
+        if(oldHashField == null)
+        {
+            oldHashField = item.getField(ItemField.MD5);
+        }
+        String oldHash = md5;
+        if(oldHashField != null)
+        {
+            oldHash = oldHashField.getValue();
+        }
+        else return new Response(HttpStatus.SC_PRECONDITION_FAILED,"");
+
         Uri.Builder builder =
                 Uri.parse(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
                         .buildUpon()
                         .appendQueryParameter("key", accessToken);
+
+        Field field = item.getField(ItemField.FILE_NAME);
+        if(field == null) return new Response(HttpStatus.SC_PRECONDITION_FAILED,"");
+        String filename = field.getValue();
+
+        field = item.getField(ItemField.CONTENT_TYPE);
+        if(field == null) return new Response(HttpStatus.SC_PRECONDITION_FAILED,"");
+        String contentType = field.getValue();
 
         HttpPost request = new HttpPost(builder.build().toString());
         request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
         request.addHeader( IF_MATCH, oldHash);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
         nameValuePairs.add(new BasicNameValuePair("md5",md5));
-        nameValuePairs.add(new BasicNameValuePair("filename",item.getField(ItemField.FILE_NAME).getValue()));
+        nameValuePairs.add(new BasicNameValuePair("filename",filename));
         nameValuePairs.add(new BasicNameValuePair("filesize",Long.toString(file.length())));
         nameValuePairs.add(new BasicNameValuePair("mtime",Long.toString(file.lastModified())));
-        nameValuePairs.add(new BasicNameValuePair("contentType",item.getField(ItemField.CONTENT_TYPE).getValue()));
+        nameValuePairs.add(new BasicNameValuePair("contentType",contentType));
         nameValuePairs.add(new BasicNameValuePair("params","1"));
 
         request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
@@ -312,7 +332,7 @@ public class ZoteroRestful {
         return  new Response(response.getStatusLine().getStatusCode(), out.toString());
     }
 
-    private String calculateFileHash(File file) {
+    public String calculateFileHash(File file) {
 
         try
         {

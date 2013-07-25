@@ -129,6 +129,11 @@ public class ItemsDao extends BaseKeyDao<Item>
     private void updateItemCreators( Item item)
     {
         SQLiteDatabase database = getWritableDatabase();
+        database.delete(
+                TABLE_ITEMS_TO_CREATORS,
+                COLUMN_ITEM + QUESTION_MARK,
+                new String[]{Long.toString(item.getId())});
+
         for(Creator creator: item.getCreators())
         {
             creatorsDao.upsert(creator);
@@ -137,12 +142,18 @@ public class ItemsDao extends BaseKeyDao<Item>
             itemCreatorValues.put(COLUMN_ITEM, item.getId());
             itemCreatorValues.put(COLUMN_CREATOR, creator.getId());
 
-            database.insertWithOnConflict(TABLE_ITEMS_TO_CREATORS, null, itemCreatorValues, SQLiteDatabase.CONFLICT_IGNORE);
+            database.insertWithOnConflict(
+                    TABLE_ITEMS_TO_CREATORS, null, itemCreatorValues, SQLiteDatabase.CONFLICT_IGNORE);
         }
     }
 
     private void updateTags(Item item)
     {
+        getWritableDatabase().delete(
+                TABLE_ITEMS_TO_TAGS,
+                COLUMN_ITEM + QUESTION_MARK,
+                new String[]{Long.toString(item.getId())});
+
         for( Tag tag : item.getTags() )
         {
             tagsDao.upsert(tag);

@@ -124,33 +124,67 @@ public class ZoteroSync
         List<ItemFilePair> pairs =  scanForUpdates();
         for( ItemFilePair pair : pairs)
         {
+            Item item = pair.getItem();
+
             // do not try upload imported urls - they are not editable
-            Field linkMode = pair.getItem().getField(ItemField.LINK_MODE);
+            Field linkMode = item.getField(ItemField.LINK_MODE);
             if(linkMode != null && IMPORTED_URL.equals(linkMode.getValue()))
             {
                 continue;
             }
-            UploadStatus status = zotero.uploadAttachment(pair.getFile(), pair.getItem());
+            UploadStatus status = zotero.uploadAttachment(pair.getFile(), item);
             if(status == UploadStatus.SUCCESS)
             {
-                pair.getItem()
-                        .getField(ItemField.MODIFICATION_TIME)
-                        .setValue(Long.toString(pair.getFile().lastModified()));
+                String lastModified = Long.toString(pair.getFile().lastModified());
+
+                item.addField(Field.create(ItemField.MODIFICATION_TIME, lastModified));
+                item.addField(Field.create(ItemField.DOWNLOAD_TIME, lastModified));
+                item.addField(Field.create(ItemField.DOWNLOAD_MD5,zotero.calculateFileHash(pair.getFile())));
+                item.setSynced(SyncStatus.SYNC_OK);
             }
             else if( status == UploadStatus.UPDATE_CONFLICTS)
             {
-                pair.getItem().setSynced(SyncStatus.SYNC_ATTACHMENT_CONFLICT);
+                item.setSynced(SyncStatus.SYNC_ATTACHMENT_CONFLICT);
             }
             else if(status == UploadStatus.STORAGE_EXCEEDED)
             {
-                pair.getItem().setSynced(SyncStatus.SYNC_ATTACHMENT_TOO_BIG);
+                item.setSynced(SyncStatus.SYNC_ATTACHMENT_TOO_BIG);
             }
             else if(status == UploadStatus.NOT_AUTHORIZED)
             {
-                pair.getItem().setSynced(SyncStatus.SYNC_ATTACHMENT_NOT_AUTHORIZED);
+                item.setSynced(SyncStatus.SYNC_ATTACHMENT_NOT_AUTHORIZED);
             }
         }
     }
+
+    public void deleteAllAttachments()
+    {
+          //noinspection ResultOfMethodCallIgnored
+        deleteDirectory(downloadDir);
+    }
+
+
+    private boolean deleteDirectory(File directory)
+    {
+        if(directory.exists()){
+            File[] files = directory.listFiles();
+            if(null!=files){
+                for (File file : files)
+                {
+                    if (file.isDirectory())
+                    {
+                        deleteDirectory(file);
+                    } else
+                    {
+                        //noinspection ResultOfMethodCallIgnored
+                        file.delete();
+                    }
+                }
+            }
+        }
+        return(directory.delete());
+    }
+
 
     private class ItemFilePair
     {
@@ -174,6 +208,33 @@ public class ZoteroSync
             return item;
         }
     }
+
+    public void deleteAttachment(Item item)
+    {
+        File dir = new File(downloadDir,item.getKey());
+        deleteDirectory(dir);
+    }
+
+    public static String getFileName(Item item, boolean withSuffix)
+    {
+
+        String fileName = item.getKey();
+        Field fileNameField = item.getField(ItemField.FILE_NAME);
+        if(fileNameField != null)
+        {
+            fileName = fileNameField.getValue();
+        }
+
+        Field linkMode = item.getField(ItemField.LINK_MODE);
+        String suffix = "";
+        if( withSuffix && linkMode != null && IMPORTED_URL.equals(linkMode.getValue()))
+        {
+            suffix = ".zip";
+        }
+
+        return fileName + suffix;
+    }
+
     private List<ItemFilePair> scanForUpdates()
     {
         List<ItemFilePair> pairs = new ArrayList<ItemFilePair>();
@@ -191,19 +252,14 @@ public class ZoteroSync
                         Item item = storage.findItemByKey(keyDir.getName());
                         if(item != null)
                         {
-                            Field field = item.getField(ItemField.MODIFICATION_TIME);
-                            if(field != null)
+                            Field field = item.getField(ItemField.DOWNLOAD_TIME);
+                            long libraryTime = field != null ? Long.valueOf(field.getValue()):0L ;
+                            if((modificationTime - libraryTime) > MODIFICATION_TOLERANCE_MILISECONDS)
                             {
-                                long libraryTime = Long.valueOf(field.getValue());
-
-                                if((modificationTime - libraryTime) > MODIFICATION_TOLERANCE_MILISECONDS)
-                                {
-                                    pairs.add(new ItemFilePair(attachments[0],item));
-                                }
+                                pairs.add(new ItemFilePair(attachments[0],item));
                             }
                         }
                     }
-
                 }
             }
         }

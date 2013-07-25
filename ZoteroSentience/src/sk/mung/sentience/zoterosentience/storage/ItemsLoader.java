@@ -69,13 +69,14 @@ implements ZoteroStorageListener
      * Handles a request to start the Loader.
      */
     @Override protected void onStartLoading() {
-        if (loadedItems != null) {
+
+        if (loadedItems != null && ! loadedItems.isClosed()) {
             // If we currently have a result available, deliver it
             // immediately.
             deliverResult(loadedItems);
         }
 
-        if ( loadedItems == null || wasChanged) {
+        if ( loadedItems == null || loadedItems.isClosed() || wasChanged) {
             // If the data has changed since the last time it was loaded
             // or is not currently available, start a load.
             forceLoad();

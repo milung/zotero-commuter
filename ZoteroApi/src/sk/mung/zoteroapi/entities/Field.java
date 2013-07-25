@@ -1,8 +1,7 @@
 package sk.mung.zoteroapi.entities;
 
-/**
- * Created by sk1u00e5 on 19.6.2013.
- */
+import static sk.mung.sanity.SanityCheck.*;
+
 public class Field implements Entity
 {
     private long id;
@@ -10,6 +9,16 @@ public class Field implements Entity
     private String value;
     private Item item;
 
+    public static Field create(ItemField type, String value)
+    {
+        checkArgumentNotNull(type,"type");
+        checkArgumentNotNull(value,"value");
+
+        Field field = new Field();
+        field.setType(type);
+        field.setValue(value);
+        return field;
+    }
     public long getId()
     {
         return id;

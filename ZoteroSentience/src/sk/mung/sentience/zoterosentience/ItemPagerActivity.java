@@ -8,20 +8,42 @@ import android.view.MenuItem;
 
 public class ItemPagerActivity extends FragmentActivity
 {
+    private ItemPager pager = null;
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
-        Bundle arguments = getIntent().getExtras();
 
-        setupActionBar(
-                arguments == null ? null : arguments.getString(ItemPager.ARG_COLLECTION_NAME),
-                arguments == null ? 0 : arguments.getInt(ItemPager.ARG_ITEMS_COUNT));
-        ItemPager pager = new ItemPager();
-        pager.setArguments(arguments);
+        Bundle bundle = null;
+        if(savedInstanceState != null)  bundle = savedInstanceState;
+        else                            bundle = getIntent().getExtras(); // 3
+
+        if(bundle != null)
+        {
+            long id = bundle.getLong(ItemPager.ARG_COLLECTION_ID, 0);
+            int position = bundle.getInt(ItemPager.ARG_CURRENT_POSITION, 0);
+
+            setupActionBar(
+                    bundle == null ? null : bundle.getString(ItemPager.ARG_COLLECTION_NAME),
+                    bundle == null ? 0 : bundle.getInt(ItemPager.ARG_ITEMS_COUNT));
+        }
+
+        pager = new ItemPager();
+        pager.setArguments( bundle);
         getSupportFragmentManager().beginTransaction()
                 .replace(android.R.id.content, pager)
                 .commit();
+}
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+        super.onSaveInstanceState(outState);
+        outState.putLong(ItemPager.ARG_COLLECTION_ID, pager.getCollectionId());
+        outState.putInt(ItemPager.ARG_CURRENT_POSITION,pager.getPosition());
+        outState.putString(ItemPager.ARG_COLLECTION_NAME,getIntent().getExtras().getString(ItemPager.ARG_COLLECTION_NAME));
+        outState.putInt(ItemPager.ARG_ITEMS_COUNT,getIntent().getExtras().getInt(ItemPager.ARG_ITEMS_COUNT));
     }
 
     private void setupActionBar(String name, int itemsCount)
@@ -50,4 +72,6 @@ public class ItemPagerActivity extends FragmentActivity
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 }

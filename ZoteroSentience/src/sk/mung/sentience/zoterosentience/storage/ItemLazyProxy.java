@@ -213,6 +213,8 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     public void addField(Field field)
     {
         loadFields();
+        field.setItem(this);
+        fieldsDao.upsert(field);
         getAdaptee().addField(field);
     }
 

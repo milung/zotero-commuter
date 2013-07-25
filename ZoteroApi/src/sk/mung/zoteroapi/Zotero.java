@@ -175,6 +175,11 @@ public class Zotero
         return restful.uploadAttachment(file, item);
     }
 
+    public String calculateFileHash(File file)
+    {
+        return restful.calculateFileHash(file);
+    }
+
     public List<UploadStatus> updateItems(List<Item> items, int sinceVersion)
     {
         if(items.size() == 0)

@@ -75,6 +75,15 @@ public class ItemEntity implements Item
 	@Override
     public void addField(Field field)
     {
+        for(Field f : fields)
+        {
+            if(f.getType() == field.getType())
+            {
+                fields.remove(f);
+                break;
+            }
+        }
+
 		fields.add(field);
 		if(title == null && field.getType().isTitle())
 		{
