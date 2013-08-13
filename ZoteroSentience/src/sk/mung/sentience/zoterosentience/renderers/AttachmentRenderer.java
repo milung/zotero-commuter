@@ -396,6 +396,7 @@ public class AttachmentRenderer
         File file = new File(downloadDir, item.getKey() + "/" + fileName );
         Field modificationField = item.getField(ItemField.MODIFICATION_TIME);
         Field downloadTimeField = item.getField(ItemField.DOWNLOAD_TIME);
+        Field localTimeField = item.getField(ItemField.LOCAL_TIME);
         long serverModificationTime = 0;
         long downloadTime = 0;
 
@@ -407,7 +408,7 @@ public class AttachmentRenderer
         {
             downloadTime = Long.valueOf(downloadTimeField.getValue());
         }
-        long localModificationTime;
+
         EditStatus editStatus;
 
         if(!file.exists())
@@ -420,9 +421,21 @@ public class AttachmentRenderer
         }
         else
         {
+            long localModificationTime= 0;
+            long localTime = 0;
+            if(localTimeField != null)
+            {
+                localTime = Long.valueOf(localTimeField.getValue());
+            }
+            else
+            {
+                localTime = downloadTime;
+            }
+
             localModificationTime = file.lastModified();
 
-            boolean isLocallyModified = Math.abs(localModificationTime - downloadTime) > ZoteroSync.MODIFICATION_TOLERANCE_MILISECONDS;
+
+            boolean isLocallyModified = Math.abs(localModificationTime - localTime) > ZoteroSync.MODIFICATION_TOLERANCE_MILISECONDS;
             boolean isServerModified = Math.abs(serverModificationTime - downloadTime) > ZoteroSync.MODIFICATION_TOLERANCE_MILISECONDS;
 
             if(!isLocallyModified && !isServerModified)

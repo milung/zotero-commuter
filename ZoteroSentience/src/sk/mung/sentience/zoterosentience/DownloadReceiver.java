@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.view.View;
 import android.widget.Toast;
 
 import org.apache.http.HttpStatus;
@@ -50,7 +49,8 @@ public class DownloadReceiver extends BroadcastReceiver
                         int status = cursor.getInt(columnIndex);
                         if (DownloadManager.STATUS_SUCCESSFUL == status)
                         {
-                            updateModificationTime(item, cursor);
+                            File file = new File(localFileName);
+                            updateModificationTime(item, file);
                         }
                         else if (DownloadManager.STATUS_FAILED == status)
                         {
@@ -82,27 +82,15 @@ public class DownloadReceiver extends BroadcastReceiver
         }
     }
 
-    private void updateModificationTime(Item item, Cursor cursor)
+    private void updateModificationTime(Item item, File file)
     {
-        int filenameIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
-        String filename = cursor.getString(filenameIndex);
-        File file = new File(filename);
-
         Field modificationTime = item.getField(ItemField.MODIFICATION_TIME);
         Field hashField = item.getField(ItemField.MD5);
         if(modificationTime != null)
         {
-            //noinspection ResultOfMethodCallIgnored
-            Field downloadTime = new Field();
-            downloadTime.setType(ItemField.DOWNLOAD_TIME);
-            downloadTime.setValue(modificationTime.getValue());
-            item.addField(downloadTime);
-
-            Field downloadHash = new Field();
-            downloadHash.setType(ItemField.DOWNLOAD_MD5);
-            downloadHash.setValue(hashField.getValue());
-            item.addField(downloadHash);
-            file.setLastModified(Long.valueOf(modificationTime.getValue()));
+            item.addField(Field.create(ItemField.DOWNLOAD_TIME, modificationTime.getValue()));
+            item.addField(Field.create(ItemField.DOWNLOAD_MD5, hashField.getValue()));
+            item.addField(Field.create(ItemField.LOCAL_TIME, Long.toString(file.lastModified())));
         }
     }
 }
