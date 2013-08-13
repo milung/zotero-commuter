@@ -86,6 +86,10 @@ public class ItemViewer extends Fragment
         parent.removeAllViews();
 
         boolean topLine = renderAttachments(parent, inflater);
+
+        parent = (ViewGroup) getView().findViewById(R.id.fieldsGroup);
+        parent.removeAllViews();
+
         renderFields(parent,inflater,topLine);
     }
 
@@ -107,7 +111,6 @@ public class ItemViewer extends Fragment
             if(view == null) continue;
             parent.addView(view);
             inflater.inflate(R.layout.line, parent);
-
         }
     }
 

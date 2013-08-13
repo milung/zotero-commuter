@@ -139,6 +139,7 @@ public class ZoteroSync
 
                 item.addField(Field.create(ItemField.MODIFICATION_TIME, lastModified));
                 item.addField(Field.create(ItemField.DOWNLOAD_TIME, lastModified));
+                item.addField(Field.create(ItemField.LOCAL_TIME, lastModified));
                 item.addField(Field.create(ItemField.DOWNLOAD_MD5,zotero.calculateFileHash(pair.getFile())));
                 item.setSynced(SyncStatus.SYNC_OK);
             }
@@ -252,7 +253,12 @@ public class ZoteroSync
                         Item item = storage.findItemByKey(keyDir.getName());
                         if(item != null)
                         {
-                            Field field = item.getField(ItemField.DOWNLOAD_TIME);
+                            Field field = item.getField(ItemField.LOCAL_TIME);
+                            if(field == null)
+                            {
+                                //TODO: remove for the release - only backward compatibility for testing
+                                field = item.getField(ItemField.DOWNLOAD_TIME);
+                        }
                             long libraryTime = field != null ? Long.valueOf(field.getValue()):0L ;
                             if((modificationTime - libraryTime) > MODIFICATION_TOLERANCE_MILISECONDS)
                             {

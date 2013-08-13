@@ -2,6 +2,7 @@ package sk.mung.sentience.zoterosentience.renderers;
 
 import android.content.Context;
 import android.content.res.Resources;
+import java.text.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,32 @@ import sk.mung.sentience.zoterosentience.R;
 
 public class FieldRenderer
 {
+    interface Reformatter
+    {
+        String reformat(String in);
+    }
+
+    static Reformatter identityReformatter = new Reformatter()
+    {
+        @Override
+        public String reformat(String in)
+        {
+            return in;
+        }
+    };
+
+    static Reformatter modificationTimeReformatter = new Reformatter()
+    {
+        @Override
+        public String reformat(String in)
+        {
+            long timestamp = Long.valueOf(in);
+            return DateFormat.getDateTimeInstance().format(new Date(timestamp));
+        }
+    };
+
+
+
     static class RenderingAttributes
     {
         boolean isVisible()
@@ -40,6 +68,7 @@ public class FieldRenderer
         private final boolean isVisible;
         private final int layoutId;
         private final int titleId;
+        private final Reformatter formatter;
 
         int getSortingPosition()
         {
@@ -54,6 +83,22 @@ public class FieldRenderer
             this.sortingPosition = sortingPosition;
             this.layoutId = layoutId;
             this.titleId = titleId;
+            this.formatter = identityReformatter;
+        }
+
+        RenderingAttributes(boolean visible, int sortingPosition, int layoutId, int titleId, Reformatter formatter)
+        {
+            isVisible = visible;
+            this.sortingPosition = sortingPosition;
+            this.layoutId = layoutId;
+            this.titleId = titleId;
+            this.formatter = formatter;
+        }
+
+
+        Reformatter getFormatter()
+        {
+            return formatter;
         }
     }
 
@@ -245,6 +290,9 @@ public class FieldRenderer
                 ItemField.LINK_MODE,
                 new RenderingAttributes(false,0, 0,0));
         attributes.put(
+                ItemField.LOCAL_TIME,
+                new RenderingAttributes(false,0, 0,0));
+        attributes.put(
                 ItemField.MANUSCRIPT_TYPE,
                 new RenderingAttributes(true,800, R.layout.listitem_field_inline,R.string.zotero_field_manusript_type));
         attributes.put(
@@ -258,7 +306,9 @@ public class FieldRenderer
                 new RenderingAttributes(true,800, R.layout.listitem_field_inline,R.string.zotero_field_meeting_name));
         attributes.put(
                 ItemField.MODIFICATION_TIME,
-                new RenderingAttributes(true,1000, R.layout.listitem_field_inline,R.string.zotero_field_modification_time));
+                new RenderingAttributes(
+                        true,1000, R.layout.listitem_field_inline,
+                        R.string.zotero_field_modification_time, modificationTimeReformatter));
         attributes.put(
                 ItemField.NAME_OF_ACT,
                 new RenderingAttributes(true,800, R.layout.listitem_field_inline,R.string.zotero_field_name_of_act));
@@ -416,28 +466,32 @@ public class FieldRenderer
         Collections.sort(input,comparator);
         return input;
     }
-    public View createView(Field field )
+
+    public View createView(Field field)
     {
         int layoutResource = R.layout.listitem_field_inline;
         String title = field.getType().getZoteroName();
-        if(attributes.containsKey(field.getType()))
+        String value = field.getValue();
+        if (attributes.containsKey(field.getType()))
         {
             RenderingAttributes attr = attributes.get(field.getType());
-            if(!attr.isVisible) return null;
+            if (!attr.isVisible) return null;
             layoutResource = attr.getLayoutId();
             title = resources.getString(attr.getTitleId());
+            value = attr.getFormatter().reformat(value);
         }
         View view = inflater.inflate(layoutResource, parent, false);
 
+        assert view != null;
         TextView textView = (TextView) view.findViewById(R.id.textViewFieldName);
-        if( textView != null)
+        if (textView != null)
         {
             textView.setText(title);
         }
         textView = (TextView) view.findViewById(R.id.textViewFieldValue);
-        if( textView != null)
+        if (textView != null)
         {
-            textView.setText(field.getValue());
+            textView.setText(value);
         }
         return view;
     }

@@ -110,7 +110,8 @@ public enum ItemField
     FILE_NAME(110,"filename"),
     NOTE(111,"note"),
     DOWNLOAD_TIME(112,"dtime"),
-    DOWNLOAD_MD5(113,"dmd5");
+    DOWNLOAD_MD5(113,"dmd5"),
+    LOCAL_TIME(114,"ltime");
 	
 	private final String zoteroName;
 	private final int id;
