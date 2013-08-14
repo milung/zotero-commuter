@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.view.View;
 
 import sk.mung.sentience.zoterosentience.GlobalState;
 import sk.mung.sentience.zoterosentience.R;
@@ -15,14 +16,23 @@ import sk.mung.zoteroapi.entities.ItemField;
 
 public class AttachmentConflictFragment extends DialogFragment
 {
-    public final Item target;
+    public interface Callback
+    {
+        public void attachmentStatusChanged(Item target, View view);
+    }
+
+    private final Item target;
+    private final View view;
+    private final Callback callback;
 
     public static final int REMOVE_LOCAL = 0;
     public static final int REMOVE_REMOTE= 1;
 
-    public AttachmentConflictFragment(Item target)
+    public AttachmentConflictFragment(Item target, View view, Callback callback)
     {
         this.target = target;
+        this.view = view;
+        this.callback = callback;
     }
 
     @Override
@@ -44,6 +54,7 @@ public class AttachmentConflictFragment extends DialogFragment
                         removeRemoteDeltas();
                         break;
                 }
+                callback.attachmentStatusChanged(target,view);
             }
         });
         return builder.create();
