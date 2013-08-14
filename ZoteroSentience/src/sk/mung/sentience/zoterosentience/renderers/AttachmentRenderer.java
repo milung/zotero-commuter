@@ -63,14 +63,21 @@ public class AttachmentRenderer
     };
 
 
-    private View.OnLongClickListener resolutionListener = new View.OnLongClickListener() {
-
-
+    private View.OnLongClickListener resolutionListener = new View.OnLongClickListener()
+    {
         @Override
         public boolean onLongClick(View view) {
             Integer position = (Integer)view.getTag(R.id.position);
             Item target = (Item) view.getTag(R.id.item_tag);
-            DialogFragment dialog = new AttachmentConflictFragment(target);
+            DialogFragment dialog = new AttachmentConflictFragment(target, view, new  AttachmentConflictFragment.Callback()
+            {
+
+                @Override
+                public void attachmentStatusChanged(Item target, View view)
+                {
+                    renderStatus(target, view);
+                }
+            });
             dialog.show(context.getSupportFragmentManager(),"conflict_dialog");
             return true;
         }
@@ -421,8 +428,8 @@ public class AttachmentRenderer
         }
         else
         {
-            long localModificationTime= 0;
-            long localTime = 0;
+            long localModificationTime;
+            long localTime;
             if(localTimeField != null)
             {
                 localTime = Long.valueOf(localTimeField.getValue());
