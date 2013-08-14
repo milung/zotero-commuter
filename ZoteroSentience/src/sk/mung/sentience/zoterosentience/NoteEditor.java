@@ -1,11 +1,13 @@
 package sk.mung.sentience.zoterosentience;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.text.Spannable;
+import android.text.method.KeyListener;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
@@ -16,6 +18,9 @@ import android.widget.EditText;
 
 public class NoteEditor extends FragmentActivity
 {
+    private KeyListener originalKeyListener;
+    private View.OnClickListener originalClickListener;
+
     private interface SpanMatcher<T>
     {
         Class<T> getSpanType();
@@ -30,14 +35,28 @@ public class NoteEditor extends FragmentActivity
         setContentView(R.layout.activity_note_editor);
         setupActionBar();
         String text = getIntent().getStringExtra(Intent.EXTRA_HTML_TEXT);
-        EditText editText = ((EditText)findViewById(R.id.editTextNote));
+        final EditText editText = ((EditText)findViewById(R.id.editTextNote));
+        /*originalKeyListener = editText.getKeyListener();
+        editText.setKeyListener(null);
+
+        editText.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                editText.setKeyListener(originalKeyListener);
+                editText.setOnClickListener(null);
+            }
+        });*/
         editText.setText(Html.fromHtml(text));
     }
 
     private void setupActionBar()
     {
-        getActionBar().hide();
-        getActionBar().setTitle(R.string.note_editor);
+        ActionBar actionBar = getActionBar();
+        assert actionBar != null;
+        actionBar.hide();
+        actionBar.setTitle(R.string.note_editor);
     }
 
     @Override
