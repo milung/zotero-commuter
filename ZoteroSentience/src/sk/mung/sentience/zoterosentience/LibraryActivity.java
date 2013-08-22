@@ -5,23 +5,16 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
+import sk.mung.sentience.zoterosentience.navigation.ActivityWithDrawer;
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;
-import sk.mung.zoteroapi.ZoteroSync;
 
 /**
  * An activity representing a list of LibraryItems. This activity has different
@@ -39,64 +32,27 @@ import sk.mung.zoteroapi.ZoteroSync;
  * {@link LibraryFragment.Callbacks} interface to listen for item
  * selections.
  */
-public class LibraryActivity extends FragmentActivity
+public class LibraryActivity extends ActivityWithDrawer
         implements LibraryFragment.Callbacks, ItemListFragment.Callback
 {
 
-    public static final String LIBRARY_ACTIVITY_DETAILS_MODE = "libraryActivity.detailsMode";
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
-    private boolean mTwoPane;
-    private long collectionId;
+    @Override
+    protected int getContentLayoutId()
+    {
+        return R.layout.activity_library;
+    }
+
+    @Override
+    protected Fragment createInitialFragment()
+    {
+        return createCollectionFragment(0);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        BootSchedulerReceiver.scheduleSynchronizing(this,false);
-        setContentView(R.layout.activity_library);
-
-        if (findViewById(R.id.library_itemlist_container) != null)
-        {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-large and
-            // res/values-sw600dp). If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
-
-            // In two-pane mode, list items should be given the
-            // 'activated' state when touched.
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            ((LibraryFragment) fragmentManager
-                    .findFragmentById(R.id.library_collection_list))
-                    .setActivateOnItemClick(true);
-
-
-            boolean isDetailMode = false;
-            if(savedInstanceState != null)
-            {
-                isDetailMode = savedInstanceState.getBoolean(LIBRARY_ACTIVITY_DETAILS_MODE,false);
-            }
-            else
-            {
-                onCollectionSelected(0);
-            }
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            if(isDetailMode)
-            {
-                transaction.hide(getSupportFragmentManager().findFragmentById(R.id.library_collection_list));
-            }
-            else
-            {
-                transaction.hide(getSupportFragmentManager().findFragmentById(R.id.library_itemviewer));
-            }
-            transaction.commit();
-        }
-
+        BootSchedulerReceiver.scheduleSynchronizing(this, false);
     }
 
     @Override
@@ -106,47 +62,45 @@ public class LibraryActivity extends FragmentActivity
         return true;
     }
 
-
     /**
      * Callback method from {@link LibraryFragment.Callbacks} indicating
      * that the item with the given ID was selected.
      */
     @Override
-    public void onCollectionSelected(long id)
+    public void onCollectionSelected(final long id)
     {
-        collectionId=id;
-        if (mTwoPane)
-        {
-            Bundle arguments = new Bundle();
-            arguments.putLong(ItemListFragment.ARG_COLLECTION_KEY, id);
-            ItemListFragment fragment = new ItemListFragment();
-            fragment.setArguments(arguments);
-
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.library_itemlist_container, fragment)
-                    .commit();
-        }
-        else
-        {
-            // In single-pane mode, simply start the detail activity
-            // for the selected item ID.
-            Intent detailIntent = new Intent(this, ItemListlActivity.class);
-            detailIntent.putExtra(ItemListFragment.ARG_COLLECTION_KEY, id);
-            startActivity(detailIntent);
-        }
+        navigateTo(createCollectionFragment(id), false);
     }
 
     @Override
-    public void onItemSelected(int position, Item item)
+    public void onAllItemsSelected()
     {
-        Intent detailIntent = new Intent(this, ItemPagerActivity.class);
-        detailIntent.putExtra(ItemPager.ARG_COLLECTION_ID, collectionId);
-        detailIntent.putExtra(ItemPager.ARG_CURRENT_POSITION, position);
+        navigateTo(createCollectionFragment(0), false);
+    }
 
-        CollectionEntity entity = ((GlobalState)getApplication()).getStorage().findCollectionById(collectionId);
-        detailIntent.putExtra(ItemPager.ARG_COLLECTION_NAME, entity.getName());
-        detailIntent.putExtra(ItemPager.ARG_ITEMS_COUNT, entity.getItemsCount());
-        startActivity(detailIntent);
+    private Fragment createCollectionFragment(long collectionKey)
+    {
+        Bundle arguments = new Bundle();
+        arguments.putLong(ItemListFragment.ARG_COLLECTION_KEY, collectionKey);
+        Fragment fragment = new ItemListFragment();
+        fragment.setArguments(arguments);
+        return fragment;
+    }
+
+    @Override
+    public void onItemSelected(int position, Item item, long collectionKey)
+    {
+        Bundle arguments = new Bundle();
+        arguments.putLong(ItemPager.ARG_COLLECTION_ID, collectionKey);
+        arguments.putInt(ItemPager.ARG_CURRENT_POSITION, position);
+
+        CollectionEntity entity = ((GlobalState)getApplication()).getStorage().findCollectionById(collectionKey);
+        arguments.putString(ItemPager.ARG_COLLECTION_NAME, entity.getName());
+        arguments.putInt(ItemPager.ARG_ITEMS_COUNT, entity.getItemsCount());
+
+        ItemPager pager = new ItemPager();
+        pager.setArguments(arguments);
+        navigateTo(pager,true);
     }
 
     public void onLoginOptionSelected( MenuItem menuItem)
@@ -190,52 +144,6 @@ public class LibraryActivity extends FragmentActivity
         return(directory.delete());
     }
 
-    public void onRefreshOptionSelected(MenuItem menuItem)
-    {
-        final Context context = this;
-        new AsyncTask<Void, Void, Integer>(){
-
-            @Override
-            protected Integer doInBackground(Void... arg0)
-            {
-                try
-                {
-                    ZoteroSync zoteroSync = ((GlobalState) getApplication()).getZoteroSync();
-                    zoteroSync.fullSync();
-                    return 0;
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                    return 1;
-                }
-                catch (XmlPullParserException e)
-                {
-                    e.printStackTrace();
-                    return 2;
-                } catch (URISyntaxException e)
-                {
-                    e.printStackTrace();
-                    return 3;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Integer result)
-            {
-                if( !result.equals( 0))
-                {
-                    Toast.makeText(
-                            context, 
-                            R.string.network_error, 
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-            
-            
-        }.execute();
-    }
-
     public void onResetVersionsOptionSelected(final MenuItem menuItem)
     {
         final Context context = this;
@@ -257,9 +165,4 @@ public class LibraryActivity extends FragmentActivity
 
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState)
-    {
-        super.onSaveInstanceState(outState);
-    }
 }

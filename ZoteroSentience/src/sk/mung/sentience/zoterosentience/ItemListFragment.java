@@ -12,7 +12,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import sk.mung.sentience.zoterosentience.navigation.ContentFragmentInfo;
 import sk.mung.sentience.zoterosentience.storage.ItemsLoader;
+import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;
 
 /**
@@ -36,28 +38,43 @@ public class ItemListFragment
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
     {
         Item item = (Item) view.getTag(R.id.tag_item);
-        callback.onItemSelected(position, item);
+        callback.onItemSelected(position, item, collectionKey);
         this.position = position;
     }
 
     private void scrollToPosition(int position)
     {
         ListView listView = (ListView) getActivity().findViewById(R.id.library_itemlist);
-        listView.setItemChecked(position, true);
         listView.smoothScrollToPosition(position);
         this.position = position;
     }
 
+    private String getActionTitle()
+    {
+        if(collectionKey <= 0)
+        {
+            return getResources().getString(R.string.all_items);
+        }
+        CollectionEntity entity = getGlobalState().getStorage().findCollectionById(collectionKey);
+        return entity.getName();
+    }
+
+    private String getActionSubtitle()
+    {
+        CollectionEntity entity = getGlobalState().getStorage().findCollectionById(collectionKey);
+        return getResources().getQuantityString(R.plurals.number_of_items, entity.getItemsCount(), entity.getItemsCount());
+    }
+
     public interface Callback
     {
-        public void onItemSelected(int position, Item item);
+        public void onItemSelected(int position, Item item, long collectionKey);
     }
 
     private static Callback dummyCallback
             = new Callback()
     {
         @Override
-        public void onItemSelected(int position, Item item)
+        public void onItemSelected(int position, Item item, long collectionKey)
         {}
     };
 
@@ -110,7 +127,9 @@ public class ItemListFragment
             position = bundle.getInt(ITEM_LIST_POSITION, -1);
         }
 
-        getLoaderManager().restartLoader(R.id.loader_item_list, getArguments(), this);
+        getLoaderManager().restartLoader(R.id.loader_item_list, bundle, this);
+
+
     }
 
     @Override
@@ -123,18 +142,18 @@ public class ItemListFragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args)
     {
-        Long collectionId;
-        if (getArguments() != null &&getArguments().containsKey(ARG_COLLECTION_KEY))
+
+        if (args != null && args.containsKey(ARG_COLLECTION_KEY))
         {
-            collectionId = getArguments().getLong(ARG_COLLECTION_KEY);
+            collectionKey = args.getLong(ARG_COLLECTION_KEY);
         }
         else
         {
-            collectionId = 0L;
+            collectionKey = 0L;
         }
 
         ItemsLoader loader
-                = new ItemsLoader(this.getActivity(), collectionId, getGlobalState().getStorage());
+                = new ItemsLoader(this.getActivity(), collectionKey, getGlobalState().getStorage());
         loader.setUpdateThrottle(3000);
         return loader;
     }
@@ -153,6 +172,8 @@ public class ItemListFragment
         {
             scrollToPosition(position);
         }
+        getActivity().getActionBar().setTitle(getActionTitle());
+        getActivity().getActionBar().setSubtitle(getActionSubtitle());
     }
 
     @Override
@@ -166,8 +187,7 @@ public class ItemListFragment
     public void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-        ListView listView = (ListView) getActivity().findViewById(R.id.library_itemlist);
-        int position = listView.getCheckedItemPosition();
         outState.putInt(ITEM_LIST_POSITION,position);
+        outState.putLong(ARG_COLLECTION_KEY, collectionKey);
     }
 }

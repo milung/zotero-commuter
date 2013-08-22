@@ -36,18 +36,6 @@ public class NoteEditor extends FragmentActivity
         setupActionBar();
         String text = getIntent().getStringExtra(Intent.EXTRA_HTML_TEXT);
         final EditText editText = ((EditText)findViewById(R.id.editTextNote));
-        /*originalKeyListener = editText.getKeyListener();
-        editText.setKeyListener(null);
-
-        editText.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                editText.setKeyListener(originalKeyListener);
-                editText.setOnClickListener(null);
-            }
-        });*/
         editText.setText(Html.fromHtml(text));
     }
 

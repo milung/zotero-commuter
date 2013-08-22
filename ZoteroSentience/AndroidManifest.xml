@@ -63,12 +63,6 @@
 
         </activity>
 
-        <activity android:name=".ItemPagerActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".LibraryActivity" />
-        </activity>
-
         <service android:name=".SynchronizingService"/>
 
         <receiver android:name=".SyncEventsReceiver">

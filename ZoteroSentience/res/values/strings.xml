@@ -51,6 +51,10 @@
     <string name="download_on_roaming_allowed">Download attachment when in Roaming Network</string>
     <string name="summary_download_on_roaming">Roaming Data transfers can be associated with payments</string>
     <string name="pref_synchronizing">Synchronization</string>
+    <string name="open">Open Navigation</string>
+    <string name="close">Close Navigation</string>
+    <string name="all_items">All Items</string>
+    <string name="nav_collections">Collections</string>
 
     <plurals name="number_of_items">
         <item quantity="zero">No items</item>
