@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import sk.mung.sentience.zoterosentience.storage.ItemsLoader;
+import sk.mung.zoteroapi.entities.CollectionEntity;
 
 public class ItemPager extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -156,6 +157,25 @@ public class ItemPager extends Fragment
         pager.setAdapter(new ItemPagerAdapter(
                 cursor, getActivity().getSupportFragmentManager(),getGlobalState().getStorage()));
         pager.setCurrentItem(positionId,true);
+
+        getActivity().getActionBar().setTitle(getActionTitle());
+        getActivity().getActionBar().setSubtitle(getActionSubtitle());
+    }
+
+    private String getActionTitle()
+    {
+        if(collectionId <= 0)
+        {
+            return getResources().getString(R.string.all_items);
+        }
+        CollectionEntity entity = getGlobalState().getStorage().findCollectionById(collectionId);
+        return entity.getName();
+    }
+
+    private String getActionSubtitle()
+    {
+        CollectionEntity entity = getGlobalState().getStorage().findCollectionById(collectionId);
+        return getResources().getQuantityString(R.plurals.number_of_items, entity.getItemsCount(), entity.getItemsCount());
     }
 
     @Override
