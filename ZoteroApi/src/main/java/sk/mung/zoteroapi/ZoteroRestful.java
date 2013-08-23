@@ -1,7 +1,5 @@
 package sk.mung.zoteroapi;
 
-import android.net.Uri;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,6 +18,8 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.URI;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -82,18 +83,17 @@ public class ZoteroRestful {
 	
 	public Response callCurrentUserApi(String method, String[][] parameters, int ifModifiedSinceVersion) 
             throws IOException
-    {        
-        Uri.Builder builder =  
-            Uri.parse(API_BASE + getCurrentUserUriPrefix() + "/" + method)
-                .buildUpon()                
-                .appendQueryParameter("key", accessToken);
+    {
+        HttpParams params = new BasicHttpParams();
+        params.setParameter("key", accessToken);
+
         for( String[] param : parameters)
         {
-            builder.appendQueryParameter(param[0], param[1]);
+            params.setParameter(param[0], param[1]);
         }
-        
-        HttpGet request;
-        request = new HttpGet(builder.build().toString());
+
+        HttpGet request = new HttpGet(API_BASE + getCurrentUserUriPrefix() + "/" + method);
+        request.setParams(params);
         request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
         request.addHeader(
                 IF_MODIFIED_SINCE_VERSION_HEADER,
@@ -108,14 +108,14 @@ public class ZoteroRestful {
 
         if(status == HttpStatus.SC_NOT_MODIFIED)
         {
-            return new Response(status, null);
+            return new Response(HttpStatus.SC_NOT_MODIFIED, null);
         }
         else if( status == HttpStatus.SC_OK){
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             response.getEntity().writeTo(out);
             
             out.close();
-            return  new Response(status, out.toString());
+            return  new Response(HttpStatus.SC_OK, out.toString());
             
         } else{
             //Closes the connection.
@@ -142,13 +142,15 @@ public class ZoteroRestful {
         return "/users/" + userId;
     }
 
-    public Uri getAttachmentUri(Item item) throws IOException
+    public URI getAttachmentUri(Item item) throws IOException
     {
-        Uri.Builder builder =
-                Uri.parse(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
-                        .buildUpon()
-                        .appendQueryParameter("key", accessToken);
-        return builder.build();
+        HttpParams params = new BasicHttpParams();
+        params.setParameter("key", accessToken);
+
+        HttpGet request = new HttpGet(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file");
+        request.setParams(params);
+
+        return request.getURI();
     }
 
     private class UploadParameters
@@ -238,12 +240,12 @@ public class ZoteroRestful {
     private int registerUpload(Item item, String uploadKey) throws IOException
     {
         String oldHash = item.getField(ItemField.MD5).getValue();
-        Uri.Builder builder =
-                Uri.parse(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
-                        .buildUpon()
-                        .appendQueryParameter("key", accessToken);
 
-        HttpPost request = new HttpPost(builder.build().toString());
+        HttpParams params = new BasicHttpParams();
+        params.setParameter("key", accessToken);
+
+        HttpPost request = new HttpPost(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file");
+        request.setParams(params);
         request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
         request.addHeader( IF_MATCH, oldHash);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
@@ -282,17 +284,13 @@ public class ZoteroRestful {
         {
             oldHashField = item.getField(ItemField.MD5);
         }
-        String oldHash = md5;
-        if(oldHashField != null)
-        {
-            oldHash = oldHashField.getValue();
-        }
-        else return new Response(HttpStatus.SC_PRECONDITION_FAILED,"");
+        String oldHash  = oldHashField.getValue();
 
-        Uri.Builder builder =
-                Uri.parse(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
-                        .buildUpon()
-                        .appendQueryParameter("key", accessToken);
+        HttpParams params = new BasicHttpParams();
+        params.setParameter("key", accessToken);
+
+        HttpPost request = new HttpPost(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file");
+        request.setParams(params);
 
         Field field = item.getField(ItemField.FILE_NAME);
         if(field == null) return new Response(HttpStatus.SC_PRECONDITION_FAILED,"");
@@ -302,7 +300,6 @@ public class ZoteroRestful {
         if(field == null) return new Response(HttpStatus.SC_PRECONDITION_FAILED,"");
         String contentType = field.getValue();
 
-        HttpPost request = new HttpPost(builder.build().toString());
         request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
         request.addHeader( IF_MATCH, oldHash);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
@@ -340,7 +337,8 @@ public class ZoteroRestful {
             InputStream is = new FileInputStream(file);
             is = new DigestInputStream(is, digest);
             byte[] buffer = new byte[8192];
-            while (is.read(buffer) > 0) {};
+            //noinspection StatementWithEmptyBody
+            while (is.read(buffer) > 0) {}
             return new BigInteger(1, digest.digest()).toString(16);
         }
         catch (NoSuchAlgorithmException e)
@@ -360,23 +358,22 @@ public class ZoteroRestful {
 
     public Response uploadEntities(String json, String entity, int sinceVersion) throws IOException
     {
-            Uri.Builder builder =
-                    Uri.parse(API_BASE + getCurrentUserUriPrefix() + "/" + entity)
-                            .buildUpon()
-                            .appendQueryParameter("key", accessToken);
+        HttpParams params = new BasicHttpParams();
+        params.setParameter("key", accessToken);
 
-            HttpPost request = new HttpPost(builder.build().toString());
-            request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
-            request.addHeader(CONTENT_TYPE, MIME_APPLICATION_JSON);
-            request.addHeader(IF_UNMODIFIED_SINCE_VERSION, Integer.toString(sinceVersion ));
+        HttpPost request = new HttpPost(API_BASE + getCurrentUserUriPrefix() + "/" + entity);
+        request.setParams(params);
 
-            request.setEntity(new StringEntity(json));
+        request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
+        request.addHeader(CONTENT_TYPE, MIME_APPLICATION_JSON);
+        request.addHeader(IF_UNMODIFIED_SINCE_VERSION, Integer.toString(sinceVersion ));
 
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpResponse response = httpclient.execute(request);
-            storeLastModifiedVersion(response, sinceVersion);
-            return decodeResponse(response);
+        request.setEntity(new StringEntity(json));
 
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response = httpclient.execute(request);
+        storeLastModifiedVersion(response, sinceVersion);
+        return decodeResponse(response);
     }
 
 

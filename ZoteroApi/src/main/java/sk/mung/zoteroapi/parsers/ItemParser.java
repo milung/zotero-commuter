@@ -71,11 +71,12 @@ public class ItemParser extends AbstractAtomParser<Item>
         }
     }
 
+
     @SuppressWarnings("unchecked")
 	private void processTags(Map<String, Object> content, Item item) {
 		if(content.containsKey("tags"))
 		{
-			for( Map<String,Object> tagFields : (Iterable<Map<String,Object>>)content.get("tags"))
+            for( Map<String,Object> tagFields : (Iterable<Map<String,Object>>)(content.get("tags")))
 			{
                 if(tagFields.containsKey("tag") && tagFields.get("tag") != null)
                 {
