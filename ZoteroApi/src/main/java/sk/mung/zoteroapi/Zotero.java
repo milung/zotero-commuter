@@ -1,7 +1,5 @@
 package sk.mung.zoteroapi;
 
-import android.net.Uri;
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,6 +12,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -165,7 +164,7 @@ public class Zotero
 	        }
 	}
 
-    public Uri getAttachmentUri(Item item) throws IOException
+    public URI getAttachmentUri(Item item) throws IOException
     {
         return restful.getAttachmentUri(item);
     }

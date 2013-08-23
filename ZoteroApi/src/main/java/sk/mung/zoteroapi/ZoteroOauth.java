@@ -1,8 +1,8 @@
 package sk.mung.zoteroapi;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.exceptions.OAuthException;
 import org.scribe.model.SignatureType;
@@ -11,7 +11,9 @@ import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 import org.scribe.utils.OAuthEncoder;
 
-import android.net.Uri;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public class ZoteroOauth 
 {
@@ -46,25 +48,28 @@ public class ZoteroOauth
     {        
         requestToken = getOAuthService().getRequestToken();
         String uri =  getOAuthService().getAuthorizationUrl(requestToken);
-        Uri.Builder builder =
-                Uri.parse(uri)
-                        .buildUpon()
-                        .appendQueryParameter("library_access", "1")
-                        .appendQueryParameter("notes_access", "1")
-                        .appendQueryParameter("write_access", "1");
-        return builder.toString();
+
+        HttpParams params = new BasicHttpParams();
+        params.setParameter("library_access", "1");
+        params.setParameter("notes_access", "1");
+        params.setParameter("write_access", "1");
+
+        HttpPost request = new HttpPost(uri);
+        request.setParams(params);
+        return request.getURI().toString();
     }
     
     /** Processes authorization callback URL which includes verifier parameters and retrieves access 
      *  token from Zotero API. Connects to the network. If succeeded, then access token, request token, userId, 
      *  and userName can be requested from this instance and stored for future usages.
      * 
-     * @param callbackUrl
+     * @param callbackUrl a callback url to decode
      */
     public void processAuthorizationCallbackUrl(String callbackUrl)
     {
-        Uri uri = Uri.parse(callbackUrl);
-        String verifier = uri.getQueryParameter("oauth_verifier");
+        HttpPost uri = new HttpPost(callbackUrl);
+
+        String verifier = uri.getParams().getParameter("oauth_verifier").toString();
         Verifier v = new Verifier(verifier);
 
         //save this token for practical use.

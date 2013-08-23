@@ -1,3 +1,1 @@
-include ':D::Data:01-Projects:MainActivity', ':ZoteroApi'
-include ':D::Data:01-Projects:ZoteroTests'
-include ':D::Data:01-Projects:ZoteroSentience'
+include ':ZoteroApi', ':ZoteroSentience'
