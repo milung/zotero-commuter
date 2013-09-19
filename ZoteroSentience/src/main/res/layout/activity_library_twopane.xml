@@ -21,7 +21,7 @@ tools:context=".MainActivity" >
         android:choiceMode="singleChoice">
     <fragment
             android:id="@+id/library_collection_list"
-            android:name="sk.mung.sentience.zoterosentience.LibraryFragment"
+            android:name="sk.mung.sentience.zoterosentience.navigation.DrawerFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             tools:layout="@android:layout/list_content" />
