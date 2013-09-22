@@ -50,11 +50,6 @@ public class FieldRenderer
 
     static class RenderingAttributes
     {
-        boolean isVisible()
-        {
-            return isVisible;
-        }
-
         int getLayoutId()
         {
             return layoutId;
@@ -422,7 +417,7 @@ public class FieldRenderer
                 new RenderingAttributes(true,800, R.layout.listitem_field_inline,R.string.zotero_field_university));
         attributes.put(
                 ItemField.URL,
-                new RenderingAttributes(true,700, R.layout.listitem_field_inline,R.string.zotero_field_url));
+                new RenderingAttributes(false,0,0,0));
         attributes.put(
                 ItemField.VERSION,
                 new RenderingAttributes(true,800, R.layout.listitem_field_inline,R.string.zotero_field_version));

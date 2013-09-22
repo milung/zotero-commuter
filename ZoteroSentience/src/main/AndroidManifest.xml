@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sk.mung.sentience.zoterosentience"
+    android:sharedUserId="sk.mung.sentience.rl"
+    android:sharedUserLabel="@string/user_id"
     android:versionCode="1"
     android:versionName="1.0"
         >
@@ -20,6 +22,7 @@
         android:label="@string/app_name"
         android:debuggable="true"
         android:theme="@style/AppTheme" android:name="sk.mung.sentience.zoterosentience.GlobalState">
+
         <activity
             android:name=".LibraryActivity"
             android:label="@string/app_name" >
@@ -29,14 +32,6 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".LoginActivity"
-            android:label="@string/title_activity_login"
-            android:parentActivityName="sk.mung.sentience.zoterosentience.LibraryItemListActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".LibraryActivity" />
-        </activity>
 
         <activity
                 android:name=".NoteEditor"
@@ -49,18 +44,22 @@
                 <data android:mimeType="text/html" />
             </intent-filter>
         </activity>
-        <activity android:name=".SettingsActivity" android:theme="@android:style/Theme.Holo">
+        <activity
+            android:name=".SettingsActivity"
+            android:theme="@android:style/Theme.Holo"
+            android:parentActivityName=".LibraryActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.PREFERENCE" />
             </intent-filter>
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".LibraryActivity" />
         </activity>
 
-        <activity android:name=".SettingsIntentActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar">
-
+        <activity android:name=".SettingsIntentActivity"
+                  android:theme="@android:style/Theme.Translucent.NoTitleBar">
         </activity>
 
         <service android:name=".SynchronizingService"/>

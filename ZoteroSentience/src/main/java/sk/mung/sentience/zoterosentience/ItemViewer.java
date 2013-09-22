@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -20,6 +21,7 @@ import sk.mung.sentience.zoterosentience.renderers.ItemRenderer;
 import sk.mung.sentience.zoterosentience.renderers.NoteRenderer;
 import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.ItemField;
 import sk.mung.zoteroapi.entities.ItemType;
 import sk.mung.zoteroapi.entities.Tag;
 
@@ -91,6 +93,23 @@ public class ItemViewer extends Fragment
         parent.removeAllViews();
 
         renderFields(parent,inflater,topLine);
+
+        Field urlField = item.getField(ItemField.URL);
+        if(urlField != null && !urlField.getValue().isEmpty())
+        {
+            getView().findViewById(R.id.imageViewUrl).setVisibility(View.VISIBLE);
+            TextView linkView = (TextView) getView().findViewById(R.id.textViewUrl);
+            if(linkView !=null)
+            {
+                linkView.setText(urlField.getValue());
+            }
+        }
+        else
+        {
+            getView().findViewById(R.id.imageViewUrl).setVisibility(View.INVISIBLE);
+
+        }
+
     }
 
     private void renderFields(ViewGroup parent, LayoutInflater inflater, boolean topLine)

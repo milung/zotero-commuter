@@ -18,8 +18,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -84,16 +83,26 @@ public class ZoteroRestful {
 	public Response callCurrentUserApi(String method, String[][] parameters, int ifModifiedSinceVersion) 
             throws IOException
     {
-        HttpParams params = new BasicHttpParams();
-        params.setParameter("key", accessToken);
-
-        for( String[] param : parameters)
+        HttpGet request;
+        URIBuilder builder =
+                null;
+        try
         {
-            params.setParameter(param[0], param[1]);
+            builder = new URIBuilder(API_BASE + getCurrentUserUriPrefix() + "/" + method)
+            .addParameter("key", accessToken);
+
+            for( String[] param : parameters)
+            {
+                builder.addParameter(param[0], param[1]);
+            }
+
+            request = new HttpGet(builder.build().toString());
+        }
+        catch (URISyntaxException e)
+        {
+            throw new RuntimeException(e);
         }
 
-        HttpGet request = new HttpGet(API_BASE + getCurrentUserUriPrefix() + "/" + method);
-        request.setParams(params);
         request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
         request.addHeader(
                 IF_MODIFIED_SINCE_VERSION_HEADER,
@@ -108,14 +117,14 @@ public class ZoteroRestful {
 
         if(status == HttpStatus.SC_NOT_MODIFIED)
         {
-            return new Response(HttpStatus.SC_NOT_MODIFIED, null);
+            return new Response(status, null);
         }
         else if( status == HttpStatus.SC_OK){
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             response.getEntity().writeTo(out);
             
             out.close();
-            return  new Response(HttpStatus.SC_OK, out.toString());
+            return  new Response(status, out.toString());
             
         } else{
             //Closes the connection.
@@ -144,13 +153,15 @@ public class ZoteroRestful {
 
     public URI getAttachmentUri(Item item) throws IOException
     {
-        HttpParams params = new BasicHttpParams();
-        params.setParameter("key", accessToken);
-
-        HttpGet request = new HttpGet(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file");
-        request.setParams(params);
-
-        return request.getURI();
+        try
+        {
+            return new URIBuilder(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
+                    .addParameter("key", accessToken)
+                    .build();
+        } catch (URISyntaxException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     private class UploadParameters
@@ -240,12 +251,19 @@ public class ZoteroRestful {
     private int registerUpload(Item item, String uploadKey) throws IOException
     {
         String oldHash = item.getField(ItemField.MD5).getValue();
+        URI uri;
+        try
+        {
+            uri = new URIBuilder(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
+            .addParameter("key", accessToken)
+            .build();
+        }
+        catch (URISyntaxException e)
+        {
+            throw new RuntimeException(e);
+        }
 
-        HttpParams params = new BasicHttpParams();
-        params.setParameter("key", accessToken);
-
-        HttpPost request = new HttpPost(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file");
-        request.setParams(params);
+        HttpPost request = new HttpPost(uri);
         request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
         request.addHeader( IF_MATCH, oldHash);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
@@ -284,13 +302,25 @@ public class ZoteroRestful {
         {
             oldHashField = item.getField(ItemField.MD5);
         }
-        String oldHash  = oldHashField.getValue();
+        String oldHash = md5;
+        if(oldHashField != null)
+        {
+            oldHash = oldHashField.getValue();
+        }
+        else return new Response(HttpStatus.SC_PRECONDITION_FAILED,"");
 
-        HttpParams params = new BasicHttpParams();
-        params.setParameter("key", accessToken);
-
-        HttpPost request = new HttpPost(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file");
-        request.setParams(params);
+        URI uri =
+                null;
+        try
+        {
+            uri = new URIBuilder(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
+            .addParameter("key", accessToken)
+            .build();
+        }
+        catch (URISyntaxException e)
+        {
+            throw new RuntimeException(e);
+        }
 
         Field field = item.getField(ItemField.FILE_NAME);
         if(field == null) return new Response(HttpStatus.SC_PRECONDITION_FAILED,"");
@@ -300,6 +330,7 @@ public class ZoteroRestful {
         if(field == null) return new Response(HttpStatus.SC_PRECONDITION_FAILED,"");
         String contentType = field.getValue();
 
+        HttpPost request = new HttpPost(uri);
         request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
         request.addHeader( IF_MATCH, oldHash);
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
@@ -337,8 +368,7 @@ public class ZoteroRestful {
             InputStream is = new FileInputStream(file);
             is = new DigestInputStream(is, digest);
             byte[] buffer = new byte[8192];
-            //noinspection StatementWithEmptyBody
-            while (is.read(buffer) > 0) {}
+            while (is.read(buffer) > 0) {};
             return new BigInteger(1, digest.digest()).toString(16);
         }
         catch (NoSuchAlgorithmException e)
@@ -358,22 +388,30 @@ public class ZoteroRestful {
 
     public Response uploadEntities(String json, String entity, int sinceVersion) throws IOException
     {
-        HttpParams params = new BasicHttpParams();
-        params.setParameter("key", accessToken);
+        URI uri =
+                null;
+        try
+        {
+            uri = new URIBuilder(API_BASE + getCurrentUserUriPrefix() + "/" + entity)
+            .addParameter("key", accessToken)
+            .build();
+        } catch (URISyntaxException e)
+        {
+            throw new RuntimeException(e);
+        }
 
-        HttpPost request = new HttpPost(API_BASE + getCurrentUserUriPrefix() + "/" + entity);
-        request.setParams(params);
+        HttpPost request = new HttpPost(uri);
+            request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
+            request.addHeader(CONTENT_TYPE, MIME_APPLICATION_JSON);
+            request.addHeader(IF_UNMODIFIED_SINCE_VERSION, Integer.toString(sinceVersion ));
 
-        request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
-        request.addHeader(CONTENT_TYPE, MIME_APPLICATION_JSON);
-        request.addHeader(IF_UNMODIFIED_SINCE_VERSION, Integer.toString(sinceVersion ));
+            request.setEntity(new StringEntity(json));
 
-        request.setEntity(new StringEntity(json));
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpResponse response = httpclient.execute(request);
+            storeLastModifiedVersion(response, sinceVersion);
+            return decodeResponse(response);
 
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpResponse response = httpclient.execute(request);
-        storeLastModifiedVersion(response, sinceVersion);
-        return decodeResponse(response);
     }
 
 

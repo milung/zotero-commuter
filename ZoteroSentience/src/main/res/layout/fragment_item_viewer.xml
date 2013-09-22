@@ -5,96 +5,119 @@
         android:layout_height="match_parent"
         android:id="@+id/scrollView">
 
-<LinearLayout
-              android:id="@+id/item_view"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:layout_weight="5">
-
     <LinearLayout
+                  android:id="@+id/item_view"
+                  android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_weight="5">
 
-            android:id="@+id/headerGroup"
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left|center_vertical"
-            android:padding="4dp"
-            android:background="@android:color/holo_orange_dark"
-            android:layout_marginBottom="8dp"
-            android:focusable="false">
+        <LinearLayout
 
+                android:id="@+id/headerGroup"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center_vertical"
+                android:padding="4dp"
+                android:background="@android:color/holo_orange_dark"
+                android:layout_marginBottom="8dp"
+                android:focusable="false">
+
+
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:id="@+id/textViewType"
+                    android:layout_gravity="left|center_vertical"
+                    android:textStyle="italic"
+                    android:textColor="@android:color/white"
+                    android:textColorHighlight="@android:color/holo_green_light"/>
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Large Text"
+                android:id="@+id/textViewTitle"
+                android:layout_gravity="left|center_vertical"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"/>
 
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Small Text"
-                android:id="@+id/textViewType"
+                android:id="@+id/textViewCreator"
                 android:layout_gravity="left|center_vertical"
-                android:textStyle="italic"
-                android:textColor="@android:color/white"
-                android:textColorHighlight="@android:color/holo_green_light"/>
+                android:textColor="@android:color/white"/>
+        </LinearLayout>
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Large Text"
-            android:id="@+id/textViewTitle"
-            android:layout_gravity="left|center_vertical"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="2dp"/>
+        <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center_vertical"
+                android:padding="8dp">
 
-    <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Small Text"
-            android:id="@+id/textViewCreator"
-            android:layout_gravity="left|center_vertical"
-            android:textColor="@android:color/white"/>
-    </LinearLayout>
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_tag"
+                android:paddingRight="8dp" />
 
-    <LinearLayout
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:id="@+id/textViewTags"
+                    android:gravity="center_vertical"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/itemsGroup"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:padding="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"/>
+
+        <LinearLayout
+                android:id="@+id/fieldsGroup"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+            android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"/>
+
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="left|center_vertical"
             android:padding="8dp">
 
-        <ImageView
+            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView"
-                android:background="@drawable/ic_tag"/>
+                android:id="@+id/imageViewUrl"
+                android:background="@drawable/ic_url"
+                android:paddingRight="8dp" />
 
-        <TextView
+            <TextView
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Small Text"
-                android:id="@+id/textViewTags"
-                android:gravity="center_vertical"/>
+                android:id="@+id/textViewUrl"
+                android:gravity="center_vertical"
+                android:linksClickable="true" />
+        </LinearLayout>
+
     </LinearLayout>
 
-    <LinearLayout
-            android:id="@+id/itemsGroup"
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:padding="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"/>
-
-    <LinearLayout
-            android:id="@+id/fieldsGroup"
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:padding="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"/>
-</LinearLayout>
 </ScrollView>

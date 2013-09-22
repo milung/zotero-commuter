@@ -32,14 +32,14 @@
             android:summary="@string/summary_download_on_roaming"
             />
     </PreferenceCategory>
-    <Preference
+    <!--Preference
             android:title="@string/prefs_login">
         <intent
                 android:targetClass="sk.mung.sentience.zoterosentience.LoginActivity"
                 android:targetPackage="sk.mung.sentience.zoterosentience"
                 android:action="sk.mung.sentience.zoterosentience.login">
         </intent>
-    </Preference>
+    </Preference-->
 
     <Preference
             android:title="@string/prefs_clear_library"

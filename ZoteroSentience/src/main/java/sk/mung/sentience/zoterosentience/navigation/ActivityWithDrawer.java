@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -46,7 +47,6 @@ public abstract class ActivityWithDrawer extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(getContentLayoutId());
 
-        long id = 0L;
         if(savedInstanceState != null)
         {
             currentFragment = getSupportFragmentManager().getFragment(savedInstanceState, FRAGMENT_STATE);
@@ -57,6 +57,7 @@ public abstract class ActivityWithDrawer extends FragmentActivity
         }
         drawerLayout =
                 (DrawerLayout)findViewById(R.id.drawer_layout);
+        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
 
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
                 R.drawable.ic_drawer,
@@ -152,52 +153,6 @@ public abstract class ActivityWithDrawer extends FragmentActivity
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void onRefreshOptionSelected(MenuItem menuItem)
-    {
-        final Context context = this;
-        new AsyncTask<Void, Void, Integer>(){
-
-            @Override
-            protected Integer doInBackground(Void... arg0)
-            {
-                try
-                {
-                    ZoteroSync zoteroSync = ((GlobalState) getApplication()).getZoteroSync();
-                    zoteroSync.fullSync();
-                    return 0;
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                    return 1;
-                }
-                catch (XmlPullParserException e)
-                {
-                    e.printStackTrace();
-                    return 2;
-                } catch (URISyntaxException e)
-                {
-                    e.printStackTrace();
-                    return 3;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Integer result)
-            {
-                if( !result.equals( 0))
-                {
-                    Toast.makeText(
-                            context,
-                            R.string.network_error,
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-
-
-        }.execute();
     }
 
     @Override

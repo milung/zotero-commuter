@@ -239,7 +239,7 @@ public class ZoteroSync
     private List<ItemFilePair> scanForUpdates()
     {
         List<ItemFilePair> pairs = new ArrayList<ItemFilePair>();
-        if(downloadDir.exists())
+        if(downloadDir!=null && downloadDir.exists())
         {
             File[] keys = downloadDir.listFiles();
             if(null!=keys)

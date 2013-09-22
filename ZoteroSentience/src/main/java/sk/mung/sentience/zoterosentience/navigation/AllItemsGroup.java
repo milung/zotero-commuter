@@ -1,31 +1,33 @@
 package sk.mung.sentience.zoterosentience.navigation;
 
 
+import android.graphics.drawable.Drawable;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import sk.mung.sentience.zoterosentience.LibraryFragment;
+import sk.mung.sentience.zoterosentience.R;
 
 class AllItemsGroup implements NavigationGroup
 {
     private final String title;
+    private final LayoutInflater inflater;
+    private final Drawable icon;
 
-    AllItemsGroup(String title)
+    AllItemsGroup(String title, LayoutInflater inflater, Drawable icon)
     {
         this.title = title;
+        this.inflater = inflater;
+        this.icon = icon;
     }
 
     @Override
-    public Object getChild(int childPosition)
-    {
-        return null;
-    }
+    public Object getChild(int childPosition) { return null; }
 
     @Override
-    public long getChildId(int childPosition)
-    {
-        return 0;
-    }
+    public long getChildId(int childPosition) { return 0; }
 
     @Override
     public View getChildView(int childPosition, boolean lastChild, View convertView, ViewGroup parent)
@@ -34,27 +36,47 @@ class AllItemsGroup implements NavigationGroup
     }
 
     @Override
-    public int getChildrenCount()
-    {
-        return 0;
-    }
+    public int getChildrenCount() { return 0; }
 
     @Override
-    public String getName()
-    {
-        return title;
-    }
+    public String getName() { return title; }
 
     @Override
-    public void childClicked(int childPosition, long id, LibraryFragment.Callbacks callbacks)
-    {
-
-    }
+    public void childClicked(int childPosition, long id, DrawerFragment.Callbacks callbacks) {}
 
     @Override
-    public boolean clicked(long id, LibraryFragment.Callbacks callbacks)
+    public boolean clicked(long id, DrawerFragment.Callbacks callbacks)
     {
         callbacks.onAllItemsSelected();
         return true;
+    }
+
+    @Override
+    public boolean areChildrenSelectable() {
+        return false;
+    }
+
+    @Override
+    public boolean isGroupSelectable() {
+        return true;
+    }
+
+    @Override
+    public View getGroupView( View convertView, boolean isExpanded)
+    {
+        if(convertView == null)
+        {
+            convertView = inflater.inflate(R.layout.listitem_navigation_group, null);
+        }
+        assert convertView != null;
+        TextView textView = (TextView) convertView.findViewById(R.id.title);
+        textView.setText(getName());
+
+        ImageView imageView = (ImageView) convertView.findViewById(R.id.navigation_group_image);
+        imageView.setImageDrawable(icon);
+
+        imageView = (ImageView) convertView.findViewById(R.id.indicator);
+        imageView.setImageDrawable(null);
+        return convertView;
     }
 }

@@ -3,10 +3,10 @@ package sk.mung.sentience.zoterosentience.navigation;
 import android.view.View;
 import android.view.ViewGroup;
 
-import sk.mung.sentience.zoterosentience.LibraryFragment;
-
 interface NavigationGroup
 {
+    View getGroupView( View convertView, boolean isExpanded);
+
     Object getChild(int childPosition);
 
     long getChildId(int childPosition);
@@ -17,7 +17,11 @@ interface NavigationGroup
 
     String getName();
 
-    void childClicked(int childPosition, long id, LibraryFragment.Callbacks callbacks);
+    void childClicked(int childPosition, long id, DrawerFragment.Callbacks callbacks);
 
-    boolean clicked(long id, LibraryFragment.Callbacks callbacks);
+    boolean clicked(long id, DrawerFragment.Callbacks callbacks);
+
+    boolean areChildrenSelectable();
+
+    boolean isGroupSelectable();
 }

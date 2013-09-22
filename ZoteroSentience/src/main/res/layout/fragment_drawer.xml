@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ExpandableListView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/expandableListView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:drawSelectorOnTop="true"
+    android:choiceMode="singleChoice"
+    android:theme="@android:style/Theme.Holo"
+    style="@android:style/Theme.Holo"
+    android:background="@android:color/background_dark"
+    android:divider="#aaa"
+    android:dividerHeight="1sp"/>
+

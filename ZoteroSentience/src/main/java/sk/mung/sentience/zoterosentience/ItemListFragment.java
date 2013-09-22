@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import sk.mung.sentience.zoterosentience.navigation.ContentFragmentInfo;
 import sk.mung.sentience.zoterosentience.storage.ItemsLoader;
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;
@@ -20,7 +19,7 @@ import sk.mung.zoteroapi.entities.Item;
 /**
  * A fragment representing a single LibraryItem detail screen. This fragment is
  * either contained in a {@link sk.mung.sentience.zoterosentience.LibraryActivity} in two-pane mode (on
- * tablets) or a {@link sk.mung.sentience.zoterosentience.ItemListlActivity} on handsets.
+ * tablets)
  */
 public class ItemListFragment
         extends Fragment
@@ -188,6 +187,9 @@ public class ItemListFragment
     {
         super.onSaveInstanceState(outState);
         outState.putInt(ITEM_LIST_POSITION,position);
-        outState.putLong(ARG_COLLECTION_KEY, collectionKey);
+        if(collectionKey!=null)
+        {
+            outState.putLong(ARG_COLLECTION_KEY, collectionKey);
+        }
     }
 }

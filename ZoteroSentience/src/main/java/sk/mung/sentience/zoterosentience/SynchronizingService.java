@@ -44,13 +44,15 @@ public class SynchronizingService extends IntentService
     @Override
     protected void onHandleIntent(Intent intent)
     {
+        GlobalState globalState = ((GlobalState)getApplication());
+        assert globalState != null;
+        if(globalState.isSyncRunning()) return;
         try
         {
             Log.d(TAG, "--> processing the intent");
             int mode = intent.getIntExtra(SYNCHRONIZATION_TYPE, MSG_SYNCHRONIZE);
 
-            GlobalState globalState = ((GlobalState)getApplication());
-            assert globalState != null;
+            globalState.setSyncRunning(true);
             SharedPreferences preferences = globalState.getPreferences();
             long lastUpdate = preferences.getLong("last_update", 0L);
             int period = getDownloadPeriod(this, preferences );
@@ -93,6 +95,10 @@ public class SynchronizingService extends IntentService
         {
             e.printStackTrace();
         }
+        finally
+        {
+            globalState.setSyncRunning(false);
+        }
     }
 
     private int getDownloadPeriod(Context context, SharedPreferences preferences )
@@ -108,7 +114,7 @@ public class SynchronizingService extends IntentService
                 (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
 
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork == null ? false : activeNetwork.isConnected();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnected();
         if(!isConnected) return 0;
 
         boolean isWiFi = activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;

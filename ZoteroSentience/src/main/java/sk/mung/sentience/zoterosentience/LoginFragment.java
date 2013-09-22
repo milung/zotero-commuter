@@ -1,31 +1,39 @@
 package sk.mung.sentience.zoterosentience;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import sk.mung.sentience.zoterosentience.navigation.DrawerFragment;
 import sk.mung.zoteroapi.ZoteroOauth;
 
-public class LoginActivity extends Activity
-{       
+public class LoginFragment extends Fragment
+{
+    private DrawerFragment.Callbacks callback = DrawerFragment.DummyCallbacks;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        // Show the Up button in the action bar.
-        setupActionBar();
-        
-        final ZoteroOauth zotero = ((GlobalState) getApplication()).getZoteroOauth();
-        
-        final WebView webview = (WebView) findViewById(R.id.webView);
+        return  inflater.inflate(R.layout.activity_login, container, false);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState)
+    {
+        super.onActivityCreated(savedInstanceState);
+
+        final WebView webview = (WebView) getView().findViewById(R.id.webView);
+        final ZoteroOauth zotero = GlobalState.getInstance(getActivity()).getZoteroOauth();
+
+        getActivity().getActionBar().setTitle(getString(R.string.title_activity_login));
+        getActivity().getActionBar().setSubtitle(null);
 
         //attach WebViewClient to intercept the callback url
         webview.setWebViewClient(new WebViewClient()
@@ -48,7 +56,28 @@ public class LoginActivity extends Activity
        });
 
        //send user to authorization page
-       new AuthorizationUrlTask(webview).execute(zotero); 
+        new AuthorizationUrlTask(webview).execute(zotero);
+    }
+
+    @Override
+    public void onAttach(Activity activity)
+    {
+        super.onAttach(activity);
+
+        // Activities containing this fragment must implement its callbacks.
+        if (!(activity instanceof DrawerFragment.Callbacks)) { throw new IllegalStateException(
+                "Activity must implement fragment's callbacks."); }
+
+        callback = (DrawerFragment.Callbacks) activity;
+    }
+
+    @Override
+    public void onDetach()
+    {
+        super.onDetach();
+
+        // Reset the active callbacks interface to the dummy implementation.
+        callback = DrawerFragment.DummyCallbacks;
     }
     
     private class AuthorizationUrlTask extends AsyncTask<ZoteroOauth,Void, String > 
@@ -77,59 +106,19 @@ public class LoginActivity extends Activity
         {
             this.callbackUrl = callbackUrl;
         }
+
         @Override
         protected ZoteroOauth doInBackground(ZoteroOauth... zotero)
         {
             zotero[0].processAuthorizationCallbackUrl(callbackUrl);
-
             return zotero[0];
         }
         
         protected void onPostExecute(ZoteroOauth oauth)
         {
-            GlobalState state = (GlobalState)getApplication();
-            state.saveZoteroState(oauth);
-            finish();
-        } 
-        
-    }
-
-    /**
-     * Set up the {@link android.app.ActionBar}.
-     */
-    private void setupActionBar()
-    {
-        ActionBar actionBar = getActionBar();
-        assert actionBar != null;
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle(R.string.login);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.login, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item.getItemId())
-        {
-        case android.R.id.home:
-            // This ID represents the Home or Up button. In the case of this
-            // activity, the Up button is shown. Use NavUtils to allow users
-            // to navigate up one level in the application structure. For
-            // more details, see the Navigation pattern on Android Design:
-            //
-            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-            //
-            NavUtils.navigateUpFromSameTask(this);
-            return true;
+            GlobalState.getInstance(getActivity()).saveZoteroState(oauth);
+            callback.onAllItemsSelected();
         }
-        return super.onOptionsItemSelected(item);
     }
 
 }

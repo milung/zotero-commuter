@@ -15,10 +15,10 @@ repositories {
 dependencies {
     compile project(':ZoteroApi')
     compile 'com.android.support:support-v4:13.0.+'
+    compile 'com.android.support:appcompat-v7:18.0.+'
 }
 
 android {
     compileSdkVersion 17
     buildToolsVersion "17.0.0"
-
 }

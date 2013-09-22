@@ -1,40 +1,49 @@
 package sk.mung.sentience.zoterosentience;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 
-import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import sk.mung.sentience.zoterosentience.navigation.ActivityWithDrawer;
+import sk.mung.sentience.zoterosentience.navigation.DrawerFragment;
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;
 
 /**
  * An activity representing a list of LibraryItems. This activity has different
- * presentations for handset and tablet-size devices. On handsets, the activity
- * presents a list of items, which when touched, lead to a
- * {@link ItemListlActivity} representing item details. On tablets, the
+ * presentations for handset and tablet-size devices.  On tablets, the
  * activity presents the list of items and item details side-by-side using two
  * vertical panes.
  * <p>
  * The activity makes heavy use of fragments. The list of items is a
- * {@link LibraryFragment} and the item details (if present) is a
+ * {@link sk.mung.sentience.zoterosentience.navigation.DrawerFragment} and the item details (if present) is a
  * {@link ItemListFragment}.
  * <p>
  * This activity also implements the required
- * {@link LibraryFragment.Callbacks} interface to listen for item
+ * {@link sk.mung.sentience.zoterosentience.navigation.DrawerFragment.Callbacks} interface to listen for item
  * selections.
  */
 public class LibraryActivity extends ActivityWithDrawer
-        implements LibraryFragment.Callbacks, ItemListFragment.Callback
+        implements DrawerFragment.Callbacks, ItemListFragment.Callback
 {
+    public static final int SYNC_CHECK_PERIOD = 150;
+    private Animation rotation;
+    private MenuItem refreshActionImage;
+    private Timer timer = new Timer();
 
     @Override
     protected int getContentLayoutId()
@@ -52,30 +61,62 @@ public class LibraryActivity extends ActivityWithDrawer
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        rotation = AnimationUtils.loadAnimation(this, R.anim.clockwise_refresh);
+        rotation.setRepeatCount(Animation.INFINITE);
         BootSchedulerReceiver.scheduleSynchronizing(this, false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(timer != null)
+        {
+            timer.purge();
+            timer.cancel();
+
+        }
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new SpinnerTask(this), 0, SYNC_CHECK_PERIOD);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        timer.purge();
+        timer.cancel();
+        timer = null;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity, menu);
+        refreshActionImage = menu.findItem(R.id.refresh);
         return true;
-    }
-
-    /**
-     * Callback method from {@link LibraryFragment.Callbacks} indicating
-     * that the item with the given ID was selected.
-     */
-    @Override
-    public void onCollectionSelected(final long id)
-    {
-        navigateTo(createCollectionFragment(id), false);
     }
 
     @Override
     public void onAllItemsSelected()
     {
         navigateTo(createCollectionFragment(0), false);
+    }
+
+    @Override
+    public void onLoginToZotero()
+    {
+        navigateTo(new LoginFragment(),true);
+    }
+
+    @Override
+    public void onNavigateTo(Fragment fragment, boolean putBackState) {
+        navigateTo( fragment, putBackState);
+    }
+
+    @Override
+    public void onSettingsSelected()
+    {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
     private Fragment createCollectionFragment(long collectionKey)
@@ -103,66 +144,90 @@ public class LibraryActivity extends ActivityWithDrawer
         navigateTo(pager,true);
     }
 
-    public void onLoginOptionSelected( MenuItem menuItem)
-    {
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
-    }
-
     public void onSettingsOptionSelected( MenuItem menuItem)
     {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
 
-    public void onWipeDownloadsOptionSelected(MenuItem menuItem)
+    public void onRefreshOptionSelected(MenuItem menuItem)
     {
-        File dir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS );
-        assert dir != null;
-        //noinspection ResultOfMethodCallIgnored
-        deleteDirectory(dir);
+        final Context context = this;
+        new AsyncTask<Void, Void, Integer>(){
+
+            @Override
+            protected Integer doInBackground(Void... arg0)
+            {
+                Intent serviceStartIntent;
+                serviceStartIntent = new Intent(context, SynchronizingService.class);
+                serviceStartIntent.putExtra(
+                        SynchronizingService.SYNCHRONIZATION_TYPE,
+                        SynchronizingService.MSG_SYNCHRONIZE_MANUAL);
+                context.startService(serviceStartIntent);
+                return 0;
+            }
+
+            @Override
+            protected void onPostExecute(Integer result)
+            {
+                if( !result.equals( 0))
+                {
+                    Toast.makeText(
+                            context,
+                            R.string.network_error,
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute();
     }
 
-    private boolean deleteDirectory(File directory)
+    private class SpinnerTask extends TimerTask
     {
-        if(directory.exists()){
-            File[] files = directory.listFiles();
-            if(null!=files){
-                for (File file : files)
+        private final Activity activity;
+
+        SpinnerTask(Activity activity)
+        {
+            this.activity = activity;
+        }
+        boolean isSpinning = false;
+        @Override
+        public void run()
+        {
+            GlobalState state = (GlobalState)getApplication();
+            if(refreshActionImage != null )
+            {
+                if( state.isSyncRunning())
                 {
-                    if (file.isDirectory())
+                    // spin
+                    if(!isSpinning)
                     {
-                        deleteDirectory(file);
-                    } else
+                        isSpinning = true;
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshActionImage.setIcon(R.drawable.progress_medium_holo);
+                                LayerDrawable layerDrawable
+                                        = (LayerDrawable)refreshActionImage.getIcon();
+                                ((Animatable)layerDrawable.getDrawable(0)).start();
+                                ((Animatable)layerDrawable.getDrawable(1)).start();
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    // stop
+                    if(isSpinning)
                     {
-                        //noinspection ResultOfMethodCallIgnored
-                        file.delete();
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                refreshActionImage.setIcon(R.drawable.ic_action_refresh);
+                            }
+                        });
                     }
                 }
             }
         }
-        return(directory.delete());
     }
-
-    public void onResetVersionsOptionSelected(final MenuItem menuItem)
-    {
-        final Context context = this;
-        new AsyncTask<Void, Void, Void>(){
-
-            @Override
-            protected Void doInBackground(Void... arg0)
-            {
-                ((GlobalState)getApplication()).getStorage().deleteData();
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid)
-            {
-                onRefreshOptionSelected(menuItem);
-            }
-        }.execute();
-
-    }
-
 }
