@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +46,8 @@ import static android.app.DownloadManager.STATUS_PENDING;
 public class AttachmentRenderer
 {
     public static final String IMPORTED_URL = "imported_url";
+    private static final String LINKED_URL = "linked_url" ;
+    private static final String LINKED_FILE = "linked_file" ;
     private final LayoutInflater inflater;
     private final ItemRenderer renderer;
     private final ViewGroup parent;
@@ -55,10 +58,23 @@ public class AttachmentRenderer
     private View.OnClickListener downloadListener = new View.OnClickListener() {
 
         @Override
-        public void onClick(View view) {
-            Integer position = (Integer)view.getTag(R.id.position);
+        public void onClick(View view)
+        {
             Item child = (Item) view.getTag(R.id.item_tag);
-            downloadAttachment(child, view);
+            assert child != null;
+            Field linkMode = child.getField(ItemField.LINK_MODE);
+            if(linkMode != null && LINKED_URL.equals(linkMode.getValue()))
+            {
+                Field url = child.getField(ItemField.URL);
+                if(url != null)
+                {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.getValue()));
+                    context.startActivity(browserIntent);
+                }
+            }
+            else if (linkMode == null || !LINKED_FILE.equals(linkMode.getValue())) {
+                downloadAttachment(child, view);
+            }
         }
     };
 
@@ -67,7 +83,6 @@ public class AttachmentRenderer
     {
         @Override
         public boolean onLongClick(View view) {
-            Integer position = (Integer)view.getTag(R.id.position);
             Item target = (Item) view.getTag(R.id.item_tag);
             DialogFragment dialog = new AttachmentConflictFragment(target, view, new  AttachmentConflictFragment.Callback()
             {
@@ -162,7 +177,6 @@ public class AttachmentRenderer
             View view = inflater.inflate(R.layout.listitem_item_attachment, parent, false);
             renderer.render(child,view);
             assert view != null;
-
             renderStatus(child, view);
             parent.addView(view);
         }
@@ -170,14 +184,36 @@ public class AttachmentRenderer
 
     private void renderStatus(Item child, View view)
     {
-        EditStatus status = getEditStatus(child);
-        renderStatusIcon(view, child, status);
-        view.setTag(R.id.item_tag, child);
-        view.setOnClickListener(downloadListener);
-        view.setOnLongClickListener(resolutionListener);
-        view.setBackgroundResource(R.drawable.selector);
+        Resources resources = context.getResources();
+        final ImageView imageView = (ImageView) view.findViewWithTag("icon_status");
+        assert imageView != null;
+        Field linkMode = child.getField(ItemField.LINK_MODE);
+        String statusText;
+        if(linkMode != null && LINKED_URL.equals(linkMode.getValue()))
+        {
+            Drawable icon = resources.getDrawable(R.drawable.ic_url);
+            imageView.setImageDrawable(icon);
+            statusText = context.getResources().getString(R.string.linked_url);
+        }
+        else if(linkMode != null && LINKED_FILE.equals(linkMode.getValue()))
+        {
+            Drawable icon = resources.getDrawable(R.drawable.ic_linked_file);
+            imageView.setImageDrawable(icon);
+            statusText = context.getResources().getString(R.string.linked_file);
+        }
+        else
+        {
+            EditStatus status = getEditStatus(child);
+            renderStatusIcon(view, child, status);
+            view.setOnLongClickListener(resolutionListener);
+            statusText = context.getResources().getString(status.getResourceId());
+        }
         TextView statusView = (TextView) view.findViewById(R.id.textViewStatus);
-        statusView.setText(context.getResources().getString(status.getResourceId()));
+        statusView.setText(statusText);
+        view.setOnClickListener(downloadListener);
+        view.setTag(R.id.item_tag, child);
+        view.setBackgroundResource(R.drawable.selector);
+
     }
 
     private boolean isDownloadInProgress(View view, Item item)
@@ -213,48 +249,54 @@ public class AttachmentRenderer
 
     private void renderStatusIcon(final View view, Item child, EditStatus status)
     {
-        Resources resources = context.getResources();
-        Drawable icon = resolveAttachmentIcon(resources);
-        assert icon != null;
-        final ImageView imageView = (ImageView) view.findViewWithTag("icon_status");
-        assert imageView != null;
-        if(isDownloadInProgress(view, child))
-        {
-            icon = resources.getDrawable(R.drawable.animation_download);
+            Resources resources = context.getResources();
+            Drawable icon = resolveAttachmentIcon(child, resources);
             assert icon != null;
-            imageView.setImageDrawable(icon);
-            imageView.setImageAlpha(255);
-            imageView.post(new Runnable()
+            final ImageView imageView = (ImageView) view.findViewWithTag("icon_status");
+            assert imageView != null;
+            if(isDownloadInProgress(view, child))
             {
-                @Override
-                public void run()
+                icon = resources.getDrawable(R.drawable.animation_download);
+                assert icon != null;
+                imageView.setImageDrawable(icon);
+                imageView.setImageAlpha(255);
+                imageView.post(new Runnable()
                 {
-                    AnimationDrawable frameAnimation =
-                            (AnimationDrawable) imageView.getDrawable();
-                    assert frameAnimation != null;
-                    frameAnimation.start();
-                }
-            });
-        }
-        else
-        {
-            imageView.setImageDrawable(icon);
-            if (EditStatus.REMOTE == status)
-            {
-                imageView.setImageAlpha(64);
+                    @Override
+                    public void run()
+                    {
+                        AnimationDrawable frameAnimation =
+                                (AnimationDrawable) imageView.getDrawable();
+                        assert frameAnimation != null;
+                        frameAnimation.start();
+                    }
+                });
             }
             else
             {
-                imageView.setImageAlpha(255);
+                imageView.setImageDrawable(icon);
+                if (EditStatus.REMOTE == status)
+                {
+                    imageView.setImageAlpha(64);
+                }
+                else
+                {
+                    imageView.setImageAlpha(255);
+                }
             }
-        }
-
     }
 
-    private Drawable resolveAttachmentIcon(Resources resources)
+    private Drawable resolveAttachmentIcon(Item child, Resources resources)
     {
-
-        return resources.getDrawable(R.drawable.ic_document_pdf);
+        String fileName = ZoteroSync.getFileName(child, true);
+        String ext = fileName.substring(fileName.lastIndexOf(".")+1);
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        String type = mime.getMimeTypeFromExtension(ext);
+        if(type.contains("pdf"))
+        {
+            return resources.getDrawable(R.drawable.ic_document_pdf);
+        }
+        else return resources.getDrawable(R.drawable.ic_file_attachment);
     }
 
     private void downloadAttachment(Item item, View view)
@@ -342,7 +384,6 @@ public class AttachmentRenderer
 
     private File decompressUrl(File file, Item item)
     {
-
         File targetDir = new File(file.getParent(),"content");
         File targetFile = new File(targetDir, ZoteroSync.getFileName(item, false));
         boolean isUnpacked = true;

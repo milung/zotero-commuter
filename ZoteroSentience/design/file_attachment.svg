@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="32"
+   height="32"
+   id="svg3792"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="file_attachment.svg"
+   inkscape:export-filename="D:\Data\Annotations\anotationswithzotero\ZoteroSentience\src\main\res\drawable-mdpi\ic_linked_file.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs3794" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="17.53125"
+     inkscape:cx="12.828235"
+     inkscape:cy="12.324111"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1218"
+     inkscape:window-height="778"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1">
+    <sodipodi:guide
+       orientation="1,0"
+       position="3.9928699,3.9928699"
+       id="guide3800" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="3.9928699,28.00713"
+       id="guide3804" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="28.00713,3.9928699"
+       id="guide3806" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="20.648841,17.568627"
+       id="guide4347" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="33.483066,11.522282"
+       id="guide4353" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="28.064171,20.249554"
+       id="guide4355" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="34.909091,15.229947"
+       id="guide4357" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="31.42959,17.568627"
+       id="guide4359" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="16.655971,11.938887"
+       id="guide4374" />
+    <sodipodi:guide
+       orientation="0,1"
+       position="25.497326,13.176471"
+       id="guide4376" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="13.461676,13.176471"
+       id="guide4378" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata3797">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1020.3622)">
+    <path
+       style="opacity:0.6;fill:#ffffff;fill-opacity:0.8;stroke:#000000;stroke-width:1.90819764;stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 20.648841,1042.5088 -0.0021,2.1237 0,2.7513 -15.7391892,0 0,-22.0098 15.7391892,0 0,2.7512 0,2.7513 0.0021,2.295"
+       id="rect3808"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccccc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:0.6"
+       d="m 25.611408,20.477718 -12.149732,0 c -2.309931,0 -2.402417,-6.046345 0,-6.046345 0,0 11.251266,0 14.602495,0 1.526469,0 1.309754,4.402053 0,4.392156 0,0 -10.036051,-0.171122 -11.322638,-0.08556 -1.286587,0.08556 -1.34363,-1.967915 -0.02852,-1.967915 l 7.871658,0"
+       id="path4372"
+       inkscape:connector-curvature="0"
+       transform="translate(0,1020.3622)"
+       sodipodi:nodetypes="ccssszsc" />
+  </g>
+</svg>

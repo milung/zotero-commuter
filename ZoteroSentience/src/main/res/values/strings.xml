@@ -55,6 +55,9 @@
     <string name="close">Close Navigation</string>
     <string name="all_items">All Items</string>
     <string name="nav_collections">Collections</string>
+    <string name="user_id">Research Sentience</string>
+    <string name="linked_file">Local file link</string>
+    <string name="linked_url">Internet link</string>
 
     <plurals name="number_of_items">
         <item quantity="zero">No items</item>

@@ -4,23 +4,19 @@
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:gravity="center_vertical" 
-    android:background="@drawable/selector"
+    android:background="@drawable/item_selector"
     android:minHeight="48dp">
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="0.94"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:gravity="center|left"
+        android:layout_marginRight="48dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-    
-    <ImageView
-        android:id="@+id/indicator"
-        android:layout_width="32dp"
-        android:layout_height="wrap_content"
-        android:src="@drawable/expander_close_holo_light"
-        android:contentDescription="@string/group_indicator" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Item"
+        android:textColor="@android:color/secondary_text_dark_nodisable" />
 
 </LinearLayout>

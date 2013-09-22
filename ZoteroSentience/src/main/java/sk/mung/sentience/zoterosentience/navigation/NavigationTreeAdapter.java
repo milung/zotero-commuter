@@ -1,19 +1,16 @@
 package sk.mung.sentience.zoterosentience.navigation;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import sk.mung.sentience.zoterosentience.LibraryFragment;
 import sk.mung.sentience.zoterosentience.R;
 import sk.mung.sentience.zoterosentience.storage.ZoteroCollection;
 
@@ -24,21 +21,39 @@ public class NavigationTreeAdapter extends BaseExpandableListAdapter
 {
     private final List<NavigationGroup> navigationGroups = new ArrayList<NavigationGroup>();
 
-	private final LayoutInflater inflater;
-	private final Drawable openDrawable;
-	private final Drawable closeDrawable;
-    private final LibraryFragment.Callbacks callbacks;
-	
-	public NavigationTreeAdapter(Context context, LibraryFragment.Callbacks callbacks)
+    private final DrawerFragment.Callbacks callbacks;
+    private int collectionsIndex;
+
+    public NavigationTreeAdapter(Context context, DrawerFragment.Callbacks callbacks)
 	{
         this.callbacks = callbacks;
-        inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		openDrawable = context.getResources().getDrawable(R.drawable.expander_open_holo_light);
-		closeDrawable = context.getResources().getDrawable(R.drawable.expander_close_holo_light);
+        Resources resources = context.getResources();
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        navigationGroups.add(new AllItemsGroup(context.getResources().getString(R.string.all_items)));
+        navigationGroups.add(
+                new LoginGroup(
+                    context,
+                    inflater,
+                    resources.getString(R.string.login),
+                    resources.getDrawable(R.drawable.ic_zotero),
+                    resources.getDrawable(R.drawable.ic_user_holo)));
+
+        navigationGroups.add(new AllItemsGroup(
+                resources.getString(R.string.all_items),
+                inflater,
+                resources.getDrawable(R.drawable.ic_briefcase_holo)));
+        collectionsIndex = navigationGroups.size();
         navigationGroups.add(new CollectionNavigationGroup(
-                context.getResources().getString(R.string.nav_collections), inflater,openDrawable,closeDrawable));
+                resources.getString(R.string.nav_collections),
+                inflater,
+                resources.getDrawable(R.drawable.ic_collection_folder),
+                resources.getDrawable(R.drawable.ic_navigation_expand),
+                resources.getDrawable(R.drawable.ic_navigation_collapse)));
+
+        navigationGroups.add( new SettingsGroup(
+                inflater,
+                resources.getString(R.string.settings),
+                resources.getDrawable(R.drawable.ic_nav_settings)));
 
 		setRoot(null);
 	}
@@ -62,7 +77,7 @@ public class NavigationTreeAdapter extends BaseExpandableListAdapter
 			View convertView, 
 			ViewGroup parent) 
 	{
-        return navigationGroups.get(groupPosition).getChildView(childPosition, isLastChild, convertView, parent );
+        return navigationGroups.get(groupPosition).getChildView(childPosition, isLastChild, convertView, parent);
 	}
 
 	@Override
@@ -84,32 +99,15 @@ public class NavigationTreeAdapter extends BaseExpandableListAdapter
 	}
 
 	@Override
-	public long getGroupId(int groupPosition) {
+	public long getGroupId(int groupPosition)
+    {
 		return groupPosition;
 	}
 
 	@Override
 	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent)
 	{
-		return bindView(navigationGroups.get(groupPosition), convertView, parent, isExpanded);
-	}
-
-	private View bindView(NavigationGroup navigationGroup, View convertView, ViewGroup parent, boolean isExpanded) {
-		if(convertView == null)
-		{
-			convertView = inflater.inflate(R.layout.listitem_collection, null);
-		}
-        assert convertView != null;
-        TextView textView = (TextView) convertView.findViewById(R.id.title);
-		textView.setText(navigationGroup.getName());
-		
-		ImageView imageView = (ImageView) convertView.findViewById(R.id.indicator);
-		if( navigationGroup.getChildrenCount() == 0)
-		{
-			imageView.setImageDrawable(null);
-		}
-		else imageView.setImageDrawable( isExpanded ? closeDrawable : openDrawable);
-		return convertView;
+		return navigationGroups.get(groupPosition).getGroupView(convertView, isExpanded);
 	}
 
 	@Override
@@ -153,8 +151,11 @@ public class NavigationTreeAdapter extends BaseExpandableListAdapter
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
     {
         int index = parent.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition));
-        parent.setItemChecked(index, true);
         navigationGroups.get(groupPosition).childClicked(childPosition, id, callbacks);
+        if(navigationGroups.get(groupPosition).areChildrenSelectable())
+        {
+            parent.setItemChecked(index, true);
+        }
         return true;
     }
 
@@ -162,7 +163,14 @@ public class NavigationTreeAdapter extends BaseExpandableListAdapter
     public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id)
     {
         int index = parent.getFlatListPosition(ExpandableListView.getPackedPositionForGroup(groupPosition));
-        parent.setItemChecked(index, true);
+        if(navigationGroups.get(groupPosition).isGroupSelectable())
+        {
+            parent.setItemChecked(index, true);
+        }
         return navigationGroups.get(groupPosition).clicked(id, callbacks);
+    }
+
+    public int getCollectionsIndex() {
+        return collectionsIndex;
     }
 }

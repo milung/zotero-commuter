@@ -1,4 +1,4 @@
-package sk.mung.sentience.zoterosentience;
+package sk.mung.sentience.zoterosentience.navigation;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -11,7 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
-import sk.mung.sentience.zoterosentience.navigation.NavigationTreeAdapter;
+import sk.mung.sentience.zoterosentience.GlobalState;
+import sk.mung.sentience.zoterosentience.R;
 import sk.mung.sentience.zoterosentience.storage.ZoteroCollection;
 import sk.mung.sentience.zoterosentience.storage.CollectionsTreeLoader;
 
@@ -19,27 +20,21 @@ import sk.mung.sentience.zoterosentience.storage.CollectionsTreeLoader;
  * A list fragment representing a list of LibraryItems. This fragment also
  * supports tablet devices by allowing list items to be given an 'activated'
  * state upon selection. This helps indicate which item is currently being
- * viewed in a {@link ItemListFragment}.
+ * viewed in a {@link sk.mung.sentience.zoterosentience.ItemListFragment}.
  * <p>
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class LibraryFragment extends Fragment
+public class DrawerFragment extends Fragment
     implements LoaderCallbacks<ZoteroCollection>
 {
     private static final String TREE_STATE = "TreeState";
 
 	/**
-     * The serialization (saved instance state) Bundle key representing the
-     * activated item position. Only used on tablets.
-     */
-    private static final String STATE_ACTIVATED_POSITION = "activated_position";
-
-    /**
      * The fragment's current callback object, which is notified of list item
      * clicks.
      */
-    private Callbacks  mCallbacks    = sDummyCallbacks;
+    private Callbacks  mCallbacks    = DummyCallbacks;
 
     //private SimpleCursorAdapter adapter;
     private NavigationTreeAdapter treeAdapter;
@@ -54,28 +49,33 @@ public class LibraryFragment extends Fragment
      */
     public interface Callbacks
     {
-        /**
-         * Callback for when an item has been selected.
-         */
-        public void onCollectionSelected(long id );
-
         public void onAllItemsSelected();
+
+        public void onLoginToZotero();
+
+        public void onNavigateTo(Fragment fragment, boolean putBackState);
+
+        public void onSettingsSelected();
     }
 
     /**
      * A dummy implementation of the {@link Callbacks} interface that does
      * nothing. Used only when this fragment is not attached to an activity.
      */
-    private static Callbacks sDummyCallbacks 
+    public static final Callbacks DummyCallbacks
     	= new Callbacks()
          {
-             @Override
-             public void onCollectionSelected(long id )
-             {}
+            @Override
+            public void onAllItemsSelected(){}
+
+            @Override
+            public void onLoginToZotero() {}
 
         @Override
-        public void onAllItemsSelected()
-        {
+        public void onNavigateTo(Fragment fragment, boolean putBackState) {}
+
+        @Override
+        public void onSettingsSelected() {
 
         }
     };
@@ -84,7 +84,7 @@ public class LibraryFragment extends Fragment
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public LibraryFragment()
+    public DrawerFragment()
     {}
 
     @Override
@@ -101,7 +101,7 @@ public class LibraryFragment extends Fragment
         treeView.setOnChildClickListener(treeAdapter);
         treeView.setOnGroupClickListener(treeAdapter);
 
-        treeView.expandGroup(1);
+        treeView.expandGroup(treeAdapter.getCollectionsIndex());
 
         getLoaderManager().initLoader(0, null, this);
     }
@@ -112,7 +112,7 @@ public class LibraryFragment extends Fragment
     		ViewGroup container,
     		Bundle savedInstanceState) 
     {
-        return inflater.inflate(R.layout.fragment_library, container, false);
+        return inflater.inflate(R.layout.fragment_drawer, container, false);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class LibraryFragment extends Fragment
         super.onDetach();
 
         // Reset the active callbacks interface to the dummy implementation.
-        mCallbacks = sDummyCallbacks;
+        mCallbacks = DummyCallbacks;
     }
 
     @Override
@@ -178,7 +178,7 @@ public class LibraryFragment extends Fragment
     	}
         else
         {
-            treeView.setItemChecked(0,true);
+            treeView.setItemChecked(1,true);
         }
     }
 

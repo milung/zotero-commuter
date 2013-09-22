@@ -4,15 +4,14 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 
 import java.io.File;
 
+import sk.mung.sentience.zoterosentience.storage.QueryDictionary;
 import sk.mung.sentience.zoterosentience.storage.ZoteroStorageImpl;
 import sk.mung.zoteroapi.Zotero;
 import sk.mung.zoteroapi.ZoteroOauth;
 import sk.mung.zoteroapi.ZoteroRestful;
-import sk.mung.sentience.zoterosentience.storage.QueryDictionary;
 import sk.mung.zoteroapi.ZoteroSync;
 
 final public class GlobalState extends Application
@@ -26,6 +25,21 @@ final public class GlobalState extends Application
     private ZoteroStorageImpl storage;
     private ZoteroSync zoteroSync;
     private File downloadDir;
+    private String userName;
+
+    public static GlobalState getInstance(Context context)
+    {
+        return (GlobalState)context.getApplicationContext();
+    }
+    public boolean isSyncRunning() {
+        return isSyncRunning;
+    }
+
+    public void setSyncRunning(boolean syncRunning) {
+        isSyncRunning = syncRunning;
+    }
+
+    private boolean isSyncRunning = false;
 
     private boolean isUserLogged = false;
     @Override
@@ -57,7 +71,6 @@ final public class GlobalState extends Application
     {
         if(zoteroSync == null)
         {
-
             zoteroSync = new ZoteroSync(getStorage(), getZotero(), getDownloadDirectory());
         }
         return zoteroSync;
@@ -73,7 +86,7 @@ final public class GlobalState extends Application
 
     public SharedPreferences getPreferences()
     {
-        return PreferenceManager.getDefaultSharedPreferences(this);
+        return getSharedPreferences(PREFERENCES_SPACE, Context.MODE_PRIVATE);
     }
 
     void saveZoteroState( ZoteroOauth oauth)
@@ -92,12 +105,13 @@ final public class GlobalState extends Application
             ZoteroRestful restful = new ZoteroRestful(oauth.getUserId(), oauth.getAccessToken().getToken());
             zotero.setRestfull(restful);
         }
-
+        isUserLogged = true;
+        userName = oauth.getUserName();
     }
     
     void restoreZoteroState()
     {
-        SharedPreferences settings = getSharedPreferences(PREFERENCES_SPACE, Context.MODE_PRIVATE);
+        SharedPreferences settings = getPreferences();
         String accessToken = null;
         String userId = null;
         if( settings.contains(ACCESS_TOKEN))
@@ -110,6 +124,11 @@ final public class GlobalState extends Application
         	userId = settings.getString(USER_ID, null);
         }
         isUserLogged = accessToken != null;
+
+        if( settings.contains(USERNAME))
+        {
+            userName = settings.getString(USERNAME, null);
+        }
 
     	ZoteroRestful restful = new ZoteroRestful(userId, accessToken);
 
@@ -130,5 +149,9 @@ final public class GlobalState extends Application
     public boolean isUserLogged()
     {
         return isUserLogged;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 }
