@@ -15,9 +15,9 @@
    version="1.1"
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="file_attachment.svg"
-   inkscape:export-filename="D:\Data\Annotations\anotationswithzotero\ZoteroSentience\src\main\res\drawable-mdpi\ic_linked_file.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-filename="D:\Data\Annotations\anotationswithzotero\ZoteroSentience\src\main\res\drawable-xhdpi\ic_file_attachment.png"
+   inkscape:export-xdpi="180"
+   inkscape:export-ydpi="180">
   <defs
      id="defs3794" />
   <sodipodi:namedview
@@ -28,17 +28,17 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="17.53125"
-     inkscape:cx="12.828235"
-     inkscape:cy="12.324111"
+     inkscape:cx="15.864728"
+     inkscape:cy="15.904932"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:window-width="1218"
-     inkscape:window-height="778"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-width="1200"
+     inkscape:window-height="760"
+     inkscape:window-x="1"
+     inkscape:window-y="1"
      inkscape:window-maximized="1">
     <sodipodi:guide
        orientation="1,0"
@@ -109,8 +109,8 @@
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccccccc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;opacity:0.6"
-       d="m 25.611408,20.477718 -12.149732,0 c -2.309931,0 -2.402417,-6.046345 0,-6.046345 0,0 11.251266,0 14.602495,0 1.526469,0 1.309754,4.402053 0,4.392156 0,0 -10.036051,-0.171122 -11.322638,-0.08556 -1.286587,0.08556 -1.34363,-1.967915 -0.02852,-1.967915 l 7.871658,0"
+       style="opacity:0.6;fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 21.675579,20.477718 -7.016042,0 c -2.309931,0 -2.402417,-6.046345 0,-6.046345 0,0 6.117576,0 9.468805,0 1.526469,0 1.309754,4.402053 0,4.392156 0,0 -5.529812,-0.17112 -7.386809,-0.08556 -1.856997,0.08556 -1.34363,-1.967915 -0.02852,-1.967915 l 3.935829,0"
        id="path4372"
        inkscape:connector-curvature="0"
        transform="translate(0,1020.3622)"

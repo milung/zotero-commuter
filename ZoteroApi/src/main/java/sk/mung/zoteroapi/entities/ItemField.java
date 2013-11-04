@@ -137,18 +137,6 @@ public enum ItemField
 
 	public int getId() { return id; }
 
-	public static ItemField fromZoteroName(String fieldName)
-	{
-		for( ItemField field : ItemField.values())
-		{
-			if( field.getZoteroName().equals(field.zoteroName))
-			{
-				return field;
-			}
-		}
-		return null;
-	}
-
     public static ItemField fromId(int id)
     {
         for( ItemField field : ItemField.values())

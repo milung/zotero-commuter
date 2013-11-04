@@ -82,9 +82,8 @@ public abstract class AbstractAtomParser<T>
             } 
             else if(name.startsWith("zapi:"))
             {
-            	String key = name;
-            	String value = readZapi(parser, name);
-            	content.put(key, value);
+                String value = readZapi(parser, name);
+            	content.put(name, value);
             }
             else 
             {

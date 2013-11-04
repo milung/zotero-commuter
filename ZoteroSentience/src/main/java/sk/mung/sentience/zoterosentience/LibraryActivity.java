@@ -41,7 +41,6 @@ public class LibraryActivity extends ActivityWithDrawer
         implements DrawerFragment.Callbacks, ItemListFragment.Callback
 {
     public static final int SYNC_CHECK_PERIOD = 150;
-    private Animation rotation;
     private MenuItem refreshActionImage;
     private Timer timer = new Timer();
 
@@ -61,7 +60,8 @@ public class LibraryActivity extends ActivityWithDrawer
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        rotation = AnimationUtils.loadAnimation(this, R.anim.clockwise_refresh);
+        Animation rotation = AnimationUtils.loadAnimation(this, R.anim.clockwise_refresh);
+        assert rotation != null;
         rotation.setRepeatCount(Animation.INFINITE);
         BootSchedulerReceiver.scheduleSynchronizing(this, false);
     }
@@ -73,7 +73,6 @@ public class LibraryActivity extends ActivityWithDrawer
         {
             timer.purge();
             timer.cancel();
-
         }
         timer = new Timer();
         timer.scheduleAtFixedRate(new SpinnerTask(this), 0, SYNC_CHECK_PERIOD);
@@ -144,13 +143,19 @@ public class LibraryActivity extends ActivityWithDrawer
         navigateTo(pager,true);
     }
 
-    public void onSettingsOptionSelected( MenuItem menuItem)
-    {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId())
+        {
+            case R.id.refresh:
+                onRefreshOptionSelected(item);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
-    public void onRefreshOptionSelected(MenuItem menuItem)
+    public void onRefreshOptionSelected(@SuppressWarnings("UnusedParameters") MenuItem menuItem)
     {
         final Context context = this;
         new AsyncTask<Void, Void, Integer>(){
@@ -208,6 +213,7 @@ public class LibraryActivity extends ActivityWithDrawer
                                 refreshActionImage.setIcon(R.drawable.progress_medium_holo);
                                 LayerDrawable layerDrawable
                                         = (LayerDrawable)refreshActionImage.getIcon();
+                                assert layerDrawable != null;
                                 ((Animatable)layerDrawable.getDrawable(0)).start();
                                 ((Animatable)layerDrawable.getDrawable(1)).start();
                             }

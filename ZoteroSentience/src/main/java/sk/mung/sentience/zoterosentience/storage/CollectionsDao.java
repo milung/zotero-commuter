@@ -69,22 +69,30 @@ class CollectionsDao extends BaseKeyDao<CollectionEntity>
                 getSyncFilter(),
                 null, null, null, null );
 
-        Map<String, ZoteroCollection> flatList = new HashMap<String,ZoteroCollection>();
-        cursor.moveToFirst();
-
-        while(!cursor.isAfterLast())
+            Map<String, ZoteroCollection> flatList = new HashMap<String,ZoteroCollection>();
+        try
         {
-            CollectionEntity entity = cursorToEntity(cursor);
-            ZoteroCollection treeEntry = new ZoteroCollection();
-            treeEntry.setId(entity.getId());
-            treeEntry.setKey(entity.getKey());
-            treeEntry.setParentKey(entity.getParentKey());
-            treeEntry.setName(entity.getName());
-            treeEntry.setVersion(entity.getVersion());
+            cursor.moveToFirst();
 
-            flatList.put(entity.getKey(), treeEntry);
-            cursor.moveToNext();
+            while(!cursor.isAfterLast())
+            {
+                CollectionEntity entity = cursorToEntity(cursor);
+                ZoteroCollection treeEntry = new ZoteroCollection();
+                treeEntry.setId(entity.getId());
+                treeEntry.setKey(entity.getKey());
+                treeEntry.setParentKey(entity.getParentKey());
+                treeEntry.setName(entity.getName());
+                treeEntry.setVersion(entity.getVersion());
+
+                flatList.put(entity.getKey(), treeEntry);
+                cursor.moveToNext();
+            }
         }
+        finally
+        {
+            cursor.close();
+        }
+
 
         for(ZoteroCollection entry : flatList.values())
         {

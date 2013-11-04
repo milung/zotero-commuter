@@ -1,35 +1,26 @@
 package sk.mung.sentience.zoterosentience.navigation;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-
-import sk.mung.sentience.zoterosentience.BootSchedulerReceiver;
-import sk.mung.sentience.zoterosentience.GlobalState;
 import sk.mung.sentience.zoterosentience.R;
-import sk.mung.zoteroapi.ZoteroSync;
 
 /**
  * Activity with build in NavigationDrawer; navigation drawer is identified by id R.id.drawer_layout;
  * typically this is a drawer fragment.
  */
-public abstract class ActivityWithDrawer extends FragmentActivity
+public abstract class ActivityWithDrawer extends ActionBarActivity
 {
     private static final String FIRST_START_KEY = "FIRST_START";
     private static final String FRAGMENT_STATE = "fragment_state";
@@ -59,7 +50,9 @@ public abstract class ActivityWithDrawer extends FragmentActivity
                 (DrawerLayout)findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.LEFT);
 
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+        final ActionBarActivity thisActivity = this;
+        drawerToggle = new ActionBarDrawerToggle(
+                this, drawerLayout,
                 R.drawable.ic_drawer,
                 R.string.open, R.string.close)
         {
@@ -68,7 +61,7 @@ public abstract class ActivityWithDrawer extends FragmentActivity
             {
                 super.onDrawerClosed(drawerView);
                 updateContent();
-                invalidateOptionsMenu();
+                ActivityCompat.invalidateOptionsMenu(thisActivity);
                 if(isFirstStart)
                 {
                     isFirstStart = false;
@@ -78,7 +71,7 @@ public abstract class ActivityWithDrawer extends FragmentActivity
                     {
                         SharedPreferences.Editor editor = prefs.edit();
                         editor.putBoolean(FIRST_START_KEY, false);
-                        editor.apply();
+                        editor.commit();
                     }
                 }
             }
@@ -87,13 +80,15 @@ public abstract class ActivityWithDrawer extends FragmentActivity
             public void onDrawerOpened(View drawerView)
             {
                 super.onDrawerOpened(drawerView);
-                getActionBar().setTitle(getResources().getString(R.string.app_name));
-                getActionBar().setSubtitle(null);
+                ActionBar actionBar = getSupportActionBar();
+                actionBar.setTitle(getResources().getString(R.string.app_name));
+                actionBar.setSubtitle(null);
             }
         };
         drawerLayout.setDrawerListener(drawerToggle);
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
 
         getSupportFragmentManager().addOnBackStackChangedListener(
                 new FragmentManager.OnBackStackChangedListener() {
@@ -148,11 +143,7 @@ public abstract class ActivityWithDrawer extends FragmentActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        if(drawerToggle.onOptionsItemSelected(item))
-        {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     @Override

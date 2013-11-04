@@ -289,4 +289,6 @@ public class Zotero
         g.close();
         return writer.getBuffer().toString();
     }
+
+
 }

@@ -3,7 +3,9 @@ package sk.mung.sentience.zoterosentience;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 
 import java.io.File;
 
@@ -81,12 +83,13 @@ final public class GlobalState extends Application
     	return new ZoteroOauth(
     		getResources().getString(R.string.zotero_api_key) ,
     		getResources().getString(R.string.zotero_api_secret),
-    		getResources().getString(R.string.callback));
+    		getResources().getString(R.string.callback),
+            null);
     }
 
     public SharedPreferences getPreferences()
     {
-        return getSharedPreferences(PREFERENCES_SPACE, Context.MODE_PRIVATE);
+        return PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     void saveZoteroState( ZoteroOauth oauth)
@@ -154,4 +157,5 @@ final public class GlobalState extends Application
     public String getUserName() {
         return userName;
     }
+
 }

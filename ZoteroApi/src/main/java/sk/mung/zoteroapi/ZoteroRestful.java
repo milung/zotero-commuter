@@ -84,8 +84,7 @@ public class ZoteroRestful {
             throws IOException
     {
         HttpGet request;
-        URIBuilder builder =
-                null;
+        URIBuilder builder;
         try
         {
             builder = new URIBuilder(API_BASE + getCurrentUserUriPrefix() + "/" + method)
@@ -151,8 +150,7 @@ public class ZoteroRestful {
         return "/users/" + userId;
     }
 
-    public URI getAttachmentUri(Item item) throws IOException
-    {
+    public URI getAttachmentUri(Item item) {
         try
         {
             return new URIBuilder(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
@@ -189,7 +187,7 @@ public class ZoteroRestful {
                     else
                     {
                         assert parameters.url != null;
-                        Response uploadResponse = uploadFile(item, file, parameters.url, parameters.parameters);
+                        uploadFile(item, file, parameters.url, parameters.parameters);
                         if(HttpStatus.SC_NO_CONTENT == registerUpload( item, parameters.uploadKey))
                         {
                             return UploadStatus.SUCCESS;
@@ -302,15 +300,14 @@ public class ZoteroRestful {
         {
             oldHashField = item.getField(ItemField.MD5);
         }
-        String oldHash = md5;
+        String oldHash;
         if(oldHashField != null)
         {
             oldHash = oldHashField.getValue();
         }
         else return new Response(HttpStatus.SC_PRECONDITION_FAILED,"");
 
-        URI uri =
-                null;
+        URI uri;
         try
         {
             uri = new URIBuilder(API_BASE + getCurrentUserUriPrefix() + "/items/" + item.getKey() + "/file")
@@ -351,7 +348,7 @@ public class ZoteroRestful {
 
     private Response decodeResponse(HttpResponse response) throws IOException
     {
-        StatusLine statusLine = response.getStatusLine();
+        response.getStatusLine();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         response.getEntity().writeTo(out);
@@ -368,7 +365,8 @@ public class ZoteroRestful {
             InputStream is = new FileInputStream(file);
             is = new DigestInputStream(is, digest);
             byte[] buffer = new byte[8192];
-            while (is.read(buffer) > 0) {};
+            //noinspection StatementWithEmptyBody
+            while (is.read(buffer) > 0) {}
             return new BigInteger(1, digest.digest()).toString(16);
         }
         catch (NoSuchAlgorithmException e)
@@ -388,8 +386,7 @@ public class ZoteroRestful {
 
     public Response uploadEntities(String json, String entity, int sinceVersion) throws IOException
     {
-        URI uri =
-                null;
+        URI uri;
         try
         {
             uri = new URIBuilder(API_BASE + getCurrentUserUriPrefix() + "/" + entity)

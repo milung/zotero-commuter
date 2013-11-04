@@ -23,7 +23,8 @@ public class DownloadReceiver extends BroadcastReceiver
     {
         String action = intent.getAction();
         DownloadManager downloadManager=(DownloadManager)context.getSystemService(Context.DOWNLOAD_SERVICE);
-        File downloadDir = ((GlobalState)context.getApplicationContext()).getDownloadDirectory();
+
+        File downloadDir = GlobalState.getInstance(context).getDownloadDirectory();
         if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(action))
         {
             Long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0);
@@ -34,14 +35,15 @@ public class DownloadReceiver extends BroadcastReceiver
             assert cursor != null;
             if (cursor.moveToFirst())
             {
-                int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
+                int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI);
                 String localFileName = cursor.getString(columnIndex);
 
+                assert localFileName != null;
                 if(localFileName.contains(downloadDir.getPath()))
                 {
                     File downloadedFileParent = new File(new File(localFileName).getParent());
                     String itemKey = downloadedFileParent.getName();
-                    Item item = ((GlobalState)context.getApplicationContext()).getStorage().findItemByKey(itemKey);
+                    Item item = GlobalState.getInstance(context).getStorage().findItemByKey(itemKey);
 
                     if(item != null)
                     {

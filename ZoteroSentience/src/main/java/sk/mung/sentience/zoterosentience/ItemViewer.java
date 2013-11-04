@@ -27,7 +27,6 @@ import sk.mung.zoteroapi.entities.Tag;
 
 public class ItemViewer extends Fragment
 {
-
     public static final String HIDDEN_TAG_PREFIX = "_";
     private Item item;
     private ItemRenderer itemRenderer;
