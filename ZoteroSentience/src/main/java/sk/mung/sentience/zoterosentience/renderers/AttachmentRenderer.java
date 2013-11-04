@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.DialogFragment;
@@ -259,7 +260,7 @@ public class AttachmentRenderer
                 icon = resources.getDrawable(R.drawable.animation_download);
                 assert icon != null;
                 imageView.setImageDrawable(icon);
-                imageView.setImageAlpha(255);
+                supportImageAlpha(imageView, 255);
                 imageView.post(new Runnable()
                 {
                     @Override
@@ -275,15 +276,21 @@ public class AttachmentRenderer
             else
             {
                 imageView.setImageDrawable(icon);
-                if (EditStatus.REMOTE == status)
-                {
-                    imageView.setImageAlpha(64);
-                }
-                else
-                {
-                    imageView.setImageAlpha(255);
-                }
+                int alpha = EditStatus.REMOTE == status ? 64 : 255;
+                supportImageAlpha(imageView, alpha);
             }
+    }
+
+    private void supportImageAlpha(ImageView imageView, int alpha) {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+        {
+            imageView.setImageAlpha(alpha);
+        }
+        else
+        {
+            //noinspection deprecation
+            imageView.setAlpha(alpha);
+        }
     }
 
     private Drawable resolveAttachmentIcon(Item child, Resources resources)
@@ -334,10 +341,11 @@ public class AttachmentRenderer
                 networkTypes = networkTypes | DownloadManager.Request.NETWORK_MOBILE;
             }
 
+            String url =state.getZotero().getAttachmentUri(item).toString();
             long lastDownload=
                     downloadManager.enqueue(
                             new DownloadManager.Request(
-                                    Uri.parse(state.getZotero().getAttachmentUri(item).toString()))
+                                    Uri.parse(url.replace("https://", "http://")))
                                     .setAllowedNetworkTypes(networkTypes)
                                     .setAllowedOverRoaming(preferences.getBoolean("roaming_download", false))
                                     .setTitle(item.getTitle())
@@ -505,4 +513,6 @@ public class AttachmentRenderer
         }
         return editStatus;
     }
+
+
 }

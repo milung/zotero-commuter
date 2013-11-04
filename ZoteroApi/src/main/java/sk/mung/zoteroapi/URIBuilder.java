@@ -31,7 +31,6 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.http.Consts;
@@ -65,15 +64,6 @@ public class URIBuilder
     private String encodedFragment;
 
     /**
-     * Constructs an empty instance.
-     */
-    public URIBuilder()
-    {
-        super();
-        this.port = -1;
-    }
-
-    /**
      * Construct an instance from the string which must be a valid URI.
      *
      * @param string a valid URI in string form
@@ -83,17 +73,6 @@ public class URIBuilder
     {
         super();
         digestURI(new URI(string));
-    }
-
-    /**
-     * Construct an instance from the provided URI.
-     *
-     * @param uri
-     */
-    public URIBuilder(final URI uri)
-    {
-        super();
-        digestURI(uri);
     }
 
     private List<NameValuePair> parseQuery(final URI uri, final Charset charset)
@@ -231,82 +210,6 @@ public class URIBuilder
         }
     }
 
-    /**
-     * Sets URI scheme.
-     */
-    public URIBuilder setScheme(final String scheme)
-    {
-        this.scheme = scheme;
-        return this;
-    }
-
-    /**
-     * Sets URI user info. The value is expected to be unescaped and may contain non ASCII
-     * characters.
-     */
-    public URIBuilder setUserInfo(final String userInfo)
-    {
-        this.userInfo = userInfo;
-        this.encodedSchemeSpecificPart = null;
-        this.encodedAuthority = null;
-        this.encodedUserInfo = null;
-        return this;
-    }
-
-    /**
-     * 4      * Sets URI user info as a combination of username and password. These values are expected to
-     * 5      * be unescaped and may contain non ASCII characters.
-     * 6
-     */
-    public URIBuilder setUserInfo(final String username, final String password)
-    {
-        return setUserInfo(username + ':' + password);
-    }
-
-    /**
-     * Sets URI host.
-     */
-    public URIBuilder setHost(final String host)
-    {
-        this.host = host;
-        this.encodedSchemeSpecificPart = null;
-        this.encodedAuthority = null;
-        return this;
-    }
-
-    /**
-     * Sets URI port.
-     */
-    public URIBuilder setPort(final int port)
-    {
-        this.port = port < 0 ? -1 : port;
-        this.encodedSchemeSpecificPart = null;
-        this.encodedAuthority = null;
-        return this;
-    }
-
-    /**
-     * Sets URI path. The value is expected to be unescaped and may contain non ASCII characters.
-     */
-    public URIBuilder setPath(final String path)
-    {
-        this.path = path;
-        this.encodedSchemeSpecificPart = null;
-        this.encodedPath = null;
-        return this;
-    }
-
-    /**
-     * Removes URI query.
-     */
-    public URIBuilder removeQuery()
-    {
-        this.queryParams = null;
-        this.encodedQuery = null;
-        this.encodedSchemeSpecificPart = null;
-        return this;
-    }
-
 
     /**
      * Adds parameter to URI query. The parameter name and value are expected to be unescaped
@@ -324,69 +227,6 @@ public class URIBuilder
         return this;
     }
 
-    /**
-     * Sets parameter of URI query overriding existing value if set. The parameter name and value
-     * are expected to be unescaped and may contain non ASCII characters.
-     */
-    public URIBuilder setParameter(final String param, final String value)
-    {
-        if (this.queryParams == null)
-        {
-            this.queryParams = new ArrayList<NameValuePair>();
-        }
-        if (!this.queryParams.isEmpty())
-        {
-            for (Iterator<NameValuePair> it = this.queryParams.iterator(); it.hasNext(); )
-            {
-                NameValuePair nvp = it.next();
-                if (nvp.getName().equals(param))
-                {
-                    it.remove();
-                }
-            }
-        }
-        this.queryParams.add(new BasicNameValuePair(param, value));
-        this.encodedQuery = null;
-        this.encodedSchemeSpecificPart = null;
-        return this;
-    }
-
-    /**
-     * Sets URI fragment. The value is expected to be unescaped and may contain non ASCII
-     * characters.
-     */
-    public URIBuilder setFragment(final String fragment)
-    {
-        this.fragment = fragment;
-        this.encodedFragment = null;
-        return this;
-    }
-
-    public String getScheme()
-    {
-        return this.scheme;
-    }
-
-    public String getUserInfo()
-    {
-        return this.userInfo;
-    }
-
-    public String getHost()
-    {
-        return this.host;
-    }
-
-    public int getPort()
-    {
-        return this.port;
-    }
-
-    public String getPath()
-    {
-        return this.path;
-    }
-
     public List<NameValuePair> getQueryParams()
     {
         if (this.queryParams != null)
@@ -396,11 +236,6 @@ public class URIBuilder
         {
             return new ArrayList<NameValuePair>();
         }
-    }
-
-    public String getFragment()
-    {
-        return this.fragment;
     }
 
     @Override

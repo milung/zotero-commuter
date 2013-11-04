@@ -84,16 +84,7 @@
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:padding="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"/>
-
-        <LinearLayout
-                android:id="@+id/fieldsGroup"
-                android:orientation="vertical"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-            android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"/>
 
         <LinearLayout
@@ -112,11 +103,23 @@
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:id="@+id/textViewUrl"
                 android:gravity="center_vertical"
-                android:linksClickable="true" />
+                android:linksClickable="true"
+                android:autoLink="web" />
         </LinearLayout>
+
+        <LinearLayout
+                android:id="@+id/fieldsGroup"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+            android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"/>
+
+
 
     </LinearLayout>
 

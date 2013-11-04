@@ -6,6 +6,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -156,10 +158,10 @@ public class ItemPager extends Fragment
         ViewPager pager = ((ViewPager)getActivity().findViewById(R.id.pager));
         pager.setAdapter(new ItemPagerAdapter(
                 cursor, getActivity().getSupportFragmentManager(),getGlobalState().getStorage()));
-        pager.setCurrentItem(positionId,true);
-
-        getActivity().getActionBar().setTitle(getActionTitle());
-        getActivity().getActionBar().setSubtitle(getActionSubtitle());
+        pager.setCurrentItem(positionId, true);
+        ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
+        actionBar.setTitle(getActionTitle());
+        actionBar.setSubtitle(getActionSubtitle());
     }
 
     private String getActionTitle()
@@ -211,7 +213,6 @@ public class ItemPager extends Fragment
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        super.onSaveInstanceState(outState);
         outState.putLong(ARG_COLLECTION_ID, collectionId);
         outState.putInt(ARG_CURRENT_POSITION,positionId);
     }

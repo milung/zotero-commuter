@@ -27,7 +27,7 @@ public enum SyncStatus
         return statusCode;
     }
 
-    public final static SyncStatus fromStatusCode(int statusCode)
+    public static SyncStatus fromStatusCode(int statusCode)
     {
         for(SyncStatus status : values())
         {

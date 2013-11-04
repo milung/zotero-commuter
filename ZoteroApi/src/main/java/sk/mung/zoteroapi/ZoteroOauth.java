@@ -12,11 +12,14 @@ import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.SSLSocketFactory;
+
 public class ZoteroOauth
 {
     private final String apikey;
     private final String apisecret;
     private final String callback;
+    private final SSLSocketFactory sslSocketFactory;
     private OAuthService oauthService;
 
     private Token requestToken;
@@ -30,11 +33,13 @@ public class ZoteroOauth
     public String getUserId() { return userId; }
     public String getUserName() { return userName; }
 
-    public ZoteroOauth( String apikey, String apisecret, String callbackUrl)
+    public ZoteroOauth(
+            String apikey, String apisecret, String callbackUrl, SSLSocketFactory sslSocketFactory)
     {
         this.apikey = apikey;
         this.apisecret = apisecret;
         this.callback = callbackUrl;
+        this.sslSocketFactory = sslSocketFactory;
     }
 
     /** retrieves request tokens and provides correct authorization url - connects to networks 
@@ -97,6 +102,7 @@ public class ZoteroOauth
                     .signatureType(SignatureType.QueryString)
                     .callback(callback)
                     .build();
+            //oauthService.setSslSocketFactory(sslSocketFactory);
         }
         return oauthService;
     }

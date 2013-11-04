@@ -4,11 +4,17 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
+
+import org.scribe.exceptions.OAuthConnectionException;
 
 import sk.mung.sentience.zoterosentience.navigation.DrawerFragment;
 import sk.mung.zoteroapi.ZoteroOauth;
@@ -21,7 +27,7 @@ public class LoginFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-        return  inflater.inflate(R.layout.activity_login, container, false);
+        return  inflater.inflate(R.layout.fragment_login, container, false);
     }
 
     @Override
@@ -32,8 +38,9 @@ public class LoginFragment extends Fragment
         final WebView webview = (WebView) getView().findViewById(R.id.webView);
         final ZoteroOauth zotero = GlobalState.getInstance(getActivity()).getZoteroOauth();
 
-        getActivity().getActionBar().setTitle(getString(R.string.title_activity_login));
-        getActivity().getActionBar().setSubtitle(null);
+        ActionBar actionBar =((ActionBarActivity)getActivity()).getSupportActionBar();
+        actionBar.setTitle(getString(R.string.title_activity_login));
+        actionBar.setSubtitle(null);
 
         //attach WebViewClient to intercept the callback url
         webview.setWebViewClient(new WebViewClient()
@@ -54,7 +61,21 @@ public class LoginFragment extends Fragment
                 return super.shouldOverrideUrlLoading(view, url);
             }
        });
-
+        webview.requestFocus(View.FOCUS_DOWN);
+        webview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_UP:
+                        if (!v.hasFocus()) {
+                            v.requestFocus();
+                        }
+                        break;
+                }
+                return false;
+            }
+        });
        //send user to authorization page
         new AuthorizationUrlTask(webview).execute(zotero);
     }
@@ -91,14 +112,23 @@ public class LoginFragment extends Fragment
         @Override
         protected String doInBackground(ZoteroOauth... zotero)
         {
-            return zotero[0].getAuthorizationUrl();
-
+            try
+            {
+                return zotero[0].getAuthorizationUrl();
+            }
+            catch (OAuthConnectionException ex)
+            {
+                Toast.makeText(getActivity(), R.string.network_error, Toast.LENGTH_SHORT).show();
+                return getActivity().getResources().getString(R.string.fallback_page);
+            }
         }
         
         protected void onPostExecute(String authorizationUrl) {
+            //webview.setWebViewClient(new MyWebViewClient());
             webview.loadUrl(authorizationUrl);
         }   
     }
+
     private class ProcessCallbackTask extends AsyncTask<ZoteroOauth,Void,ZoteroOauth>
     {
         private final String callbackUrl;

@@ -30,8 +30,7 @@ public class ZoteroSync
         this.downloadDir = downloadDir;
     }
     
-    private void syncCollections() throws IOException, XmlPullParserException, URISyntaxException
-    {
+    private void syncCollections() throws IOException, XmlPullParserException {
         int version = storage.getCollectionsVersion();
         Map<String, Integer> collectionVersions = zotero.getCollectionsVersions(version);
         int lastModifiedVersion = zotero.getLastModifiedVersion();
@@ -45,8 +44,7 @@ public class ZoteroSync
         storage.setCollectionsVersion(lastModifiedVersion);
     }
     
-    private void syncDeletions() throws IOException, XmlPullParserException, URISyntaxException
-    {
+    private void syncDeletions() throws IOException {
         int version = storage.getDeletionsVersion();
         Map<String, List<String>> deletions = zotero.getDeletions(version);
         int lastModifiedVersion = zotero.getLastModifiedVersion();
@@ -81,8 +79,7 @@ public class ZoteroSync
         storage.setDeletionsVersion(lastModifiedVersion);
     }
 
-    private void syncItems() throws IOException, XmlPullParserException, URISyntaxException
-    {
+    private void syncItems() throws IOException, XmlPullParserException {
         int version = storage.getItemsVersion();
         Map<String, Integer> itemVersions = zotero.getItemsVersions(version);
         int lastModifiedVersion = zotero.getLastModifiedVersion();
@@ -115,7 +112,7 @@ public class ZoteroSync
     private void uploadUpdatedItems()
     {
         List<Item> items =  storage.findItemsBySynced(SyncStatus.SYNC_LOCALLY_UPDATED);
-        List<UploadStatus> status = zotero.updateItems(items, storage.getItemsVersion());
+        zotero.updateItems(items, storage.getItemsVersion());
         storage.setItemsVersion(zotero.getLastModifiedVersion());
     }
 

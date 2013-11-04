@@ -2,10 +2,13 @@ package sk.mung.sentience.zoterosentience;
 
 import android.app.Activity;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +47,10 @@ public class ItemListFragment
     private void scrollToPosition(int position)
     {
         ListView listView = (ListView) getActivity().findViewById(R.id.library_itemlist);
-        listView.smoothScrollToPosition(position);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO)
+        {
+            listView.smoothScrollToPosition(position);
+        }
         this.position = position;
     }
 
@@ -171,8 +177,10 @@ public class ItemListFragment
         {
             scrollToPosition(position);
         }
-        getActivity().getActionBar().setTitle(getActionTitle());
-        getActivity().getActionBar().setSubtitle(getActionSubtitle());
+        ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setTitle(getActionTitle());
+        actionBar.setSubtitle(getActionSubtitle());
     }
 
     @Override
@@ -185,7 +193,7 @@ public class ItemListFragment
     @Override
     public void onSaveInstanceState(Bundle outState)
     {
-        super.onSaveInstanceState(outState);
+        //super.onSaveInstanceState(outState);
         outState.putInt(ITEM_LIST_POSITION,position);
         if(collectionKey!=null)
         {

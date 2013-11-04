@@ -95,7 +95,6 @@ public class DrawerFragment extends Fragment
         treeView = (ExpandableListView) getActivity().findViewById(R.id.expandableListView);
         treeView.setSaveEnabled(true);
         treeView.setAdapter(treeAdapter);
-        treeView.setActivated(true);
 
         treeView.setGroupIndicator(null);
         treeView.setOnChildClickListener(treeAdapter);
