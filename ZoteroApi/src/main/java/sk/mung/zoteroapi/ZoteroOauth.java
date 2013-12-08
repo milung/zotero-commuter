@@ -121,7 +121,8 @@ public class ZoteroOauth
         }
         else
         {
-            throw new OAuthException("Response body is incorrect. Can't extract userId from this: '" + accessToken.getRawResponse() + "'", null);
+            throw new OAuthException("Response body is incorrect. Can't extract userId from this: '"
+                    + accessToken.getRawResponse() + "'", null);
         }
         p = Pattern.compile("username=([^&]*)");
         matcher = p.matcher(accessToken.getRawResponse());

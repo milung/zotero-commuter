@@ -21,7 +21,7 @@ import sk.mung.zoteroapi.entities.Item;
 
 /**
  * A fragment representing a single LibraryItem detail screen. This fragment is
- * either contained in a {@link sk.mung.sentience.zoterosentience.LibraryActivity} in two-pane mode (on
+ * either contained in a {@link MainActivity} in two-pane mode (on
  * tablets)
  */
 public class ItemListFragment

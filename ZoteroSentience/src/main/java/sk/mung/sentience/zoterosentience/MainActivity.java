@@ -1,11 +1,9 @@
 package sk.mung.sentience.zoterosentience;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
@@ -13,7 +11,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Toast;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -37,10 +34,10 @@ import sk.mung.zoteroapi.entities.Item;
  * {@link sk.mung.sentience.zoterosentience.navigation.DrawerFragment.Callbacks} interface to listen for item
  * selections.
  */
-public class LibraryActivity extends ActivityWithDrawer
+public class MainActivity extends ActivityWithDrawer
         implements DrawerFragment.Callbacks, ItemListFragment.Callback
 {
-    public static final int SYNC_CHECK_PERIOD = 150;
+    public static final int SYNC_CHECK_PERIOD = 300;
     private MenuItem refreshActionImage;
     private Timer timer = new Timer();
 
@@ -157,33 +154,7 @@ public class LibraryActivity extends ActivityWithDrawer
 
     public void onRefreshOptionSelected(@SuppressWarnings("UnusedParameters") MenuItem menuItem)
     {
-        final Context context = this;
-        new AsyncTask<Void, Void, Integer>(){
-
-            @Override
-            protected Integer doInBackground(Void... arg0)
-            {
-                Intent serviceStartIntent;
-                serviceStartIntent = new Intent(context, SynchronizingService.class);
-                serviceStartIntent.putExtra(
-                        SynchronizingService.SYNCHRONIZATION_TYPE,
-                        SynchronizingService.MSG_SYNCHRONIZE_MANUAL);
-                context.startService(serviceStartIntent);
-                return 0;
-            }
-
-            @Override
-            protected void onPostExecute(Integer result)
-            {
-                if( !result.equals( 0))
-                {
-                    Toast.makeText(
-                            context,
-                            R.string.network_error,
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        }.execute();
+        SynchronizingService.ExecuteInBackground(this);
     }
 
     private class SpinnerTask extends TimerTask
@@ -204,7 +175,7 @@ public class LibraryActivity extends ActivityWithDrawer
                 if( state.isSyncRunning())
                 {
                     // spin
-                    if(!isSpinning)
+                    if(!isSpinning || !( refreshActionImage.getIcon() instanceof LayerDrawable) )
                     {
                         isSpinning = true;
                         activity.runOnUiThread(new Runnable() {

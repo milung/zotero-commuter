@@ -7,9 +7,13 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.BatteryManager;
 import android.util.Log;
+import android.view.MenuItem;
+import android.widget.Toast;
 
+import org.jetbrains.annotations.NotNull;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -141,5 +145,36 @@ public class SynchronizingService extends IntentService
         if(SYNC_FREQUENCY_SIX_HOURS.equals(frequency)) return 360;
         if(SYNC_FREQUENCY_ONE_DAY.equals(frequency)) return 24*60;
         return 60;
+    }
+
+    static  void ExecuteInBackground(@NotNull final Context context)
+    {
+        new AsyncTask<Void, Void, Integer>(){
+
+            @Override
+            protected Integer doInBackground(Void... arg0)
+            {
+                Thread.currentThread().setName("Synchronizing Service");
+                Intent serviceStartIntent;
+                serviceStartIntent = new Intent(context, SynchronizingService.class);
+                serviceStartIntent.putExtra(
+                        SynchronizingService.SYNCHRONIZATION_TYPE,
+                        SynchronizingService.MSG_SYNCHRONIZE_MANUAL);
+                context.startService(serviceStartIntent);
+                return 0;
+            }
+
+            @Override
+            protected void onPostExecute(Integer result)
+            {
+                if( !result.equals( 0))
+                {
+                    Toast.makeText(
+                            context,
+                            R.string.network_error,
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute();
     }
 }
