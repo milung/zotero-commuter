@@ -24,8 +24,10 @@ public class SettingsActivity extends PreferenceActivity
                             new SettingsFragment())
                     .commit();
             ActionBar actionBar = getActionBar();
-            assert actionBar != null;
-            actionBar.setDisplayHomeAsUpEnabled(true);
+            if(actionBar != null)
+            {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            }
         }
     }
 

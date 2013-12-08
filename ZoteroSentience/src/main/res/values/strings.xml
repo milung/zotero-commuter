@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Research Sentience for Zotero</string>
+    <string name="app_name">Zotero Commuter</string>
     <string name="title_libraryitem_detail">LibraryItem Detail</string>
     <string name="login">Login to Zotero</string>
     <string name="login_short">Login</string>

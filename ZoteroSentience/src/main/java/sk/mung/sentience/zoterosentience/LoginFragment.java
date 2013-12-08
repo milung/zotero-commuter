@@ -116,7 +116,7 @@ public class LoginFragment extends Fragment
             {
                 return zotero[0].getAuthorizationUrl();
             }
-            catch (OAuthConnectionException ex)
+            catch (Exception ex)
             {
                 Toast.makeText(getActivity(), R.string.network_error, Toast.LENGTH_SHORT).show();
                 return getActivity().getResources().getString(R.string.fallback_page);
@@ -147,6 +147,7 @@ public class LoginFragment extends Fragment
         protected void onPostExecute(ZoteroOauth oauth)
         {
             GlobalState.getInstance(getActivity()).saveZoteroState(oauth);
+            SynchronizingService.ExecuteInBackground(getActivity());
             callback.onAllItemsSelected();
         }
     }
