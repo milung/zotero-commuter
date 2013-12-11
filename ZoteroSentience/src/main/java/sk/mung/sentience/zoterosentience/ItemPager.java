@@ -27,15 +27,7 @@ public class ItemPager extends Fragment
     public static final String ARG_COLLECTION_NAME = "collection_name";
     public static final String ARG_ITEMS_COUNT = "items_count";
 
-    public long getCollectionId()
-    {
-        return collectionId;
-    }
 
-    public int getPosition()
-    {
-        return positionId;
-    }
 
     interface Callback
     {
@@ -45,10 +37,7 @@ public class ItemPager extends Fragment
     private Callback dummyCallback = new Callback()
     {
         @Override
-        public void onItemScrolled(int position, long itemId)
-        {
-
-        }
+        public void onItemScrolled(int position, long itemId) {}
     };
 
     private Callback callback = dummyCallback;
@@ -63,16 +52,6 @@ public class ItemPager extends Fragment
     private long collectionId = -1;
     private int positionId = -1;
 
-
-    void setCallback(Callback callback)
-    {
-        if(callback == null)
-        {
-            this.callback = dummyCallback;
-        }
-        else this.callback = callback;
-    }
-
     public void setCollectionId( long collectionId)
     {
         Log.d(TAG,"setCollectionId=" + collectionId);
@@ -82,7 +61,7 @@ public class ItemPager extends Fragment
                     .setAdapter(
                             new ItemPagerAdapter(
                                     null,
-                                    getActivity().getSupportFragmentManager(),
+                                    getChildFragmentManager(),
                                     getGlobalState().getStorage()));
             cursor = null;
             this.collectionId = collectionId;
@@ -90,7 +69,6 @@ public class ItemPager extends Fragment
             Bundle bundle = new Bundle();
             bundle.putLong(ItemListFragment.ARG_COLLECTION_KEY,collectionId);
             getLoaderManager().restartLoader(R.id.loder_item_pager, bundle, this);
-
         }
     }
 
@@ -112,7 +90,7 @@ public class ItemPager extends Fragment
         ViewPager pager = ((ViewPager)getActivity().findViewById(R.id.pager));
         pager.setAdapter(new ItemPagerAdapter(
                 null,
-                getActivity().getSupportFragmentManager(),getGlobalState().getStorage()));
+                getChildFragmentManager(),getGlobalState().getStorage()));
         pager.setOnPageChangeListener(this);
         Bundle bundle;
         if(savedInstanceState != null)  bundle = savedInstanceState; // 1
@@ -157,7 +135,7 @@ public class ItemPager extends Fragment
         this.cursor = cursor;
         ViewPager pager = ((ViewPager)getActivity().findViewById(R.id.pager));
         pager.setAdapter(new ItemPagerAdapter(
-                cursor, getActivity().getSupportFragmentManager(),getGlobalState().getStorage()));
+                cursor, getChildFragmentManager(),getGlobalState().getStorage()));
         pager.setCurrentItem(positionId, true);
         ActionBar actionBar = ((ActionBarActivity)getActivity()).getSupportActionBar();
         actionBar.setTitle(getActionTitle());
@@ -191,7 +169,7 @@ public class ItemPager extends Fragment
             {
                 pager.setAdapter(new ItemPagerAdapter(
                         null,
-                        getActivity().getSupportFragmentManager(), getGlobalState().getStorage()));
+                        getChildFragmentManager(), getGlobalState().getStorage()));
             }
         }
     }

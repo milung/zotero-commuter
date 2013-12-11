@@ -3,7 +3,6 @@ package sk.mung.sentience.zoterosentience;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 
@@ -21,8 +20,7 @@ final public class GlobalState extends Application
     private static final String USERNAME = "username";
     private static final String USER_ID = "userId";
     private static final String ACCESS_TOKEN = "accessToken";
-    private static final String PREFERENCES_SPACE = "sk.mung.sentience.zoterosentience";
-    
+
     private Zotero zotero;
     private ZoteroStorageImpl storage;
     private ZoteroSync zoteroSync;
