@@ -1,6 +1,5 @@
 package sk.mung.sentience.zoterosentience;
 
-import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -9,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -45,15 +43,16 @@ public class ItemViewer extends Fragment
     public void onDestroy()
     {
         super.onDestroy();
-        attachmentRenderer.onDestroy();
+        if(attachmentRenderer!=null)
+        {
+            attachmentRenderer.onDestroy();
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
-        DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
-
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_item_viewer, container, false);
         assert view != null;
@@ -142,7 +141,6 @@ public class ItemViewer extends Fragment
             inflater.inflate(R.layout.line, parent);
             topLine = false;
         }
-        int position = 0;
 
         for(Item child : item.getChildren())
         {
@@ -168,7 +166,6 @@ public class ItemViewer extends Fragment
                 parent.addView(view);
             }
             inflater.inflate(R.layout.line, parent);
-            position++;
         }
         return topLine;
     }

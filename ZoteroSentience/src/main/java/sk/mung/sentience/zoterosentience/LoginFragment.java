@@ -14,8 +14,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import org.scribe.exceptions.OAuthConnectionException;
-
 import sk.mung.sentience.zoterosentience.navigation.DrawerFragment;
 import sk.mung.zoteroapi.ZoteroOauth;
 
