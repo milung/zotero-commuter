@@ -59,6 +59,7 @@
     <string name="linked_file">Local file link</string>
     <string name="linked_url">Internet link</string>
     <string name="fallback_page">http://www.zotero.org</string>
+    <string name="add_node">Add New Note</string>
 
     <plurals name="number_of_items">
         <item quantity="zero">No items</item>

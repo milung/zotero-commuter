@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.view.MenuItem;
 
 public class SettingsActivity extends PreferenceActivity
 {
@@ -28,6 +29,15 @@ public class SettingsActivity extends PreferenceActivity
             {
                 actionBar.setDisplayHomeAsUpEnabled(true);
             }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId())
+        {
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import sk.mung.sentience.zoterosentience.NoteEditor;
 import sk.mung.sentience.zoterosentience.R;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.ItemField;
@@ -38,7 +39,7 @@ public class NoteRenderer
         Intent intent = new Intent();
 
         intent.setAction(Intent.ACTION_EDIT);
-        intent.putExtra(Intent.EXTRA_HTML_TEXT, child.getField(ItemField.NOTE).getValue());
+        intent.putExtra(NoteEditor.getTextIntent(), child.getField(ItemField.NOTE).getValue());
         intent.setType("text/html");
         editingChild = child;
         try
@@ -60,7 +61,6 @@ public class NoteRenderer
                         Toast.LENGTH_SHORT).show();
             }
         }
-
     }
 
     public NoteRenderer(Fragment fragment, ViewGroup parent)
@@ -86,7 +86,7 @@ public class NoteRenderer
     {
         if(REQUEST_EDIT_NOTE == requestCode && resultCode== Activity.RESULT_OK)
         {
-            String text = data.getStringExtra(Intent.EXTRA_HTML_TEXT);
+            String text = data.getStringExtra(NoteEditor.getTextIntent());
             if(text != null && editingChild != null)
             {
                 editingChild.getField(ItemField.NOTE).setValue(text);

@@ -1,5 +1,6 @@
 package sk.mung.sentience.zoterosentience;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -193,5 +194,15 @@ public class ItemPager extends Fragment
     {
         outState.putLong(ARG_COLLECTION_ID, collectionId);
         outState.putInt(ARG_CURRENT_POSITION,positionId);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        int index = (requestCode >> 16);
+        if(index > 0)
+        {
+            getChildFragmentManager().getFragments().get(index -1)
+                    .onActivityResult(requestCode & 0xFFFF,resultCode,data);
+        }
     }
 }

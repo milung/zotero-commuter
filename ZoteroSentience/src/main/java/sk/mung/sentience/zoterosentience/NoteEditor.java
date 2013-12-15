@@ -3,24 +3,34 @@ package sk.mung.sentience.zoterosentience;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
-import android.text.method.KeyListener;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
 public class NoteEditor extends FragmentActivity
 {
-    private KeyListener originalKeyListener;
-    private View.OnClickListener originalClickListener;
 
+    static final String textIntent;
+
+    public static String getTextIntent() { return textIntent;}
+
+    static
+    {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+        {
+            textIntent = Intent.EXTRA_HTML_TEXT;
+        }
+        else textIntent = Intent.EXTRA_TEXT;
+    }
     private interface SpanMatcher<T>
     {
         Class<T> getSpanType();
@@ -34,7 +44,7 @@ public class NoteEditor extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_editor);
         setupActionBar();
-        String text = getIntent().getStringExtra(Intent.EXTRA_HTML_TEXT);
+        String text = getIntent().getStringExtra(textIntent);
         final EditText editText = ((EditText)findViewById(R.id.editTextNote));
         editText.setText(Html.fromHtml(text));
     }
@@ -55,17 +65,21 @@ public class NoteEditor extends FragmentActivity
         return true;
     }
 
-    public void onSaveSelected( View button)
+
+
+    public void onSaveSelected( @SuppressWarnings("UnusedParameters") View button)
     {
         Intent intent = new Intent();
         EditText editText = ((EditText)findViewById(R.id.editTextNote));
-        intent.putExtra(Intent.EXTRA_HTML_TEXT, Html.toHtml(editText.getText()));
+        Editable text = editText.getText();
+        assert text != null;
+        intent.putExtra(textIntent, Html.toHtml(text));
         intent.setType("text/html");
         setResult(RESULT_OK, intent);
         finish();
     }
 
-    public void onBoldClicked( View button)
+    public void onBoldClicked( @SuppressWarnings("UnusedParameters") View button)
     {
         setFormatting(new SpanMatcher<StyleSpan>()
         {
@@ -89,7 +103,7 @@ public class NoteEditor extends FragmentActivity
         });
     }
 
-    public void onItalicClicked( View button)
+    public void onItalicClicked( @SuppressWarnings("UnusedParameters") View button)
     {
         setFormatting(new SpanMatcher<StyleSpan>()
         {
@@ -113,7 +127,7 @@ public class NoteEditor extends FragmentActivity
         });
     }
 
-    public void onUnderlineClicked( View button)
+    public void onUnderlineClicked( @SuppressWarnings("UnusedParameters") View button)
     {
         setFormatting(new SpanMatcher<UnderlineSpan>()
         {
@@ -137,7 +151,7 @@ public class NoteEditor extends FragmentActivity
         });
     }
 
-    public void onStrikeClicked( View button)
+    public void onStrikeClicked( @SuppressWarnings("UnusedParameters") View button)
     {
         setFormatting(new SpanMatcher<StrikethroughSpan>()
         {
@@ -164,7 +178,6 @@ public class NoteEditor extends FragmentActivity
     private <T> void setFormatting(SpanMatcher<T> matcher)
     {
         EditText editText = ((EditText)findViewById(R.id.editTextNote));
-        Spannable s = editText.getText();
         int selectionStart = editText.getSelectionStart();
         int selectionEnd = editText.getSelectionEnd();
 
@@ -178,7 +191,7 @@ public class NoteEditor extends FragmentActivity
         if (selectionEnd > selectionStart)
         {
             Spannable text = editText.getText();
-
+            assert text != null;
             T[] spans = text.getSpans(selectionStart, selectionEnd, matcher.getSpanType());
             boolean exists = false;
             for (T span : spans)

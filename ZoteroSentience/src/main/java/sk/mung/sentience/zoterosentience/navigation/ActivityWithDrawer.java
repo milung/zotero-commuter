@@ -1,5 +1,6 @@
 package sk.mung.sentience.zoterosentience.navigation;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -158,5 +159,11 @@ public abstract class ActivityWithDrawer extends ActionBarActivity
     {
         super.onPostCreate(savedInstanceState);
         drawerToggle.syncState();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+       currentFragment.onActivityResult(requestCode,resultCode,data);
     }
 }
