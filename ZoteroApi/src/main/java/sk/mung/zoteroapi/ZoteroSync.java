@@ -111,7 +111,12 @@ public class ZoteroSync
 
     private void uploadUpdatedItems()
     {
-        List<Item> items =  storage.findItemsBySynced(SyncStatus.SYNC_LOCALLY_UPDATED);
+        uploadItems(SyncStatus.SYNC_LOCALLY_UPDATED);
+    }
+
+    private void uploadItems(SyncStatus status)
+    {
+        List<Item> items =  storage.findItemsBySynced(status);
         zotero.updateItems(items, storage.getItemsVersion());
         storage.setItemsVersion(zotero.getLastModifiedVersion());
     }

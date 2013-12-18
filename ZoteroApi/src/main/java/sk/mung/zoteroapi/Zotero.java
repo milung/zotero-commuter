@@ -192,69 +192,7 @@ public class Zotero
         {
             ZoteroRestful.Response response = restful.uploadEntities(
                     multiUploadToJson(items), ITEMS, sinceVersion);
-            int version = getLastModifiedVersion();
-            if(response.StatusCode == HttpStatus.SC_OK)
-            {
-
-                JsonNode root =  mapper.readValue(response.ResponseString, JsonNode.class);
-                JsonNode success = root.get("success");
-                if(success != null)
-                {
-                    Iterator<Map.Entry<String,JsonNode>> elements = success.fields();
-                    while( elements.hasNext() )
-                    {
-                        Map.Entry<String,JsonNode> el = elements.next();
-                        int ix = Integer.valueOf(el.getKey());
-                        status[ix] = UploadStatus.SUCCESS;
-                        Item item = items.get(ix);
-                        item.setKey(el.getValue().asText());
-                        item.setSynced(SyncStatus.SYNC_OK);
-                        item.setVersion(version);
-                    }
-                }
-                JsonNode unchanged = root.get("unchanged");
-                if(unchanged != null)
-                {
-                    Iterator<Map.Entry<String,JsonNode>> elements = unchanged.fields();
-                    while( elements.hasNext() )
-                    {
-                        Map.Entry<String,JsonNode> el = elements.next();
-                        int ix = Integer.valueOf(el.getKey());
-                        status[ix] = UploadStatus.SUCCESS;
-                        Item item = items.get(ix);
-                        item.setSynced(SyncStatus.SYNC_OK);
-                        item.setVersion(version);
-                    }
-                }
-
-                JsonNode failed = root.get("failed");
-                if(unchanged != null)
-                {
-                    Iterator<Map.Entry<String,JsonNode>> elements = failed.fields();
-                    while( elements.hasNext() )
-                    {
-                        Map.Entry<String,JsonNode> el = elements.next();
-                        int ix = Integer.valueOf(el.getKey());
-                        JsonNode failure = el.getValue();
-                        Item item = items.get(ix);
-                        switch( failure.get("code").asInt())
-                        {
-                            case HttpStatus.SC_OK:
-                                status[ix] = UploadStatus.SUCCESS;
-                                item.setSynced(SyncStatus.SYNC_OK);
-                                item.setVersion(version);
-                                break;
-                            case HttpStatus.SC_PRECONDITION_FAILED:
-                                status[ix] = UploadStatus.UPDATE_CONFLICTS;
-                                item.setSynced(SyncStatus.SYNC_CONFLICT);
-                                break;
-                            default:
-                                status[ix] = UploadStatus.NETWORK_ERROR;
-                                break;
-                        }
-                    }
-                }
-            }
+            processUploadStatus(items, status, response);
         }
         catch (JsonProcessingException e)
         {
@@ -290,5 +228,69 @@ public class Zotero
         return writer.getBuffer().toString();
     }
 
+    private void processUploadStatus(List<Item> items, UploadStatus[] status, ZoteroRestful.Response response) throws IOException {
+        int version = getLastModifiedVersion();
+        if(response.StatusCode == HttpStatus.SC_OK)
+        {
 
+            JsonNode root =  mapper.readValue(response.ResponseString, JsonNode.class);
+            JsonNode success = root.get("success");
+            if(success != null)
+            {
+                Iterator<Map.Entry<String,JsonNode>> elements = success.fields();
+                while( elements.hasNext() )
+                {
+                    Map.Entry<String,JsonNode> el = elements.next();
+                    int ix = Integer.valueOf(el.getKey());
+                    status[ix] = UploadStatus.SUCCESS;
+                    Item item = items.get(ix);
+                    item.setKey(el.getValue().asText());
+                    item.setSynced(SyncStatus.SYNC_OK);
+                    item.setVersion(version);
+                }
+            }
+            JsonNode unchanged = root.get("unchanged");
+            if(unchanged != null)
+            {
+                Iterator<Map.Entry<String,JsonNode>> elements = unchanged.fields();
+                while( elements.hasNext() )
+                {
+                    Map.Entry<String,JsonNode> el = elements.next();
+                    int ix = Integer.valueOf(el.getKey());
+                    status[ix] = UploadStatus.SUCCESS;
+                    Item item = items.get(ix);
+                    item.setSynced(SyncStatus.SYNC_OK);
+                    item.setVersion(version);
+                }
+            }
+
+            JsonNode failed = root.get("failed");
+            if(unchanged != null)
+            {
+                Iterator<Map.Entry<String,JsonNode>> elements = failed.fields();
+                while( elements.hasNext() )
+                {
+                    Map.Entry<String,JsonNode> el = elements.next();
+                    int ix = Integer.valueOf(el.getKey());
+                    JsonNode failure = el.getValue();
+                    Item item = items.get(ix);
+                    switch( failure.get("code").asInt())
+                    {
+                        case HttpStatus.SC_OK:
+                            status[ix] = UploadStatus.SUCCESS;
+                            item.setSynced(SyncStatus.SYNC_OK);
+                            item.setVersion(version);
+                            break;
+                        case HttpStatus.SC_PRECONDITION_FAILED:
+                            status[ix] = UploadStatus.UPDATE_CONFLICTS;
+                            item.setSynced(SyncStatus.SYNC_CONFLICT);
+                            break;
+                        default:
+                            status[ix] = UploadStatus.NETWORK_ERROR;
+                            break;
+                    }
+                }
+            }
+        }
+    }
 }

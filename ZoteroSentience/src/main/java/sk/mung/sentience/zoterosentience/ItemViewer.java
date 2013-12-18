@@ -47,16 +47,18 @@ public class ItemViewer extends Fragment
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // handle item selection
-        switch (item.getItemId()) {
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        // handle menuItem selection
+        switch (menuItem.getItemId()) {
             case R.id.add_note:
-                // do s.th.
+                noteRenderer.createNewNote();
                 return true;
             default:
-                return super.onOptionsItemSelected(item);
+                return super.onOptionsItemSelected(menuItem);
         }
     }
+
+
 
 
     @Override
@@ -88,7 +90,7 @@ public class ItemViewer extends Fragment
 
         ViewGroup parent = (ViewGroup) view.findViewById(R.id.itemsGroup);
         attachmentRenderer = new AttachmentRenderer(getActivity(), itemRenderer,parent);
-        noteRenderer = new NoteRenderer(this, parent);
+        noteRenderer = new NoteRenderer(this, parent, item);
         return view;
     }
 

@@ -60,6 +60,7 @@
     <string name="linked_url">Internet link</string>
     <string name="fallback_page">http://www.zotero.org</string>
     <string name="add_node">Add New Note</string>
+    <string name="new_note_content"></string>
 
     <plurals name="number_of_items">
         <item quantity="zero">No items</item>

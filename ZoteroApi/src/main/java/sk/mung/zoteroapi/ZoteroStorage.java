@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import sk.mung.zoteroapi.entities.CollectionEntity;
+import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.SyncStatus;
 
@@ -22,6 +23,7 @@ public interface ZoteroStorage
 
     void updateCollections(@NotNull Iterable<CollectionEntity> collections);
     void updateItems(@NotNull Iterable<Item> items);
+    void updateItem(@NotNull Item item);
 
     void deleteCollections(@NotNull Iterable<String> collections);
     void deleteItems(@NotNull Iterable<String> items);
@@ -29,4 +31,11 @@ public interface ZoteroStorage
 
     List<Item> findItemsBySynced(@NotNull SyncStatus syncStatus);
     Item findItemByKey(@NotNull String key);
+
+    Item createItem();
+
+    Field createField();
+
+    /// called after syncing to ensure local caches are reloaded
+    void clearCaches();
 }

@@ -11,15 +11,22 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import sk.mung.sentience.zoterosentience.GlobalState;
 import sk.mung.sentience.zoterosentience.NoteEditor;
 import sk.mung.sentience.zoterosentience.R;
+import sk.mung.zoteroapi.ZoteroStorage;
+import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.ItemField;
+import sk.mung.zoteroapi.entities.ItemType;
+import sk.mung.zoteroapi.entities.SyncStatus;
 
 public class NoteRenderer
 {
     private static final int REQUEST_EDIT_NOTE = 1;
+    public static final int REQUEST_CREATE_NOTE = 2;
 
+    private final Item item;
     private Item editingChild = null;
     private final Fragment context;
     private final ViewGroup parent;
@@ -30,11 +37,26 @@ public class NoteRenderer
         @Override
         public void onClick(View view) {
             Item child = (Item) view.getTag(R.id.item_tag);
-            editNote(child);
+            editNote(child, REQUEST_EDIT_NOTE);
         }
     };
 
-    private void editNote(Item child)
+
+    public void createNewNote() {
+        ZoteroStorage storage = ((GlobalState)context.getActivity().getApplication()).getStorage();
+        Item note = storage.createItem();
+        note.setKey("");
+        note.setItemType(ItemType.NOTE);
+        note.setParentKey(item.getKey());
+        note.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
+        Field field = storage.createField();
+        field.setType(ItemField.NOTE);
+        field.setValue(context.getActivity().getString(R.string.new_note_content));
+        note.addField(field);
+        editNote(note, NoteRenderer.REQUEST_CREATE_NOTE);
+    }
+
+    private void editNote(Item child, int requestCode)
     {
         Intent intent = new Intent();
 
@@ -44,7 +66,7 @@ public class NoteRenderer
         editingChild = child;
         try
         {
-            context.startActivityForResult(intent, REQUEST_EDIT_NOTE);
+            context.startActivityForResult(intent, requestCode);
         }
         catch (ActivityNotFoundException ex)
         {
@@ -63,11 +85,12 @@ public class NoteRenderer
         }
     }
 
-    public NoteRenderer(Fragment fragment, ViewGroup parent)
+    public NoteRenderer(Fragment fragment, ViewGroup parent, Item item)
     {
         this.context = fragment;
         this.parent = parent;
         this.inflater = fragment.getActivity().getLayoutInflater();
+        this.item = item;
     }
 
     public void createView(Item noteItem)
@@ -91,6 +114,19 @@ public class NoteRenderer
             {
                 editingChild.getField(ItemField.NOTE).setValue(text);
             }
+        }
+        if(requestCode == REQUEST_CREATE_NOTE && resultCode== Activity.RESULT_OK)
+        {
+            String text = data.getStringExtra(NoteEditor.getTextIntent());
+            if(text != null && editingChild != null)
+            {
+                editingChild.getField(ItemField.NOTE).setValue(text);
+            }
+
+            item.addChild(editingChild);
+            ((GlobalState)context.getActivity().getApplication())
+                    .getStorage()
+                    .updateItem(editingChild);
         }
     }
 }
