@@ -150,7 +150,11 @@ public class ItemParser extends AbstractAtomParser<Item>
         generator.writeStartObject(); // item
         {
             generator.writeStringField("itemType", item.getItemType().getZoteroName());
-            generator.writeStringField("itemKey", item.getKey());
+            String key = item.getKey();
+            if(! (key == null || key.isEmpty()))
+            {
+                generator.writeStringField("itemKey", key);
+            }
             if(item.getParentKey()!=null)
             {
                 generator.writeStringField("parentItem", item.getParentKey());

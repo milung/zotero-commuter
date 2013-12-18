@@ -17,7 +17,7 @@ import sk.mung.zoteroapi.entities.Relation;
 import sk.mung.zoteroapi.entities.SyncStatus;
 import sk.mung.zoteroapi.entities.Tag;
 
-public class ItemsDao extends BaseKeyDao<Item>
+public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
 {
     private static final String COLUMN_PARENT = "parent";
     static final String COLUMN_ITEM = "item";
@@ -295,4 +295,15 @@ public class ItemsDao extends BaseKeyDao<Item>
         }
     }
 
+    @Override
+    public void onCollectionsUpdated() {}
+
+    @Override
+    public void onItemsUpdated()
+    {
+        clearCaches();
+    }
+
+    @Override
+    public void onTagsUpdated() {}
 }

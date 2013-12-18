@@ -5,23 +5,47 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
 import sk.mung.zoteroapi.ZoteroStorage;
 import sk.mung.zoteroapi.entities.CollectionEntity;
+import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.SyncStatus;
 
 public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
 {
-    public Item findItemByKey(String key)
+    public Item findItemByKey(@NotNull String key)
     {
         return itemsDao.findByKey(key);
     }
 
-    public List<Item> findItemsBySynced(SyncStatus syncStatus)
+    @Override
+    public Item createItem() {
+        return itemsDao.createEntity();
+    }
+
+    @Override
+    public Field createField() {
+        return fieldsDao.createEntity();
+    }
+
+    @Override
+    public void clearCaches()
+    {
+        for( ZoteroStorageListener listener : listeners )
+        {
+            listener.onCollectionsUpdated();
+            listener.onItemsUpdated();
+            listener.onTagsUpdated();
+        }
+    }
+
+    public List<Item> findItemsBySynced(@NotNull SyncStatus syncStatus)
     {
         return itemsDao.findBySynced(syncStatus);
     }
@@ -40,7 +64,6 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
     {
         private final SQLiteOpenHelper sqlite;
 
-        private WeakReference<SQLiteDatabase> readableDatabase = new WeakReference<SQLiteDatabase>(null);
         private WeakReference<SQLiteDatabase> writableDatabase = new WeakReference<SQLiteDatabase>(null);
 
         DatabaseConnection(SQLiteOpenHelper sqlite)
@@ -70,7 +93,6 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         }
     }
 
-    private final DatabaseConnection connection = new DatabaseConnection(this);
 	private static final String VERSION_COLLECTIONS = "collections";
 	private static final String VERSION_DELETIONS = "deletions";
 
@@ -79,6 +101,7 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
     public static final String VERSION_ITEMS = "items";
 
     private List<ZoteroStorageListener> listeners = new ArrayList<ZoteroStorageListener>();
+    private final DatabaseConnection connection = new DatabaseConnection(this);
     private final CollectionsDao collectionsDao;
     private final ItemsDao itemsDao;
     private final VersionsDao versionsDao;
@@ -88,16 +111,13 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
     private final FieldsDao fieldsDao;
     private final RelationsDao relationsDao;
 
-    public static ZoteroCollection getEmptyLibrary()
-    {
-        return CollectionsDao.getEmptyLibrary();
-    }
 
     public void addListener(ZoteroStorageListener listener)
     {
         listeners.add(listener);
     }
     
+    @SuppressWarnings("UnusedDeclaration")
     public void removeListener(ZoteroStorageListener listener)
     {
         listeners.remove(listener);
@@ -106,7 +126,6 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
     public ZoteroStorageImpl(Context context, QueryDictionary queries)
     {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-
         this.versionsDao = new VersionsDao(connection,queries);
 
         this.personsDao = new PersonsDao(connection, queries);
@@ -116,6 +135,8 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         this.relationsDao = new RelationsDao(connection, queries);
         this.itemsDao = new ItemsDao(connection,queries, creatorsDao, tagsDao, fieldsDao, relationsDao);
         this.collectionsDao = new CollectionsDao(connection,queries, itemsDao);
+
+        addListener(this.itemsDao);
     }
 
     @Override
@@ -163,7 +184,7 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         versionsDao.setVersion(VERSION_COLLECTIONS, version);
     }
 
-    public void updateCollections(Iterable<CollectionEntity> collections)
+    public void updateCollections(@NotNull Iterable<CollectionEntity> collections)
     {
         SQLiteDatabase database = getWritableDatabase();
         assert database != null;
@@ -206,7 +227,7 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         versionsDao.setVersion( VERSION_DELETIONS, version);
 	}
 
-	public void deleteCollections(Iterable<String> keys)
+	public void deleteCollections(@NotNull Iterable<String> keys)
     {
         collectionsDao.deleteForKeys(keys);
 
@@ -216,7 +237,7 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         }
 	}
 
-    public void deleteItems(Iterable<String> keys)
+    public void deleteItems(@NotNull Iterable<String> keys)
     {
         itemsDao.deleteForKeys(keys);
 
@@ -226,7 +247,7 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         }
     }
 
-    public void deleteTags(Iterable<String> tags)
+    public void deleteTags(@NotNull Iterable<String> tags)
     {
         for( String tag : tags)
         {
@@ -239,29 +260,44 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         }
     }
 
-	public void updateItems(Iterable<Item> items)
+    public void updateItem(@NotNull Item item)
+    {
+        updateItemInternal(item);
+        for( ZoteroStorageListener listener : listeners )
+        {
+            listener.onItemsUpdated();
+        }
+    }
+
+    private void updateItemInternal(Item item) {
+        for(CollectionEntity col : item.getCollections())
+        {
+            collectionsDao.refresh(col);
+        }
+
+        SQLiteDatabase database = getWritableDatabase();
+        assert database != null;
+        database.beginTransaction();
+
+        try
+        {
+            itemsDao.upsert(item);
+            database.setTransactionSuccessful();
+        }
+        finally
+        {
+            database.endTransaction();
+        }
+    }
+
+    public void updateItems(@NotNull Iterable<Item> items)
 	{
 		SQLiteDatabase database = getWritableDatabase();
         assert database != null;
 
 		for(Item item : items)
 		{
-            for(CollectionEntity col : item.getCollections())
-            {
-                collectionsDao.refresh(col);
-            }
-
-            database.beginTransaction();
-
-            try
-            {
-                itemsDao.upsert(item);
-                database.setTransactionSuccessful();
-            }
-            finally
-            {
-                database.endTransaction();
-            }
+            updateItemInternal(item);
         }
 
         for( ZoteroStorageListener listener : listeners )
