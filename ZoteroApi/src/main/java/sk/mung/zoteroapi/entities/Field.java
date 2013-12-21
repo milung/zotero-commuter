@@ -19,6 +19,11 @@ public class Field implements Entity
         field.setValue(value);
         return field;
     }
+
+    public Field clone()
+    {
+        return create(type, value);
+    }
     public long getId()
     {
         return id;

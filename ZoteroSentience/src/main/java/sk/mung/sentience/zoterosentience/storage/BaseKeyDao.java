@@ -55,7 +55,6 @@ abstract class BaseKeyDao<T extends KeyEntity> extends BaseDao<T>
         }
     }
 
-
     public void deleteForKeys( Iterable<String> keys) {
         SQLiteDatabase database = getWritableDatabase();
         for( String key : keys)
@@ -118,7 +117,8 @@ abstract class BaseKeyDao<T extends KeyEntity> extends BaseDao<T>
         SQLiteDatabase database = getWritableDatabase();
         T storedVersion = findByKey(entity.getKey());
 
-        if(storedVersion != null && storedVersion.getSynced() != SyncStatus.SYNC_OK)
+        if(storedVersion != null && storedVersion.getSynced() != SyncStatus.SYNC_OK
+                && entity.getVersion() != storedVersion.getVersion())
         {
             SyncStatus newStatus = SyncStatus.SYNC_CONFLICT;
             if(storedVersion.getSynced() == SyncStatus.SYNC_DELETED)
@@ -137,6 +137,7 @@ abstract class BaseKeyDao<T extends KeyEntity> extends BaseDao<T>
                     statusValues,
                     COLUMN_ID + QUESTION_MARK,
                     new String[]{Long.toString(storedVersion.getId())});
+            return storedVersion.getId();
         }
         ContentValues values = entityToValues(entity);
         long rowId;
@@ -154,9 +155,9 @@ abstract class BaseKeyDao<T extends KeyEntity> extends BaseDao<T>
         return rowId;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     protected final long keyToId( String key)
     {
-
         SQLiteDatabase database = getReadableDatabase();
         Cursor cursor
                 = database.query(getTable(),new String[]{COLUMN_ID},COLUMN_KEY+QUESTION_MARK,new String[]{key},null,null,null);

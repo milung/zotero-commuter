@@ -107,6 +107,22 @@ public class ZoteroSync
         } while( collectionsVersion != deletionsVersion);
         uploadUpdatedItems();
         uploadAttachments();
+        updateLocalItemsDeletions();
+
+    }
+
+    private void updateLocalItemsDeletions()
+    {
+        List<Item> items =  storage.findItemsBySynced(SyncStatus.SYNC_DELETED);
+        List<UploadStatus> statuses = zotero.deleteItems(items, storage.getItemsVersion());
+        for(int ix = 0; ix < statuses.size(); ix++)
+        {
+            if(statuses.get(ix) == UploadStatus.SUCCESS)
+            {
+                storage.deleteItem(items.get(ix));
+            }
+        }
+        storage.setItemsVersion(zotero.getLastModifiedVersion());
     }
 
     private void uploadUpdatedItems()

@@ -23,6 +23,7 @@ import java.util.Map;
 
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.KeyEntity;
 import sk.mung.zoteroapi.entities.SyncStatus;
 import sk.mung.zoteroapi.parsers.AbstractAtomParser;
 import sk.mung.zoteroapi.parsers.CollectionParser;
@@ -31,8 +32,9 @@ import sk.mung.zoteroapi.parsers.ItemParser;
 public class Zotero
 {    
     private static final String ITEMS = "items";
-
+    private static final String ITEM_KEY = "itemKey";
 	private static final String COLLECTIONS = "collections";
+    private static final String COLLECTION_KEY = "collectionKey";
 
 	private static final int CHUNK_SIZE = 50;
     
@@ -86,7 +88,7 @@ public class Zotero
             throws IOException, XmlPullParserException
     {   	
         return loadEntities(
-        		COLLECTIONS, versions, startPosition, endPosition, new CollectionParser());
+        		COLLECTIONS, COLLECTION_KEY, versions, startPosition, endPosition, new CollectionParser());
     }
 
     public List<Item> getItems(
@@ -94,11 +96,11 @@ public class Zotero
             throws IOException, XmlPullParserException
     {
         return loadEntities(
-                ITEMS, versions, startPosition, endPosition, new ItemParser());
+                ITEMS, ITEM_KEY, versions, startPosition, endPosition, new ItemParser());
     }
 
 	private <T> List<T> loadEntities(
-			String section,
+			String section,String sectionKey,
 			Collection<String> versions, int startPosition, int endPosition,
 			AbstractAtomParser<T> parser)
             throws IOException, XmlPullParserException
@@ -124,7 +126,7 @@ public class Zotero
             		new String[][] {
 	                    {"format","atom"},
 	                    {"content","json"},
-	                    {"itemKey",builder.toString()}},
+	                    {sectionKey,builder.toString()}},
             		0);            
             entities.addAll( parser.parse(response.ResponseString));            
         }        
@@ -292,5 +294,55 @@ public class Zotero
                 }
             }
         }
+    }
+
+    public List<UploadStatus> deleteItems(List<Item> items, int sinceVersion)
+    {
+        if(items.size() == 0)
+        {
+            return new ArrayList<UploadStatus>(0);
+        }
+
+
+        try
+        {
+            return deleteEntities(ITEMS, ITEM_KEY, items, sinceVersion);
+        }
+        catch (JsonProcessingException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        UploadStatus status[] = new UploadStatus[items.size()];
+        Arrays.fill(status,UploadStatus.NETWORK_ERROR);
+        return Arrays.asList(status);
+    }
+
+    private <T extends KeyEntity> List<UploadStatus> deleteEntities(
+            String section, String sectionKey,List<T> entities,
+            int sinceVersion)
+            throws IOException
+    {
+
+        UploadStatus status[] = new UploadStatus[entities.size()];
+        Arrays.fill(status,UploadStatus.NETWORK_ERROR);
+        int ix = 0;
+
+        for( T entity : entities)
+        {
+
+            ZoteroRestful.Response response = restful.deleteEntities(
+                    entity.getKey(), section, sectionKey, sinceVersion);
+
+            if(response.StatusCode == HttpStatus.SC_NO_CONTENT)
+            {
+                status[ix] = UploadStatus.SUCCESS;
+            }
+            ix++;
+        }
+        return Arrays.asList(status);
     }
 }

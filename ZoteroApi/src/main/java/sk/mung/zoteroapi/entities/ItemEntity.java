@@ -1,5 +1,7 @@
 package sk.mung.zoteroapi.entities;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +34,46 @@ public class ItemEntity implements Item
     public void setId(long id)
     {
         this.id = id;
+    }
+
+    @NotNull
+    @Override
+    public Item createCopy() {
+        ItemEntity clone = new ItemEntity();
+        clone.copyState(this);
+        return clone;
+    }
+
+    public void copyState(Item template)
+    {
+        //createCopy.id = template.getId(); - commented out by purpose, no identical copy, just state copy
+        title = template.getTitle();
+        version = template.getVersion();
+        itemType = template.getItemType();
+        synced = template.getSynced();
+        key = template.getKey();
+        parentKey = template.getParentKey();
+
+        fields.clear();
+        for(Field field : template.getFields())
+        {
+            Field cloneField = field.clone();
+            cloneField.setItem(this);
+            fields.add(cloneField);
+        }
+
+        creators.clear();
+        creators.addAll(template.getCreators());
+
+        collections.clear();
+        collections.addAll(template.getCollections());
+
+        tags.clear();
+        tags.addAll(template.getTags());
+
+        relations.clear();
+        relations.addAll(relations);
+
     }
 
     @Override
@@ -109,6 +151,7 @@ public class ItemEntity implements Item
 
     @Override public List<Item> getChildren() { return Collections.unmodifiableList(children); }
     @Override public void addChild(Item item) { children.add(item); }
+    @Override public void removeChild(Item item) { children.remove(item); }
     @Override public void clearChildren() { children.clear(); }
 
     @Override

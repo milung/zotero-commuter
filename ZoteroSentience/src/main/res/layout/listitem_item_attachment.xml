@@ -44,6 +44,8 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="Status"
                 android:id="@+id/textViewStatus"
+
+            android:textColor="@color/abc_search_url_text_holo"
                 android:layout_gravity="left|center_vertical"/>
 
 

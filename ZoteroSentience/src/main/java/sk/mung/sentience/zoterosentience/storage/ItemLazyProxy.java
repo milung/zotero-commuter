@@ -2,6 +2,8 @@ package sk.mung.sentience.zoterosentience.storage;
 
 import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 import sk.mung.zoteroapi.entities.CollectionEntity;
@@ -33,6 +35,20 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
         this.fieldsDao = fieldsDao;
         this.tagsDao = tagsDao;
         itemsDao.addUpdateListener(this);
+    }
+
+    @NotNull
+    @Override
+    public Item createCopy()
+    {
+        Item adaptee = getAdaptee().createCopy();
+        return new ItemLazyProxy(adaptee, creatorsDao, getItemsDao(),fieldsDao, tagsDao);
+    }
+
+    @Override
+    public void copyState(Item template)
+    {
+        getAdaptee().copyState(template);
     }
 
     @Override
@@ -164,6 +180,13 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     {
         loadChildren();
         getAdaptee().addChild(item);
+    }
+
+    @Override
+    public void removeChild(Item item)
+    {
+        loadChildren();
+        getAdaptee().removeChild(item);
     }
 
     @Override

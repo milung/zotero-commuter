@@ -3,6 +3,7 @@ package sk.mung.sentience.zoterosentience.renderers;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -14,6 +15,8 @@ import android.widget.Toast;
 import sk.mung.sentience.zoterosentience.GlobalState;
 import sk.mung.sentience.zoterosentience.NoteEditor;
 import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterosentience.storage.ItemsDao;
+import sk.mung.sentience.zoterosentience.storage.ZoteroStorageImpl;
 import sk.mung.zoteroapi.ZoteroStorage;
 import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
@@ -31,6 +34,7 @@ public class NoteRenderer
     private final Fragment context;
     private final ViewGroup parent;
     private final LayoutInflater inflater;
+    private final ItemConflictFragment.Callback callback;
 
     private View.OnClickListener editListener = new View.OnClickListener() {
 
@@ -41,6 +45,17 @@ public class NoteRenderer
         }
     };
 
+    private View.OnLongClickListener resolutionListener = new View.OnLongClickListener()
+    {
+        @Override
+        public boolean onLongClick(View view) {
+            Item target = (Item) view.getTag(R.id.item_tag);
+            DialogFragment dialog
+                    = new ItemConflictFragment(target, view, callback);
+            dialog.show(context.getChildFragmentManager(),"conflict_dialog");
+            return true;
+        }
+    };
 
     public void createNewNote() {
         ZoteroStorage storage = ((GlobalState)context.getActivity().getApplication()).getStorage();
@@ -85,12 +100,13 @@ public class NoteRenderer
         }
     }
 
-    public NoteRenderer(Fragment fragment, ViewGroup parent, Item item)
+    public NoteRenderer(Fragment fragment, ViewGroup parent, Item item, ItemConflictFragment.Callback callback)
     {
         this.context = fragment;
         this.parent = parent;
         this.inflater = fragment.getActivity().getLayoutInflater();
         this.item = item;
+        this.callback = callback;
     }
 
     public void createView(Item noteItem)
@@ -101,17 +117,43 @@ public class NoteRenderer
         noteView.setText(Html.fromHtml(noteItem.getField(ItemField.NOTE).getValue()));
         view.setTag(R.id.item_tag, noteItem);
         view.setOnClickListener(editListener);
+        view.setOnLongClickListener(resolutionListener);
+
+        EditStatus status = getEditStatus(noteItem);
+        String statusText = context.getResources().getString(status.getResourceId());
+        TextView statusView = (TextView) view.findViewById(R.id.textViewStatus);
+        statusView.setText(statusText);
         view.setBackgroundResource(R.drawable.selector);
         parent.addView(view);
     }
 
+    private EditStatus getEditStatus(Item noteItem)
+    {
+        switch(noteItem.getSynced())
+        {
+            case SYNC_OK: return EditStatus.SYNCED;
+            case SYNC_CONFLICT: return EditStatus.CONFLICT;
+            case SYNC_LOCALLY_UPDATED: return EditStatus.LOCAL_UPDATE;
+            default: return EditStatus.SYNCED;
+        }
+    }
+
     public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
+        ZoteroStorageImpl storage = ((GlobalState) context.getActivity().getApplication())
+                .getStorage();
         if(REQUEST_EDIT_NOTE == requestCode && resultCode== Activity.RESULT_OK)
         {
             String text = data.getStringExtra(NoteEditor.getTextIntent());
             if(text != null && editingChild != null)
             {
+                if(editingChild.getSynced() == SyncStatus.SYNC_OK)
+                {
+                    Item remoteVersion = editingChild.createCopy();
+                    remoteVersion.setKey(ItemsDao.CONFLICTED_KEY_PREFIX + item.getKey());
+                    remoteVersion.setSynced(SyncStatus.SYNC_REMOTE_VERSION);
+                    editingChild.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
+                }
                 editingChild.getField(ItemField.NOTE).setValue(text);
             }
         }
@@ -124,9 +166,7 @@ public class NoteRenderer
             }
 
             item.addChild(editingChild);
-            ((GlobalState)context.getActivity().getApplication())
-                    .getStorage()
-                    .updateItem(editingChild);
+            storage.updateItem(editingChild);
         }
     }
 }

@@ -60,6 +60,52 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         return itemsDao.cursorToEntity(cursor);
     }
 
+    public void removeLocalVersion(Item item)
+    {
+        if(item.getSynced() == SyncStatus.SYNC_CONFLICT || item.getSynced() == SyncStatus.SYNC_LOCALLY_UPDATED)
+        {
+            Item remoteVersion = itemsDao.findByKey(ItemsDao.CONFLICTED_KEY_PREFIX + item.getKey());
+            if(remoteVersion != null)
+            {
+                item.copyState(remoteVersion);
+                item.setSynced(SyncStatus.SYNC_OK);
+                itemsDao.delete(remoteVersion);
+                itemsDao.upsert(item);
+            }
+            else item.setSynced(SyncStatus.SYNC_OK);
+        }
+
+
+    }
+
+    public void replaceRemoteVersion(Item item)
+    {
+        if(item.getSynced() == SyncStatus.SYNC_CONFLICT )
+        {
+            Item remoteVersion = itemsDao.findByKey(ItemsDao.CONFLICTED_KEY_PREFIX + item.getKey());
+            if(remoteVersion != null)
+            {
+                item.setVersion(remoteVersion.getVersion());
+                item.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
+                itemsDao.upsert(item);
+            }
+        }
+    }
+
+    public void markAsDeleted(Item item)
+    {
+        item.setSynced(SyncStatus.SYNC_DELETED);
+        Item parent = itemsDao.findByKey(item.getParentKey());
+        if(parent != null)
+        {
+            parent.removeChild(item);
+        }
+        for( ZoteroStorageListener listener : listeners )
+        {
+            listener.onItemsUpdated();
+        }
+    }
+
     class DatabaseConnection
     {
         private final SQLiteOpenHelper sqlite;
@@ -236,6 +282,16 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
             listener.onCollectionsUpdated();
         }
 	}
+
+    public void deleteItem(@NotNull Item item)
+    {
+        itemsDao.delete(item);
+
+        for( ZoteroStorageListener listener : listeners )
+        {
+            listener.onItemsUpdated();
+        }
+    }
 
     public void deleteItems(@NotNull Iterable<String> keys)
     {
