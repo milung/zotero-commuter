@@ -26,6 +26,13 @@ public abstract class BaseDao<T extends Entity>
                 new String[] { Long.toString(entity.getId())});
     }
 
+    public void delete( T entity) {
+        SQLiteDatabase database = getWritableDatabase();
+
+            database.delete(
+                    getTable(), COLUMN_ID + "=?", new String[]{ Long.toString(entity.getId()) });
+    }
+
     interface UpdateListener
     {
         void onDataUpdated(BaseDao sender, Long entityId);
@@ -51,6 +58,7 @@ public abstract class BaseDao<T extends Entity>
         listeners.add(new WeakReference<UpdateListener>(listener));
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public synchronized void removeUpdateListener(UpdateListener listener)
     {
         List<WeakReference<UpdateListener>> remainingListeners
@@ -113,6 +121,8 @@ public abstract class BaseDao<T extends Entity>
 
     protected abstract String[] getSelectColumns();
 
+
+    @SuppressWarnings("UnusedDeclaration")
     protected final String expandSelectColumns()
     {
         StringBuilder builder = new StringBuilder();
@@ -159,6 +169,7 @@ public abstract class BaseDao<T extends Entity>
         return null;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     private T cacheEntity(T entity)
     {
         T cached = getFromCache(entity.getId());

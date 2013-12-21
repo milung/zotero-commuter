@@ -20,4 +20,9 @@
         <item>Remove local version</item>
         <item>Replace remote version</item>
     </string-array>
+    <string-array name="item_resolution_options">
+        <item>Delete</item>
+        <item>Reset to remote version</item>
+        <item>Replace remote version</item>
+    </string-array>
 </resources>

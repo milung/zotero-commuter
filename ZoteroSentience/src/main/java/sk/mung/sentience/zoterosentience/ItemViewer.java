@@ -18,6 +18,7 @@ import java.util.List;
 
 import sk.mung.sentience.zoterosentience.renderers.AttachmentRenderer;
 import sk.mung.sentience.zoterosentience.renderers.FieldRenderer;
+import sk.mung.sentience.zoterosentience.renderers.ItemConflictFragment;
 import sk.mung.sentience.zoterosentience.renderers.ItemRenderer;
 import sk.mung.sentience.zoterosentience.renderers.NoteRenderer;
 import sk.mung.zoteroapi.entities.Field;
@@ -90,7 +91,14 @@ public class ItemViewer extends Fragment
 
         ViewGroup parent = (ViewGroup) view.findViewById(R.id.itemsGroup);
         attachmentRenderer = new AttachmentRenderer(getActivity(), itemRenderer,parent);
-        noteRenderer = new NoteRenderer(this, parent, item);
+        noteRenderer = new NoteRenderer(this, parent, item, new  ItemConflictFragment.Callback()
+        {
+            @Override
+            public void itemStatusChanged(Item target, View view)
+            {
+                displayItems();
+            }
+        });
         return view;
     }
 

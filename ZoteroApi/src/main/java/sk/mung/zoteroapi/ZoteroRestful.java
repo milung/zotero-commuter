@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -351,7 +353,11 @@ public class ZoteroRestful {
         response.getStatusLine();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        response.getEntity().writeTo(out);
+        HttpEntity entity = response.getEntity();
+        if(entity != null)
+        {
+            response.getEntity().writeTo(out);
+        }
 
         out.close();
         return  new Response(response.getStatusLine().getStatusCode(), out.toString());
@@ -408,6 +414,34 @@ public class ZoteroRestful {
             HttpResponse response = httpclient.execute(request);
             storeLastModifiedVersion(response, sinceVersion);
             return decodeResponse(response);
+
+    }
+    public Response deleteEntities(String keys, String entity, String entityKey, int sinceVersion)
+            throws IOException
+    {
+        URI uri;
+        try
+        {
+            uri = new URIBuilder(API_BASE + getCurrentUserUriPrefix()
+                    + "/" + entity)
+                    .addParameter(entityKey,keys)
+                    .addParameter("key", accessToken)
+                    .build();
+        } catch (URISyntaxException e)
+        {
+            throw new RuntimeException(e);
+        }
+
+        HttpDelete request = new HttpDelete(uri);
+        request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
+        request.addHeader(IF_UNMODIFIED_SINCE_VERSION, Integer.toString(sinceVersion ));
+
+
+
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpResponse response = httpclient.execute(request);
+        storeLastModifiedVersion(response, sinceVersion);
+        return decodeResponse(response);
 
     }
 

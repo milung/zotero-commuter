@@ -28,6 +28,7 @@ public interface ZoteroStorage
     void deleteCollections(@NotNull Iterable<String> collections);
     void deleteItems(@NotNull Iterable<String> items);
     void deleteTags(@NotNull Iterable<String> tags);
+    void deleteItem(@NotNull Item item);
 
     List<Item> findItemsBySynced(@NotNull SyncStatus syncStatus);
     Item findItemByKey(@NotNull String key);
@@ -38,4 +39,6 @@ public interface ZoteroStorage
 
     /// called after syncing to ensure local caches are reloaded
     void clearCaches();
+
+
 }

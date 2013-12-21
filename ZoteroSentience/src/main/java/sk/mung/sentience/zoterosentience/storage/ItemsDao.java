@@ -306,4 +306,13 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
 
     @Override
     public void onTagsUpdated() {}
+
+    @Override
+    public void delete( Item entity) {
+        for(Field field : entity.getFields())
+        {
+            fieldsDao.delete(field);
+        }
+        super.delete(entity);
+    }
 }

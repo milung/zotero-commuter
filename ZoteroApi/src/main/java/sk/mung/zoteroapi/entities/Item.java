@@ -1,10 +1,16 @@
 package sk.mung.zoteroapi.entities;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 
 public interface Item extends KeyEntity
 {
+    @NotNull
+    Item createCopy();
+
+    void copyState(Item template);
 
     ItemType getItemType();
     void setItemType(ItemType itemType);
@@ -32,6 +38,7 @@ public interface Item extends KeyEntity
 
     List<Item> getChildren();
     void addChild(Item item);
+    void removeChild(Item item);
     void clearChildren();
 
     List<Relation> getRelations();
