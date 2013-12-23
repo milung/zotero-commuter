@@ -15,6 +15,7 @@ import android.view.animation.AnimationUtils;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.sentience.zoterosentience.navigation.ActivityWithDrawer;
 import sk.mung.sentience.zoterosentience.navigation.DrawerFragment;
 import sk.mung.zoteroapi.entities.CollectionEntity;

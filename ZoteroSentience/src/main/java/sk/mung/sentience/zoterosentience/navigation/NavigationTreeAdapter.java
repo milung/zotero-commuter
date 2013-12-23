@@ -11,7 +11,7 @@ import android.widget.ExpandableListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.sentience.zoterosentience.storage.ZoteroCollection;
 
 public class NavigationTreeAdapter extends BaseExpandableListAdapter

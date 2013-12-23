@@ -14,7 +14,7 @@ import android.widget.Toast;
 
 import sk.mung.sentience.zoterosentience.GlobalState;
 import sk.mung.sentience.zoterosentience.NoteEditor;
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.sentience.zoterosentience.storage.ItemsDao;
 import sk.mung.sentience.zoterosentience.storage.ZoteroStorageImpl;
 import sk.mung.zoteroapi.ZoteroStorage;

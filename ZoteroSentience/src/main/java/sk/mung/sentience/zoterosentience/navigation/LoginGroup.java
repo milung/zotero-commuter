@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import sk.mung.sentience.zoterosentience.GlobalState;
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterocommuter.R;
 
 public class LoginGroup implements NavigationGroup
 {

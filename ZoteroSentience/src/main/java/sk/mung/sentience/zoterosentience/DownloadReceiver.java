@@ -11,6 +11,7 @@ import org.apache.http.HttpStatus;
 
 import java.io.File;
 
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.ItemField;

@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.zoteroapi.entities.Field;
 
 /**

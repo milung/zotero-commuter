@@ -11,7 +11,7 @@ import java.util.Map;
 import sk.mung.zoteroapi.entities.Creator;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.ItemType;
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterocommuter.R;
 
 /**
  * Created by sk1u00e5 on 17.6.2013.

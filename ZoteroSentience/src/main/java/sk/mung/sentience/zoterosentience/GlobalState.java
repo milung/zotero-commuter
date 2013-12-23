@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 
 import java.io.File;
 
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.sentience.zoterosentience.storage.QueryDictionary;
 import sk.mung.sentience.zoterosentience.storage.ZoteroStorageImpl;
 import sk.mung.zoteroapi.Zotero;
