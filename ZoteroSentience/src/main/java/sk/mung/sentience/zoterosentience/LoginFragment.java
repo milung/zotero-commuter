@@ -14,6 +14,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.sentience.zoterosentience.navigation.DrawerFragment;
 import sk.mung.zoteroapi.ZoteroOauth;
 

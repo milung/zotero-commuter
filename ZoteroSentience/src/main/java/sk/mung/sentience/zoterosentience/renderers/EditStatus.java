@@ -1,7 +1,7 @@
 package sk.mung.sentience.zoterosentience.renderers;
 
 
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterocommuter.R;
 
 public enum EditStatus
 {

@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.sentience.zoterosentience.storage.ItemsLoader;
 import sk.mung.zoteroapi.entities.CollectionEntity;
 

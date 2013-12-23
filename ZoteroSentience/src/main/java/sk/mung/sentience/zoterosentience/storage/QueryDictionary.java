@@ -2,7 +2,7 @@ package sk.mung.sentience.zoterosentience.storage;
 
 import android.content.Context;
 
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterocommuter.R;
 
 public class QueryDictionary
 {

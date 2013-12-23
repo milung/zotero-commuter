@@ -16,6 +16,8 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 
+import sk.mung.sentience.zoterocommuter.R;
+
 public class NoteEditor extends FragmentActivity
 {
 

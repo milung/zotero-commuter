@@ -19,6 +19,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import sk.mung.sentience.zoterocommuter.R;
+
 public class SynchronizingService extends IntentService
 {
     public static final int MSG_SYNCHRONIZE = 1;

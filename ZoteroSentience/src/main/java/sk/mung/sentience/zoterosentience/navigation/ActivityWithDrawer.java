@@ -15,7 +15,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterocommuter.R;
 
 /**
  * Activity with build in NavigationDrawer; navigation drawer is identified by id R.id.drawer_layout;

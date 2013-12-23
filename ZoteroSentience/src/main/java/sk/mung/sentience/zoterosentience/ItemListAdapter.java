@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.sentience.zoterosentience.renderers.ItemRenderer;
 import sk.mung.sentience.zoterosentience.storage.ZoteroStorageImpl;
 import sk.mung.zoteroapi.entities.Item;

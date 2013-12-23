@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sk.mung.sentience.zoterosentience.ItemListFragment;
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.sentience.zoterosentience.storage.ZoteroCollection;
 
 public class CollectionNavigationGroup implements NavigationGroup

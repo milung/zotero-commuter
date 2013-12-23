@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
+import sk.mung.sentience.zoterocommuter.R;
+
 public  class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener
 {
     public static final String KEY_SYNC_FREQUENCY = "sync_frequency";

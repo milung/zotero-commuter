@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.sentience.zoterosentience.storage.ItemsLoader;
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;

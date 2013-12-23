@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 
 import sk.mung.sentience.zoterosentience.GlobalState;
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterocommuter.R;
 import sk.mung.sentience.zoterosentience.storage.ZoteroCollection;
 import sk.mung.sentience.zoterosentience.storage.CollectionsTreeLoader;
 

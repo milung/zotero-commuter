@@ -17,7 +17,7 @@ import java.util.Map;
 
 import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.ItemField;
-import sk.mung.sentience.zoterosentience.R;
+import sk.mung.sentience.zoterocommuter.R;
 
 
 public class FieldRenderer
