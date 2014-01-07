@@ -1,1 +1,1 @@
-include ':ZoteroApi', ':ZoteroSentience'
+include ':ZoteroApi', ':ZoteroSentience',  ':PdfExtraction'

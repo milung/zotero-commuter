@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="attachment_resolution_options">
+        <item>Remove local version</item>
+        <item>Replace remote version</item>
+        <item>Extract annotations</item>
+    </string-array>
+
+</resources>

@@ -135,5 +135,14 @@
         ORDER BY tags.tag
     </string>
 
+    <string name="get_item_collections">
+        SELECT  collections.key, collections.name, collections.version, collections.synced, collections.parent, collections._id
+        FROM items
+        LEFT JOIN items_to_collections ON items._id = items_to_collections.item
+        LEFT JOIN collections ON items_to_collections.collection = collections._id
+        WHERE items._id=?
+        ORDER BY collections.name
+    </string>
+
 
 </resources>
