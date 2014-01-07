@@ -35,7 +35,7 @@ public class DownloadReceiver extends BroadcastReceiver
             assert cursor != null;
             if (cursor.moveToFirst())
             {
-                int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI);
+                int columnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_FILENAME);
                 String localFileName = cursor.getString(columnIndex);
 
                 if(localFileName != null && localFileName.contains(downloadDir.getPath()))

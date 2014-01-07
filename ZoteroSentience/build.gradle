@@ -12,12 +12,6 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    compile project(':ZoteroApi')
-    compile project(':PdfExtraction')
-    compile 'com.android.support:appcompat-v7:18.0.+'
-}
-
 android {
     compileSdkVersion 19
     buildToolsVersion "19.0.1"
@@ -49,4 +43,9 @@ android {
                             buildConfigField "boolean", "IS_PRO", "false"
                         }
             }
+    dependencies {
+        compile project(':ZoteroApi')
+        proVersionCompile project(':PdfExtraction')
+        compile 'com.android.support:appcompat-v7:18.0.+'
+    }
 }

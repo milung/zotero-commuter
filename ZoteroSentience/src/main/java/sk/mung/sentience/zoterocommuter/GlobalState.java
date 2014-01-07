@@ -7,6 +7,10 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import sk.mung.sentience.zoterocommuter.storage.QueryDictionary;
 import sk.mung.sentience.zoterocommuter.storage.ZoteroStorageImpl;
@@ -20,12 +24,47 @@ final public class GlobalState extends Application
     private static final String USERNAME = "username";
     private static final String USER_ID = "userId";
     private static final String ACCESS_TOKEN = "accessToken";
+    private static final String LOCAL_ITEM_KEY_COUNTER = "localKeyCounter";
+    public static final int PROCESS_TEXT_EXTRACTION = 1;
 
     private Zotero zotero;
     private ZoteroStorageImpl storage;
     private ZoteroSync zoteroSync;
     private File downloadDir;
     private String userName;
+
+    private class ProcessingItemPair
+    {
+        public final String key;
+        public final int processCode;
+
+        public ProcessingItemPair(String key, int code)
+        {
+            this.key = key;
+            this.processCode = code;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ProcessingItemPair that = (ProcessingItemPair) o;
+
+            if (processCode != that.processCode) return false;
+            if (key != null ? !key.equals(that.key) : that.key != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = key != null ? key.hashCode() : 0;
+            result = 31 * result + processCode;
+            return result;
+        }
+    }
+    private final List<ProcessingItemPair> processingItems = new ArrayList<ProcessingItemPair>();
 
     public static GlobalState getInstance(Context context)
     {
@@ -88,6 +127,18 @@ final public class GlobalState extends Application
     public SharedPreferences getPreferences()
     {
         return PreferenceManager.getDefaultSharedPreferences(this);
+    }
+
+    public long getKeyCounter()
+    {
+        SharedPreferences settings = getPreferences();
+        long count = settings.getLong(LOCAL_ITEM_KEY_COUNTER,1000);
+
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putLong(LOCAL_ITEM_KEY_COUNTER, count + 1);
+        editor.commit();
+        return count;
     }
 
     void saveZoteroState( ZoteroOauth oauth)
@@ -156,4 +207,19 @@ final public class GlobalState extends Application
         return userName;
     }
 
+    public void addProcessedItem(String key, int processCode)
+    {
+        processingItems.remove(new ProcessingItemPair(key,processCode));
+        processingItems.add(new ProcessingItemPair(key,processCode));
+    }
+
+    public void removeProcessedItem(String key, int processCode)
+    {
+        processingItems.remove(new ProcessingItemPair(key,processCode));
+    }
+
+    public boolean isItemProcessed(String key, int processCode)
+    {
+        return processingItems.contains(new ProcessingItemPair(key,processCode));
+    }
 }

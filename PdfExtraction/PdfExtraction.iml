@@ -24,8 +24,8 @@
     <orderEntry type="library" scope="TEST" name="junit-4.11" level="project" />
     <orderEntry type="library" scope="TEST" name="hamcrest-core-1.3" level="project" />
     <orderEntry type="library" exported="" name="commons-logging-1.1.3" level="project" />
-    <orderEntry type="library" exported="" name="Users-sk1u00e5-.gradle-caches-modules-2-files-2.1-org.apache.pdfbox-fontbox-1.8.3-38e08da63f51680d561a3e43e2f57bbac3471336-fontbox-1.8.3.jar-fontbox-1.8.3" level="project" />
     <orderEntry type="library" exported="" name="jempbox-1.8.3" level="project" />
+    <orderEntry type="library" exported="" name="fontbox-1.8.3" level="project" />
   </component>
 </module>
 

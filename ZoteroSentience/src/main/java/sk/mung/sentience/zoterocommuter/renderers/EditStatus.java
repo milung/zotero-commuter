@@ -9,7 +9,8 @@ public enum EditStatus
     SYNCED(R.string.attachment_status_synced),
     LOCAL_UPDATE(R.string.attachment_status_locally_updated),
     SERVER_UPDATE(R.string.attachment_status_server_updated),
-    CONFLICT(R.string.attachment_status_conflict);
+    CONFLICT(R.string.attachment_status_conflict),
+    EXTRACTING(R.string.attachment_status_extracting);
 
     private final int resourceId;
 

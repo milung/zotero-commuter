@@ -30,8 +30,8 @@
     <orderEntry type="library" exported="" name="httpcore-4.2.5" level="project" />
     <orderEntry type="library" exported="" name="commons-logging-1.1.1" level="project" />
     <orderEntry type="library" exported="" name="commons-codec-1.6" level="project" />
-    <orderEntry type="library" exported="" name="jackson-core-2.2.3" level="project" />
-    <orderEntry type="library" exported="" name="jackson-databind-2.2.3" level="project" />
+    <orderEntry type="library" exported="" name="jackson-core-2.2.3-sources.jar-jackson-core-2.2.3" level="project" />
+    <orderEntry type="library" exported="" name="Users-sk1u00e5-.gradle-caches-modules-2-files-2.1-com.fasterxml.jackson.core-jackson-databind-2.2.3-3ae380888029daefb91d3ecdca3a37d8cb92bc9-jackson-databind-2.2.3.jar-jackson-databind-2.2.3" level="project" />
   </component>
 </module>
 
