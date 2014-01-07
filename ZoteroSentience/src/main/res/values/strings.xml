@@ -23,6 +23,8 @@
     <string name="zotero_attachment"/>
     <string name="tags_separator">;</string>
     <string name="tags_no_tags">«no tags assigned»</string>
+    <string name="collections_no_collections">«item in none collection»</string>
+
     <string name="full_resync">Full Synchronization</string>
     <string name="note_editor">Note Editor</string>
     <string name="save">Save</string>
@@ -62,6 +64,9 @@
     <string name="fallback_page">http://www.zotero.org</string>
     <string name="add_node">Add New Note</string>
     <string name="new_note_content"></string>
+    <string name="highlight">Highlight</string>
+    <string name="note">Note</string>
+    <string name="annotation_template"><p><b>@type on page @page:</b><br/>@content</p></string>
 
     <plurals name="number_of_items">
         <item quantity="zero">No items</item>

@@ -6,4 +6,5 @@
     <item name="tag_item" type="id"/>
     <item name="loader_item_list" type="id"/>
     <item name="loder_item_pager" type="id"/>
+    <item name="textViewCollections" type="id"/>
 </resources>
