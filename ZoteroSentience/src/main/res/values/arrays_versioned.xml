@@ -4,5 +4,8 @@
         <item>Remove local version</item>
         <item>Replace remote version</item>
     </string-array>
-
+    <string-array name="attachment_resolution_options_pdf">
+        <item>Remove local version</item>
+        <item>Replace remote version</item>
+    </string-array>
 </resources>

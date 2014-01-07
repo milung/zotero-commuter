@@ -58,9 +58,10 @@ public class NoteRenderer
     };
 
     public void createNewNote() {
-        ZoteroStorage storage = ((GlobalState)context.getActivity().getApplication()).getStorage();
+        GlobalState globalState= (GlobalState)context.getActivity().getApplication();
+        ZoteroStorage storage = globalState.getStorage();
         Item note = storage.createItem();
-        note.setKey("");
+        note.setKey(Long.toString(globalState.getKeyCounter(),16));
         note.setItemType(ItemType.NOTE);
         note.setParentKey(item.getKey());
         note.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);

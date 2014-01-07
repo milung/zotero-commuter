@@ -76,6 +76,7 @@ public class PdfExtractor implements Closeable
         pddDocument.close();
     }
 
+
     public String extractAnnotations(String template, String highlight, String note) throws IOException, ParserConfigurationException, SAXException {
         StringBuilder builder = new StringBuilder();
         for(Comment comment : getComments())

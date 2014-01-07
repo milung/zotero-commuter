@@ -206,7 +206,7 @@ public class AttachmentRenderer
         {
             EditStatus status = getEditStatus(child);
             renderStatusIcon(view, child, status);
-            if(status != EditStatus.REMOTE)
+            if(status != EditStatus.REMOTE && status != EditStatus.EXTRACTING)
             {
                 view.setOnLongClickListener(resolutionListener);
             }
@@ -258,7 +258,25 @@ public class AttachmentRenderer
             assert icon != null;
             final ImageView imageView = (ImageView) view.findViewWithTag("icon_status");
             assert imageView != null;
-            if(isDownloadInProgress(view, child))
+            if(getGlobalState().isItemProcessed(child.getKey(),GlobalState.PROCESS_TEXT_EXTRACTION))
+            {
+                icon = resources.getDrawable(R.drawable.animation_extract);
+                assert icon != null;
+                imageView.setImageDrawable(icon);
+                supportImageAlpha(imageView, 255);
+                imageView.post(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        AnimationDrawable frameAnimation =
+                                (AnimationDrawable) imageView.getDrawable();
+                        assert frameAnimation != null;
+                        frameAnimation.start();
+                    }
+                });
+            }
+            else if(isDownloadInProgress(view, child))
             {
                 icon = resources.getDrawable(R.drawable.animation_download);
                 assert icon != null;

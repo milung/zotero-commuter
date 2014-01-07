@@ -1,8 +1,10 @@
 package sk.mung.sentience.zoterocommuter.renderers;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
@@ -51,9 +53,10 @@ public class AttachmentConflictFragment extends DialogFragment
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
+        boolean isPdf = ZoteroSync.getFileName(target,true).endsWith(".pdf");
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.resolve_attachment_conflict)
-        .setItems(R.array.attachment_resolution_options, new DialogInterface.OnClickListener()
+        .setItems(isPdf ? R.array.attachment_resolution_options_pdf : R.array.attachment_resolution_options , new DialogInterface.OnClickListener()
         {
             public void onClick(DialogInterface dialog, int which)
             {
@@ -86,33 +89,72 @@ public class AttachmentConflictFragment extends DialogFragment
         return builder.create();
     }
 
-    private void extractAnnotations(File file) throws IOException, ParserConfigurationException, SAXException {
-        PdfExtractor extractor = new PdfExtractor(file);
-        String annotations = extractor.extractAnnotations(
-                getActivity().getString(R.string.annotation_template),
-                getActivity().getString(R.string.highlight),
-                getActivity().getString(R.string.note));
-        ZoteroStorage storage = ((GlobalState)getActivity().getApplication()).getStorage();
-        Item parent = null;
-        String parentKey = target.getParentKey();
-        if(parentKey!=null)
-        {
-            parent = storage.findItemByKey(parentKey);
-        }
-        Item note = storage.createItem();
-        note.setKey("");
-        note.setItemType(ItemType.NOTE);
-        note.setParentKey(parentKey);
-        note.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
-        Field field = storage.createField();
-        field.setType(ItemField.NOTE);
-        field.setValue(annotations);
-        note.addField(field);
-        if(parent !=null)
-        {
-            parent.addChild(note);
-        }
-        storage.updateItem(note);
+    private void extractAnnotations(File file) throws IOException, ParserConfigurationException, SAXException
+    {
+
+        final Activity activity = getActivity();
+        final GlobalState globalState = (GlobalState)getActivity().getApplication();
+        AsyncTask<File, Integer, String> extractTask = new AsyncTask<File, Integer, String>() {
+
+            @Override
+            protected void onPreExecute() {
+                globalState.addProcessedItem(target.getKey(),GlobalState.PROCESS_TEXT_EXTRACTION);
+            }
+
+            @Override
+            protected String doInBackground(File... files) {
+                PdfExtractor extractor = null;
+                try {
+                    extractor = new PdfExtractor(files[0]);
+
+                    String annotations = extractor.extractAnnotations(
+                        activity.getString(R.string.annotation_template),
+                        activity.getString(R.string.highlight),
+                        activity.getString(R.string.note));
+                    extractor.close();
+                    return annotations;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (SAXException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String annotations) {
+                globalState.removeProcessedItem(target.getKey(),GlobalState.PROCESS_TEXT_EXTRACTION);
+
+                if(annotations==null) return;
+
+                ZoteroStorage storage = globalState.getStorage();
+                Item parent = null;
+                String parentKey = target.getParentKey();
+                if(parentKey!=null)
+                {
+                    parent = storage.findItemByKey(parentKey);
+                }
+                Item note = storage.createItem();
+
+                note.setKey(Long.toString(globalState.getKeyCounter(),16));
+                note.setItemType(ItemType.NOTE);
+                note.setParentKey(parentKey);
+                note.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
+                Field field = storage.createField();
+                field.setType(ItemField.NOTE);
+                field.setValue(annotations);
+                note.addField(field);
+                if(parent !=null)
+                {
+                    parent.addChild(note);
+                }
+                storage.updateItem(note);
+            }
+        };
+        extractTask.execute(file);
+
     }
 
     private void removeRemoteDeltas()
