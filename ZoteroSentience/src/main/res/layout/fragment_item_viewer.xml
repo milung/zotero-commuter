@@ -71,12 +71,13 @@
                 android:paddingRight="8dp" />
 
             <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:text="Small Text"
-                    android:id="@+id/textViewTags"
-                    android:gravity="center_vertical"/>
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:id="@+id/textViewTags"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="4dp"/>
         </LinearLayout>
 
         <LinearLayout

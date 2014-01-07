@@ -95,6 +95,7 @@ public abstract class ActivityWithDrawer extends ActionBarActivity
                 new FragmentManager.OnBackStackChangedListener() {
                     public void onBackStackChanged() {
                         currentFragment = getSupportFragmentManager().findFragmentById(R.id.main);
+                        invalidateOptionsMenu();
                     }
                 });
 
@@ -126,6 +127,7 @@ public abstract class ActivityWithDrawer extends ActionBarActivity
         transaction.replace(R.id.main, currentFragment)
         .commit();
         currentAddToBackStack = false;
+        invalidateOptionsMenu();
     }
 
     public void navigateTo(Fragment fragment, boolean addToBackStack)
