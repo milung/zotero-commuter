@@ -16,7 +16,6 @@
  */
 package org.apache.pdfbox.pdmodel.font;
 
-import java.awt.Font;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
@@ -45,7 +44,7 @@ public class PDType0Font extends PDSimpleFont
     private COSArray descendantFontArray;
     private PDFont descendantFont;
     private COSDictionary descendantFontDictionary;
-    private Font awtFont;
+
     /**
      * Constructor.
      */
@@ -77,36 +76,7 @@ public class PDType0Font extends PDSimpleFont
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Font getawtFont() throws IOException
-    {
-        if (awtFont == null)
-        {
-            if (descendantFont != null)
-            {
-                awtFont = ((PDSimpleFont)descendantFont).getawtFont();
-                if (awtFont != null)
-                {
-                    setIsFontSubstituted(((PDSimpleFont)descendantFont).isFontSubstituted());
-                    /*
-                     * Fix Oracle JVM Crashes.
-                     * Tested with Oracle JRE 6.0_45-b06 and 7.0_21-b11
-                     */
-                    awtFont.canDisplay(1);
-                }
-            }
-            if (awtFont == null)
-            {
-                awtFont = FontManager.getStandardFont();
-                LOG.info("Using font "+awtFont.getName()
-                        + " instead of "+descendantFont.getFontDescriptor().getFontName());
-                setIsFontSubstituted(true);
-            }
-        }
-        return awtFont;
-    }
+
 
     /**
      * This will get the fonts bounding box.

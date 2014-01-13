@@ -16,8 +16,7 @@
  */
 package org.apache.pdfbox.pdmodel.font;
 
-import java.awt.Font;
-import java.awt.FontFormatException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -131,7 +130,7 @@ public class PDType1Font extends PDSimpleFont
         STANDARD_14.put( ZAPF_DINGBATS.getBaseFont(), ZAPF_DINGBATS );
     }
 
-    private Font awtFont = null;
+
 
     /**
      * Constructor.
@@ -204,65 +203,7 @@ public class PDType1Font extends PDSimpleFont
         return (String[])STANDARD_14.keySet().toArray( new String[14] );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Font getawtFont() throws IOException
-    {
-        if( awtFont == null )
-        {
-            if (type1CFont != null)
-            {
-                awtFont = type1CFont.getawtFont();
-            }
-            else
-            {
-                String baseFont = getBaseFont();
-                PDFontDescriptor fd = getFontDescriptor();
-                if (fd != null && fd instanceof PDFontDescriptorDictionary)
-                {
-                    PDFontDescriptorDictionary fdDictionary = (PDFontDescriptorDictionary)fd;
-                    if( fdDictionary.getFontFile() != null )
-                    {
-                        try 
-                        {
-                            // create a type1 font with the embedded data
-                            awtFont = Font.createFont( Font.TYPE1_FONT, fdDictionary.getFontFile().createInputStream() );
-                        } 
-                        catch (FontFormatException e) 
-                        {
-                            log.info("Can't read the embedded type1 font " + fd.getFontName() );
-                        }
-                    }
-                    if (awtFont == null)
-                    {
-                        // check if the font is part of our environment
-                        awtFont = FontManager.getAwtFont(fd.getFontName());
-                        if (awtFont == null)
-                        {
-                            log.info("Can't find the specified font " + fd.getFontName() );
-                        }
-                    }
-                }
-                else
-                {
-                    // check if the font is part of our environment
-                    awtFont = FontManager.getAwtFont(baseFont);
-                    if (awtFont == null) 
-                    {
-                        log.info("Can't find the specified basefont " + baseFont );
-                    }
-                }
-            }
-            if (awtFont == null)
-            {
-                // we can't find anything, so we have to use the standard font
-                awtFont = FontManager.getStandardFont();
-                log.info("Using font "+awtFont.getName()+ " instead");
-            }
-        }
-        return awtFont;
-    }
+
 
     protected void determineEncoding()
     {

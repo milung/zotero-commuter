@@ -22,8 +22,8 @@ import org.apache.pdfbox.cos.COSFloat;
 import org.apache.pdfbox.cos.COSNumber;
 
 import org.apache.fontbox.util.BoundingBox;
+import org.apache.pdfbox.graphics.Dimension;
 
-import java.awt.Dimension;
 
 /**
  * This represents a rectangle in a PDF document.

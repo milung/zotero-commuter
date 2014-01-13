@@ -17,8 +17,7 @@
 package org.apache.pdfbox.pdmodel.graphics.pattern;
 
 
-import java.awt.Paint;
-import java.awt.geom.AffineTransform;
+
 import java.io.IOException;
 
 import org.apache.pdfbox.cos.COSArray;
@@ -58,13 +57,6 @@ public class PDTilingPatternResources extends PDPatternResources
         super(resourceDictionary);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public int getPatternType()
-    {
-        return PDPatternResources.TILING_PATTERN;
-    }
 
     /**
      * This will set the length of the content stream.
@@ -86,85 +78,8 @@ public class PDTilingPatternResources extends PDPatternResources
         return getCOSDictionary().getInt( COSName.LENGTH, 0 );
     }
 
-    /**
-     * This will set the paint type.
-     *
-     * @param paintType The new paint type.
-     */
-    public void setPaintType(int paintType)
-    {
-        getCOSDictionary().setInt(COSName.PAINT_TYPE, paintType);
-    }
 
-    /**
-     * This will return the paint type.
-     *
-     * @return The paint type
-     */
-    public int getPaintType()
-    {
-        return getCOSDictionary().getInt( COSName.PAINT_TYPE, 0 );
-    }
 
-    /**
-     * This will set the tiling type.
-     *
-     * @param tilingType The new tiling type.
-     */
-    public void setTilingType(int tilingType)
-    {
-        getCOSDictionary().setInt(COSName.TILING_TYPE, tilingType);
-    }
-
-    /**
-     * This will return the tiling type.
-     *
-     * @return The tiling type
-     */
-    public int getTilingType()
-    {
-        return getCOSDictionary().getInt( COSName.TILING_TYPE, 0 );
-    }
-
-    /**
-     * This will set the XStep value.
-     *
-     * @param xStep The new XStep value.
-     */
-    public void setXStep(int xStep)
-    {
-        getCOSDictionary().setInt(COSName.X_STEP, xStep);
-    }
-
-    /**
-     * This will return the XStep value.
-     *
-     * @return The XStep value
-     */
-    public int getXStep()
-    {
-        return getCOSDictionary().getInt( COSName.X_STEP, 0 );
-    }
-
-    /**
-     * This will set the YStep value.
-     *
-     * @param yStep The new YStep value.
-     */
-    public void setYStep(int yStep)
-    {
-        getCOSDictionary().setInt(COSName.Y_STEP, yStep);
-    }
-
-    /**
-     * This will return the YStep value.
-     *
-     * @return The YStep value
-     */
-    public int getYStep()
-    {
-        return getCOSDictionary().getInt( COSName.Y_STEP, 0 );
-    }
 
     /**
      * This will get the resources for this pattern.
@@ -201,41 +116,6 @@ public class PDTilingPatternResources extends PDPatternResources
     }
 
     /**
-     * An array of four numbers in the form coordinate system (see
-     * below), giving the coordinates of the left, bottom, right, and top edges,
-     * respectively, of the pattern's bounding box.
-     *
-     * @return The BBox of the form.
-     */
-    public PDRectangle getBBox()
-    {
-        PDRectangle retval = null;
-        COSArray array = (COSArray)getCOSDictionary().getDictionaryObject( COSName.BBOX );
-        if( array != null )
-        {
-            retval = new PDRectangle( array );
-        }
-        return retval;
-    }
-
-    /**
-     * This will set the BBox (bounding box) for this Pattern.
-     *
-     * @param bbox The new BBox for this Pattern.
-     */
-    public void setBBox(PDRectangle bbox)
-    {
-        if( bbox == null )
-        {
-            getCOSDictionary().removeItem( COSName.BBOX );
-        }
-        else
-        {
-            getCOSDictionary().setItem( COSName.BBOX, bbox.getCOSArray() );
-        }
-    }
-
-    /**
      * This will get the optional Matrix of a Pattern.
      * It maps the form space into the user space
      * @return the form matrix
@@ -255,32 +135,6 @@ public class PDTilingPatternResources extends PDPatternResources
             retval.setValue(2, 1, ((COSNumber) array.get(5)).floatValue());
         }
         return retval;
-    }
-
-    /**
-     * Sets the optional Matrix entry for the Pattern.
-     * @param transform the transformation matrix
-     */
-    public void setMatrix(AffineTransform transform)
-    {
-        COSArray matrix = new COSArray();
-        double[] values = new double[6];
-        transform.getMatrix(values);
-        for (double v : values)
-        {
-            matrix.add(new COSFloat((float)v));
-        }
-        getCOSDictionary().setItem(COSName.MATRIX, matrix);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Paint getPaint(int pageHeight) throws IOException
-    {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

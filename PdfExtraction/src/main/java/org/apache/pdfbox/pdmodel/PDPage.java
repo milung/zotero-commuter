@@ -35,9 +35,6 @@ import org.apache.pdfbox.pdmodel.interactive.action.PDPageAdditionalActions;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.pdmodel.interactive.pagenavigation.PDThreadBead;
 
-
-import java.awt.image.BufferedImage;
-
 import java.io.IOException;
 
 import java.util.ArrayList;
@@ -814,15 +811,7 @@ public class PDPage implements COSObjectable
         return new PDPageAdditionalActions(addAct);
     }
 
-    /**
-     * Set the page actions.
-     *
-     * @param actions The actions for the page.
-     */
-    public void setActions( PDPageAdditionalActions actions )
-    {
-        page.setItem( COSName.AA, actions );
-    }
+
 
     /**
      * This will return a list of the Annotations for this page.
@@ -855,15 +844,6 @@ public class PDPage implements COSObjectable
         return retval;
     }
 
-    /**
-     * This will set the list of annotations.
-     *
-     * @param annots The new list of annotations.
-     */
-    public void setAnnotations( List<PDAnnotation> annots )
-    {
-        page.setItem( COSName.ANNOTS, COSArrayList.converterToCOSArray( annots ) );
-    }
 
 
     /**

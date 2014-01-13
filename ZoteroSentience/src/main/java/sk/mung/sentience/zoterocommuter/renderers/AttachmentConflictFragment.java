@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
+import android.widget.Toast;
 
 import org.xml.sax.SAXException;
 
@@ -113,11 +114,7 @@ public class AttachmentConflictFragment extends DialogFragment
                         activity.getString(R.string.note));
                     extractor.close();
                     return annotations;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ParserConfigurationException e) {
-                    e.printStackTrace();
-                } catch (SAXException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return null;
@@ -127,7 +124,12 @@ public class AttachmentConflictFragment extends DialogFragment
             protected void onPostExecute(String annotations) {
                 globalState.removeProcessedItem(target.getKey(),GlobalState.PROCESS_TEXT_EXTRACTION);
 
-                if(annotations==null) return;
+                if(annotations==null)
+                {
+                    Toast toast = Toast.makeText(getActivity(),R.string.extraction_error,Toast.LENGTH_SHORT);
+                    toast.show();
+                    return;
+                }
 
                 ZoteroStorage storage = globalState.getStorage();
                 Item parent = null;

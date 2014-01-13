@@ -16,7 +16,7 @@
  */
 package org.apache.pdfbox.pdmodel.graphics.xobject;
 
-import java.awt.geom.AffineTransform;
+
 
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSDictionary;
@@ -168,22 +168,7 @@ public class PDXObjectForm extends PDXObject
         return retval;
     }
 
-    /**
-     * Sets the optional Matrix entry for the form XObject.
-     * 
-     * @param transform the transformation matrix
-     */
-    public void setMatrix(AffineTransform transform)
-    {
-        COSArray matrix = new COSArray();
-        double[] values = new double[6];
-        transform.getMatrix(values);
-        for (double v : values)
-        {
-            matrix.add(new COSFloat((float) v));
-        }
-        getCOSStream().setItem(COSName.MATRIX, matrix);
-    }
+
 
     /**
      * This will get the key of this XObjectForm in the structural parent tree. Required if the form XObject contains

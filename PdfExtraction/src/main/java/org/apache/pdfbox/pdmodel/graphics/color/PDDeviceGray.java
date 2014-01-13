@@ -16,12 +16,7 @@
  */
 package org.apache.pdfbox.pdmodel.graphics.color;
 
-import java.awt.color.ColorSpace;
 
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.Transparency;
 
 import java.io.IOException;
 
@@ -65,32 +60,5 @@ public class PDDeviceGray extends PDColorSpace
         return 1;
     }
 
-    /**
-     * Create a Java colorspace for this colorspace.
-     *
-     * @return A color space that can be used for Java AWT operations.
-     */
-    protected ColorSpace createColorSpace()
-    {
-        return ColorSpace.getInstance( ColorSpace.CS_GRAY );
-    }
 
-    /**
-     * Create a Java color model for this colorspace.
-     *
-     * @param bpc The number of bits per component.
-     *
-     * @return A color model that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color model.
-     */
-    public ColorModel createColorModel( int bpc ) throws IOException
-    {
-        ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-        int[] nBits = {bpc};
-        ColorModel colorModel = new ComponentColorModel(cs, nBits, false,false,
-                Transparency.OPAQUE,DataBuffer.TYPE_BYTE);
-        return colorModel;
-
-    }
 }

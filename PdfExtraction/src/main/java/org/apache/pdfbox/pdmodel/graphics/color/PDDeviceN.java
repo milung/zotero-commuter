@@ -16,13 +16,6 @@
  */
 package org.apache.pdfbox.pdmodel.graphics.color;
 
-import java.awt.color.ColorSpace;
-import java.awt.image.ColorModel;
-
-import java.io.IOException;
-
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.cos.COSArray;
@@ -30,9 +23,11 @@ import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.cos.COSNull;
-
 import org.apache.pdfbox.pdmodel.common.COSArrayList;
 import org.apache.pdfbox.pdmodel.common.function.PDFunction;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * This class represents a DeviceN color space.
@@ -110,45 +105,8 @@ public class PDDeviceN extends PDColorSpace
         return getColorantNames().size();
     }
 
-    /**
-     * Create a Java colorspace for this colorspace.
-     *
-     * @return A color space that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color space.
-     */
-    protected ColorSpace createColorSpace() throws IOException
-    {
-        try
-        {
-            return getAlternateColorSpace().getJavaColorSpace();
-        }
-        catch (IOException ioexception)
-        {
-            LOG.error(ioexception, ioexception);
-            throw ioexception;
-        }
-        catch (Exception exception)
-        {
-            LOG.error(exception, exception);
-            throw new IOException("Failed to Create ColorSpace");
-        }
-    }
 
-    /**
-     * Create a Java color model for this colorspace.
-     *
-     * @param bpc The number of bits per component.
-     *
-     * @return A color model that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color model.
-     */
-    public ColorModel createColorModel( int bpc ) throws IOException
-    {
-        LOG.info("About to create ColorModel for " + getAlternateColorSpace().toString());
-        return getAlternateColorSpace().createColorModel(bpc);
-    }
+
 
     /**
      * This will get the colorant names.  A list of string objects.

@@ -46,8 +46,7 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
 import org.apache.pdfbox.util.ResourceLoader;
 
-import java.awt.Graphics;
-import java.awt.geom.AffineTransform;
+
 
 /**
  * This is the base class for all PDF fonts.
@@ -306,41 +305,7 @@ public abstract class PDFont implements COSObjectable
      */
     public abstract float getAverageFontWidth() throws IOException;
 
-    /**
-     * This will draw a string on a canvas using the font.
-     *
-     * @param string The string to draw.
-     * @param g The graphics to draw onto.
-     * @param fontSize The size of the font to draw.
-     * @param at The transformation matrix with all information for scaling and shearing of the font.
-     * @param x The x coordinate to draw at.
-     * @param y The y coordinate to draw at.
-     *
-     * @throws IOException If there is an error drawing the specific string.
-     * @deprecated use {@link PDFont#drawString(String, int[], Graphics, float, AffineTransform, float, float)} instead
-     */
-    public void drawString( String string, Graphics g, float fontSize, AffineTransform at, float x, float y ) 
-    throws IOException
-    {
-        drawString(string, null, g, fontSize, at, x, y);
-    }
 
-    /**
-     * This will draw a string on a canvas using the font.
-     *
-     * @param string The string to draw.
-     * @param codePoints The codePoints of the given string.
-     * @param g The graphics to draw onto.
-     * @param fontSize The size of the font to draw.
-     * @param at The transformation matrix with all information for scaling and shearing of the font.
-     * @param x The x coordinate to draw at.
-     * @param y The y coordinate to draw at.
-     *
-     * @throws IOException If there is an error drawing the specific string.
-     */
-    public abstract void drawString( String string, int[] codePoints, Graphics g, float fontSize,
-        AffineTransform at, float x, float y ) throws IOException;
-    
     /**
      * Used for multibyte encodings.
      *

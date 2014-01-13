@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/item_copy"
+        android:icon="@drawable/ic_action_copy"
+        android:showAsAction="ifRoom|withText"
+        android:title="@android:string/copy"
+        android:titleCondensed="@android:string/copy">
+    </item>
+
+    <item
+        android:id="@+id/item_cut"
+        android:icon="@drawable/ic_action_cut"
+        android:showAsAction="ifRoom|withText"
+        android:title="@android:string/cut"
+        android:titleCondensed="@android:string/cut">
+    </item>
+</menu>

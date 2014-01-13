@@ -88,15 +88,7 @@ public class PDDocumentInformation implements COSObjectable
         return info.getString( COSName.TITLE );
     }
 
-    /**
-     * This will set the title of the document.
-     *
-     * @param title The new title for the document.
-     */
-    public void setTitle( String title )
-    {
-        info.setString( COSName.TITLE, title );
-    }
+
 
     /**
      * This will get the author of the document.  This will return null if no author exists.

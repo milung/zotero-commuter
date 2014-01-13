@@ -16,7 +16,7 @@
  */
 package org.apache.pdfbox.pdmodel.interactive.annotation;
 
-import java.awt.geom.AffineTransform;
+
 
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSBase;
@@ -155,29 +155,6 @@ public class PDAppearanceStream implements COSObjectable
             retval.setValue(2, 1, ((COSNumber) array.get(5)).floatValue());
         }
         return retval;
-    }
-
-    /**
-     * Sets the optional Matrix entry for this appearance.
-     * @param transform the transformation matrix
-     */
-    public void setMatrix(AffineTransform transform)
-    {
-        if (transform != null)
-        {
-            COSArray matrix = new COSArray();
-            double[] values = new double[6];
-            transform.getMatrix(values);
-            for (double v : values)
-            {
-                matrix.add(new COSFloat((float)v));
-            }
-            stream.setItem(COSName.MATRIX, matrix);
-        }
-        else
-        {
-            stream.removeItem(COSName.MATRIX);
-        }
     }
 
 }

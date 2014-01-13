@@ -24,8 +24,6 @@ import org.apache.pdfbox.pdmodel.common.COSObjectable;
 
 import java.io.IOException;
 
-import java.awt.color.ColorSpace;
-import java.awt.image.ColorModel;
 
 
 /**
@@ -41,12 +39,7 @@ public abstract class PDColorSpace implements COSObjectable
      */
     protected COSArray array;
 
-    /**
-     * Cached Java AWT color space.
-     *
-     * @see #getJavaColorSpace()
-     */
-    private ColorSpace colorSpace = null;
+
 
     /**
      * This will return the name of the color space.
@@ -74,38 +67,8 @@ public abstract class PDColorSpace implements COSObjectable
         return COSName.getPDFName( getName() );
     }
 
-    /**
-     * Returns the Java AWT color space for this instance.
-     *
-     * @return Java AWT color space
-     * @throws IOException if the color space can not be created
-     */
-    public ColorSpace getJavaColorSpace() throws IOException {
-        if (colorSpace == null) {
-            colorSpace = createColorSpace();
-        }
-        return colorSpace;
-    }
 
-    /**
-     * Create a Java colorspace for this colorspace.
-     *
-     * @return A color space that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color space.
-     */
-    protected abstract ColorSpace createColorSpace() throws IOException;
 
-    /**
-     * Create a Java color model for this colorspace.
-     *
-     * @param bpc The number of bits per component.
-     *
-     * @return A color model that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color model.
-     */
-    public abstract ColorModel createColorModel( int bpc ) throws IOException;
 
     /*
     Don't just tell me its color type -- tell me its contents!

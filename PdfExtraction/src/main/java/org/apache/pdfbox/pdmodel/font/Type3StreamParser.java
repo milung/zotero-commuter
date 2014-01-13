@@ -16,22 +16,15 @@
  */
 package org.apache.pdfbox.pdmodel.font;
 
-import java.awt.Image;
-
-import java.io.IOException;
-
-import java.util.List;
-
 import org.apache.fontbox.util.BoundingBox;
-
 import org.apache.pdfbox.cos.COSNumber;
-import org.apache.pdfbox.cos.COSStream;
-
 import org.apache.pdfbox.pdmodel.graphics.xobject.PDInlinedImage;
-
 import org.apache.pdfbox.util.ImageParameters;
 import org.apache.pdfbox.util.PDFOperator;
 import org.apache.pdfbox.util.PDFStreamEngine;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * This class will handle creating an image for a type 3 glyph.
@@ -43,22 +36,6 @@ public class Type3StreamParser extends PDFStreamEngine
 {
     private PDInlinedImage image = null;
     private BoundingBox box = null;
-
-
-    /**
-     * This will parse a type3 stream and create an image from it.
-     *
-     * @param type3Stream The stream containing the operators to draw the image.
-     *
-     * @return The image that was created.
-     *
-     * @throws IOException If there is an error processing the stream.
-     */
-    public Image createImage( COSStream type3Stream ) throws IOException
-    {
-        processStream( null, null, type3Stream );
-        return image.createImage();
-    }
 
     /**
      * This is used to handle an operation.

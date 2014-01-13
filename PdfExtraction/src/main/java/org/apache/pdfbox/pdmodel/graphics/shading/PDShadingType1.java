@@ -18,7 +18,6 @@ package org.apache.pdfbox.pdmodel.graphics.shading;
 
 
 
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
 
 import org.apache.pdfbox.cos.COSArray;
@@ -80,22 +79,6 @@ public class PDShadingType1 extends PDShadingResources
         return retval;
     }
 
-    /**
-     * Sets the optional Matrix entry for the function based shading.
-     * 
-     * @param transform the transformation matrix
-     */
-    public void setMatrix(AffineTransform transform)
-    {
-        COSArray matrix = new COSArray();
-        double[] values = new double[6];
-        transform.getMatrix(values);
-        for (double v : values)
-        {
-            matrix.add(new COSFloat((float)v));
-        }
-        getCOSDictionary().setItem(COSName.MATRIX, matrix);
-    }
 
     /**
      * This will get the optional Domain values of a function based shading.
