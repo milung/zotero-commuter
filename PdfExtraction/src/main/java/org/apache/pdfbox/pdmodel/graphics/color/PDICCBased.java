@@ -29,14 +29,7 @@ import org.apache.pdfbox.pdmodel.common.COSArrayList;
 import org.apache.pdfbox.pdmodel.common.PDRange;
 import org.apache.pdfbox.pdmodel.common.PDStream;
 
-import java.awt.Color;
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
-import java.awt.color.ICC_ColorSpace;
-import java.awt.color.ICC_Profile;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
+
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -125,87 +118,8 @@ public class PDICCBased extends PDColorSpace
         return stream;
     }
 
-    /**
-     * Create a Java colorspace for this colorspace.
-     *
-     * @return A color space that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color space.
-     */
-    protected ColorSpace createColorSpace() throws IOException
-    {
-        InputStream profile = null;
-        ColorSpace cSpace = null;
-        try
-        {
-            profile = stream.createInputStream();
-            ICC_Profile iccProfile = ICC_Profile.getInstance( profile );
-            cSpace = new ICC_ColorSpace( iccProfile );
-            float[] components = new float[numberOfComponents];
-            // there maybe a ProfileDataException or a CMMException as there
-            // are some issues when loading ICC_Profiles, see PDFBOX-1295
-            // Try to create a color as test ...
-            new Color(cSpace,components,1f);
-        }
-        catch (RuntimeException e)
-        {
-            // we are using an alternate colorspace as fallback
-            LOG.debug("Can't read ICC-profile, using alternate colorspace instead");
-            List alternateCSList = getAlternateColorSpaces();
-            PDColorSpace alternate = (PDColorSpace)alternateCSList.get(0);
-            cSpace = alternate.getJavaColorSpace();
-        }
-        finally
-        {
-            if( profile != null )
-            {
-                profile.close();
-            }
-        }
-        return cSpace;
-    }
 
-    /**
-     * Create a Java color model for this colorspace.
-     *
-     * @param bpc The number of bits per component.
-     *
-     * @return A color model that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color model.
-     */
-    public ColorModel createColorModel( int bpc ) throws IOException
-    {
 
-            int[] nbBits;
-            int numOfComponents = getNumberOfComponents();
-            switch (numOfComponents) 
-            {
-                case 1:
-                    // DeviceGray
-                    nbBits = new int[]{ bpc };
-                    break;
-                case 3:
-                    // DeviceRGB
-                    nbBits = new int[]{ bpc, bpc, bpc };
-                    break;
-                case 4:
-                    // DeviceCMYK
-                    nbBits = new int[]{ bpc, bpc, bpc, bpc };
-                    break;
-                default:
-                    throw new IOException( "Unknown colorspace number of components:" + numOfComponents );
-            }
-            ComponentColorModel componentColorModel =
-                    new ComponentColorModel( getJavaColorSpace(),
-                                             nbBits,
-                                             false,
-                                             false,
-                                             Transparency.OPAQUE,
-                                             DataBuffer.TYPE_BYTE );
-            return componentColorModel;
-        
-    }
 
     /**
      * This will return the number of color components.  As of PDF 1.4 this will

@@ -21,14 +21,8 @@ import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSFloat;
 import org.apache.pdfbox.cos.COSName;
-
 import org.apache.pdfbox.pdmodel.common.PDMatrix;
 
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
 import java.io.IOException;
 
 /**
@@ -91,35 +85,7 @@ public class PDCalRGB extends PDColorSpace
         return NAME;
     }
 
-    /**
-     * Create a Java colorspace for this colorspace.
-     *
-     * @return A color space that can be used for Java AWT operations.
-     */
-    protected ColorSpace createColorSpace()
-    {
-        return new ColorSpaceCalRGB(getGamma(),getWhitepoint(),getBlackPoint(),getLinearInterpretation());
-    }
 
-    /**
-     * Create a Java color model for this colorspace.
-     *
-     * @param bpc The number of bits per component.
-     *
-     * @return A color model that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color model.
-     */
-    public ColorModel createColorModel( int bpc ) throws IOException
-    {
-        int[] nBits = {bpc, bpc, bpc};
-        return new ComponentColorModel( getJavaColorSpace(),
-                   nBits,
-                   false,
-                   false,
-                   Transparency.OPAQUE,
-                   DataBuffer.TYPE_BYTE);
-    }
 
     /**
      * Convert this standard java object to a COS object.

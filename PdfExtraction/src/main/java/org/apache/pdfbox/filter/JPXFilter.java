@@ -16,10 +16,6 @@
  */
 package org.apache.pdfbox.filter;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferByte;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,29 +49,6 @@ public class JPXFilter implements Filter
     public void decode(InputStream compressedData, OutputStream result, COSDictionary options, int filterIndex)
             throws IOException
     {
-        BufferedImage bi = ImageIO.read(compressedData);
-        if (bi != null)
-        {
-            DataBuffer dBuf = bi.getData().getDataBuffer();
-            if (dBuf.getDataType() == DataBuffer.TYPE_BYTE)
-            {
-                // maybe some wrong/missing values have to be revised/added
-                ColorModel colorModel = bi.getColorModel();
-                if (options.getItem(COSName.COLORSPACE) == null)
-                {
-                    options.setItem(COSName.COLORSPACE,
-                            PDColorSpaceFactory.createColorSpace(null, colorModel.getColorSpace()));
-                }
-                options.setInt(COSName.BITS_PER_COMPONENT, colorModel.getPixelSize() / colorModel.getNumComponents());
-                options.setInt(COSName.HEIGHT, bi.getHeight());
-                options.setInt(COSName.WIDTH, bi.getWidth());
-                result.write(((DataBufferByte) dBuf).getData());
-            }
-            else
-            {
-                LOG.error("Image data buffer not of type byte but type " + dBuf.getDataType());
-            }
-        }
     }
 
     /**

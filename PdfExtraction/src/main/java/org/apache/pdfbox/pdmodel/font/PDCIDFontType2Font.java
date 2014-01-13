@@ -16,8 +16,6 @@
  */
 package org.apache.pdfbox.pdmodel.font;
 
-import java.awt.Font;
-import java.awt.FontFormatException;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
@@ -65,37 +63,7 @@ public class PDCIDFontType2Font extends PDCIDFont
         super( fontDictionary );
     }
     
-    /**
-     * {@inheritDoc}
-     */
-    public Font getawtFont() throws IOException
-    {
-        Font awtFont = null;
-        PDFontDescriptorDictionary fd = (PDFontDescriptorDictionary)getFontDescriptor();
-        PDStream ff2Stream = fd.getFontFile2();
-        if( ff2Stream != null )
-        {
-            try
-            {
-                // create a font with the embedded data
-                awtFont = Font.createFont( Font.TRUETYPE_FONT, ff2Stream.createInputStream() );
-            }
-            catch( FontFormatException f )
-            {
-                LOG.info("Can't read the embedded font " + fd.getFontName() );
-            }
-            if (awtFont == null)
-            {
-                awtFont = FontManager.getAwtFont(fd.getFontName());
-                if (awtFont != null)
-                {
-                    LOG.info("Using font "+awtFont.getName()+ " instead");
-                }
-                setIsFontSubstituted(true);
-            }
-        }
-        return awtFont;
-    }
+
 
     /**
      * read the CIDToGID map.

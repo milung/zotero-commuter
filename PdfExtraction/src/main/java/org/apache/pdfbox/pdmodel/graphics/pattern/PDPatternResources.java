@@ -17,15 +17,14 @@
 package org.apache.pdfbox.pdmodel.graphics.pattern;
 
 
-import java.awt.Paint;
+
 import java.io.IOException;
 
 import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.common.COSObjectable;
-import org.apache.pdfbox.pdmodel.graphics.pattern.PDShadingPatternResources;
-import org.apache.pdfbox.pdmodel.graphics.pattern.PDTilingPatternResources;
+import org.apache.pdfbox.graphics.Paint;
 
 /**
  * This represents the resources for a pattern colorspace.
@@ -118,15 +117,6 @@ public abstract class PDPatternResources implements COSObjectable
         return patternDictionary.getInt( COSName.LENGTH, 0 );
     }
 
-    /**
-     * This will set the paint type.
-     *
-     * @param paintType The new paint type.
-     */
-    public void setPaintType(int paintType)
-    {
-        patternDictionary.setInt(COSName.PAINT_TYPE, paintType);
-    }
 
     /**
      * This will return the paint type.
@@ -138,22 +128,9 @@ public abstract class PDPatternResources implements COSObjectable
         return COSName.PATTERN.getName();
     }
 
-    /**
-     * This will set the pattern type.
-     *
-     * @param patternType The new pattern type.
-     */
-    public void setPatternType(int patternType)
-    {
-        patternDictionary.setInt(COSName.PATTERN_TYPE, patternType);
-    }
 
-    /**
-     * This will return the pattern type.
-     *
-     * @return The pattern type
-     */
-    public abstract int getPatternType();
+
+
     
     /**
      * Create the correct PD Model pattern based on the COS base pattern.
@@ -181,14 +158,5 @@ public abstract class PDPatternResources implements COSObjectable
         }
         return pattern;
     }
-    
-    /**
-     * This will return the paint of the pattern.
-     * 
-     * @param the height of the current page
-     * 
-     * @return the paint of the pattern
-     */
-    public abstract Paint getPaint(int pageHeight) throws IOException;
-    
+
 }

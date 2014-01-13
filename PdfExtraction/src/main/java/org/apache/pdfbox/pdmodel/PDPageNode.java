@@ -144,15 +144,6 @@ public class PDPageNode implements COSObjectable
         return parent;
     }
 
-    /**
-     * This will set the parent of this page.
-     *
-     * @param parent The parent to this page node.
-     */
-    public void setParent( PDPageNode parent )
-    {
-        page.setItem( COSName.PARENT, parent.getDictionary() );
-    }
 
     /**
      * {@inheritDoc}
@@ -262,22 +253,7 @@ public class PDPageNode implements COSObjectable
         return retval;
     }
 
-    /**
-     * This will set the resources for this page.
-     *
-     * @param resources The new resources for this page.
-     */
-    public void setResources( PDResources resources )
-    {
-        if( resources == null )
-        {
-            page.removeItem( COSName.RESOURCES );
-        }
-        else
-        {
-            page.setItem( COSName.RESOURCES, resources.getCOSDictionary() );
-        }
-    }
+
 
     /**
      * This will get the MediaBox at this page and not look up the hierarchy.
@@ -314,22 +290,6 @@ public class PDPageNode implements COSObjectable
         return retval;
     }
 
-    /**
-     * This will set the mediaBox for this page.
-     *
-     * @param mediaBox The new mediaBox for this page.
-     */
-    public void setMediaBox( PDRectangle mediaBox )
-    {
-        if( mediaBox == null )
-        {
-            page.removeItem( COSName.MEDIA_BOX  );
-        }
-        else
-        {
-            page.setItem( COSName.MEDIA_BOX , mediaBox.getCOSArray() );
-        }
-    }
 
     /**
      * This will get the CropBox at this page and not look up the hierarchy.
@@ -389,22 +349,7 @@ public class PDPageNode implements COSObjectable
         return rect;
     }
 
-    /**
-     * This will set the CropBox for this page.
-     *
-     * @param cropBox The new CropBox for this page.
-     */
-    public void setCropBox( PDRectangle cropBox )
-    {
-        if( cropBox == null )
-        {
-            page.removeItem( COSName.CROP_BOX );
-        }
-        else
-        {
-            page.setItem( COSName.CROP_BOX, cropBox.getCOSArray() );
-        }
-    }
+
 
     /**
      * A value representing the rotation.  This will be null if not set at this level
@@ -455,13 +400,5 @@ public class PDPageNode implements COSObjectable
         return retval;
     }
 
-    /**
-     * This will set the rotation for this page.
-     *
-     * @param rotation The new rotation for this page.
-     */
-    public void setRotation( int rotation )
-    {
-        page.setInt( COSName.ROTATE, rotation );
-    }
+
 }

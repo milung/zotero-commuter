@@ -16,8 +16,7 @@
  */
 package org.apache.pdfbox.pdmodel.font;
 
-import java.awt.Font;
-import java.awt.FontFormatException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -77,7 +76,6 @@ public class PDTrueTypeFont extends PDSimpleFont
      */
     public static final String UNKNOWN_FONT = "UNKNOWN_FONT";
 
-    private Font awtFont = null;
 
     private static Properties externalFonts = new Properties();
     private static Map<String,TrueTypeFont> loadedExternalFonts = new HashMap<String,TrueTypeFont>();
@@ -433,81 +431,7 @@ public class PDTrueTypeFont extends PDSimpleFont
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Font getawtFont() throws IOException
-    {
-         PDFontDescriptorDictionary fd = (PDFontDescriptorDictionary)getFontDescriptor();
-        if( awtFont == null )
-        {
-            PDStream ff2Stream = fd.getFontFile2();
-            if( ff2Stream != null )
-            {
-                try
-                {
-                    // create a font with the embedded data
-                    awtFont = Font.createFont( Font.TRUETYPE_FONT, ff2Stream.createInputStream() );
-                }
-                catch( FontFormatException f )
-                {
-                    try
-                    {
-                        // as a workaround we try to rebuild the embedded subsfont
-                        byte[] fontData = rebuildTTF(fd, ff2Stream.createInputStream());
-                        if (fontData != null)
-                        {
-                            ByteArrayInputStream bais = new ByteArrayInputStream(fontData);
-                            awtFont = Font.createFont( Font.TRUETYPE_FONT,bais);
-                        }
-                    } 
-                    catch (FontFormatException e)
-                    {
-                        log.info("Can't read the embedded font " + fd.getFontName() );
-                    }
-                }
-                if (awtFont == null)
-                {
-                    awtFont = FontManager.getAwtFont(fd.getFontName());
-                    if (awtFont != null)
-                    {
-                        log.info("Using font "+awtFont.getName()+ " instead");
-                    }
-                    setIsFontSubstituted(true);
-                }
-            }
-            else
-            {
-                // check if the font is part of our environment
-                awtFont = FontManager.getAwtFont(fd.getFontName());
-                if (awtFont == null)
-                {
-                    log.info("Can't find the specified font " + fd.getFontName() );
-                    // check if there is a font mapping for an external font file
-                    TrueTypeFont ttf = getExternalFontFile2( fd );
-                    if( ttf != null )
-                    {
-                        try
-                        {
-                            awtFont = Font.createFont( Font.TRUETYPE_FONT, ttf.getOriginalData() );
-                        }
-                        catch( FontFormatException f )
-                        {
-                            log.info("Can't read the external fontfile " + fd.getFontName() );
-                        }
-                    }
-                }
-            }
-            if (awtFont == null)
-            {
-                // we can't find anything, so we have to use the standard font
-                awtFont = FontManager.getStandardFont();
-                log.info("Using font "+awtFont.getName()+ " instead");
-                setIsFontSubstituted(true);
-            }
-        }
-        return awtFont;
-    }
+
 
     private byte[] rebuildTTF(PDFontDescriptorDictionary fd, InputStream inputStream) throws IOException
     {

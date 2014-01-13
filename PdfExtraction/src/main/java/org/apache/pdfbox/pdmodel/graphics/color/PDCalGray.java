@@ -22,10 +22,6 @@ import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSFloat;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.cos.COSNumber;
-
-import java.awt.color.ColorSpace;
-import java.awt.image.ColorModel;
-
 import java.io.IOException;
 
 /**
@@ -88,31 +84,6 @@ public class PDCalGray extends PDColorSpace
         return NAME;
     }
 
-    /**
-     * Create a Java colorspace for this colorspace.
-     *
-     * @return A color space that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color space.
-     */
-    protected ColorSpace createColorSpace() throws IOException
-    {
-        throw new IOException( "Not implemented" );
-    }
-
-    /**
-     * Create a Java color model for this colorspace.
-     *
-     * @param bpc The number of bits per component.
-     *
-     * @return A color model that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color model.
-     */
-    public ColorModel createColorModel( int bpc ) throws IOException
-    {
-        throw new IOException( "Not implemented" );
-    }
 
     /**
      * Convert this standard java object to a COS object.

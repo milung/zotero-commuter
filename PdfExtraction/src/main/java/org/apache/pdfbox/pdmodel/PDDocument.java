@@ -17,20 +17,6 @@
 package org.apache.pdfbox.pdmodel;
 
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.pdfbox.cos.COSArray;
 import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSDictionary;
@@ -38,7 +24,6 @@ import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.cos.COSInteger;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.cos.COSObject;
-import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.exceptions.CryptographyException;
 import org.apache.pdfbox.exceptions.InvalidPasswordException;
@@ -46,9 +31,7 @@ import org.apache.pdfbox.exceptions.SignatureException;
 import org.apache.pdfbox.io.RandomAccess;
 import org.apache.pdfbox.pdfparser.NonSequentialPDFParser;
 import org.apache.pdfbox.pdfparser.PDFParser;
-//import org.apache.pdfbox.pdfwriter.COSWriter;
 import org.apache.pdfbox.pdmodel.common.COSArrayList;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.common.PDStream;
 import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.pdmodel.encryption.BadSecurityHandlerException;
@@ -59,15 +42,23 @@ import org.apache.pdfbox.pdmodel.encryption.SecurityHandler;
 import org.apache.pdfbox.pdmodel.encryption.SecurityHandlersManager;
 import org.apache.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.apache.pdfbox.pdmodel.encryption.StandardProtectionPolicy;
-import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
-import org.apache.pdfbox.pdmodel.interactive.annotation.PDAppearanceDictionary;
-import org.apache.pdfbox.pdmodel.interactive.annotation.PDAppearanceStream;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
-import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureInterface;
-import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureOptions;
 import org.apache.pdfbox.pdmodel.interactive.form.PDAcroForm;
-import org.apache.pdfbox.pdmodel.interactive.form.PDField;
 import org.apache.pdfbox.pdmodel.interactive.form.PDSignatureField;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+//import org.apache.pdfbox.pdfwriter.COSWriter;
 
 /**
  * This is the in-memory representation of the PDF document.  You need to call
@@ -276,13 +267,13 @@ public class PDDocument
      * @throws IOException if there is an error creating required fields
      * @throws SignatureException if something went wrong
      */
-    public void addSignature(PDSignature sigObject, SignatureInterface signatureInterface) 
+    /*public void addSignature(PDSignature sigObject, SignatureInterface signatureInterface)
             throws IOException, SignatureException
     {
         SignatureOptions defaultOptions = new SignatureOptions();
         defaultOptions.setPage(1);
         addSignature(sigObject, signatureInterface,defaultOptions);
-    }
+    }*/
     
     /**
      * This will add a signature to the document. 
@@ -293,7 +284,7 @@ public class PDDocument
      * @throws IOException if there is an error creating required fields
      * @throws SignatureException if something went wrong
      */
-    public void addSignature(PDSignature sigObject, SignatureInterface signatureInterface, SignatureOptions options)
+    /*public void addSignature(PDSignature sigObject, SignatureInterface signatureInterface, SignatureOptions options)
             throws IOException, SignatureException
     {
         // Reserve content
@@ -358,12 +349,12 @@ public class PDDocument
             acroForm.getCOSObject().setNeedToBeUpdate(true);
         }
       
-        /*
+        *//*
          * For invisible signatures, the annotation has a rectangle array with values [ 0 0 0 0 ]. 
          * This annotation is usually attached to the viewed page when the signature is created. 
          * Despite not having an appearance, the annotation AP and N dictionaries may be present 
          * in some versions of Acrobat. If present, N references the DSBlankXObj (blank) XObject.
-         */
+         *//*
 
         // Create Annotation / Field for signature
         List<PDAnnotation> annotations = page.getAnnotations();
@@ -517,7 +508,7 @@ public class PDDocument
             annotations.add(signatureField.getWidget());
         }
         page.getCOSObject().setNeedToBeUpdate(true);
-    }
+    }*/
 
     /**
      * This will add a signaturefield to the document.
@@ -527,7 +518,7 @@ public class PDDocument
      * @throws IOException if there is an error creating required fields
      * @throws SignatureException 
      */
-    public void addSignatureField(List<PDSignatureField> sigFields,
+    /*public void addSignatureField(List<PDSignatureField> sigFields,
                                   SignatureInterface signatureInterface,
                                   SignatureOptions options) throws IOException, SignatureException
     {
@@ -574,7 +565,7 @@ public class PDDocument
                     }
                 }
             }
-            
+
             if (!checkFields)
             {
                 field.add(sigField);
@@ -591,45 +582,12 @@ public class PDDocument
                 addSignature(sigField.getSignature(), signatureInterface, options);
             }
         }
-    }
+    }*/
 
     
-    /**
-     * Remove the page from the document.
-     *
-     * @param page The page to remove from the document.
-     *
-     * @return true if the page was found false otherwise.
-     */
-    public boolean removePage( PDPage page )
-    {
-        PDPageNode parent = page.getParent();
-        boolean retval = parent.getKids().remove( page );
-        if( retval )
-        {
-            //do a recursive updateCount starting at the root of the document
-            getDocumentCatalog().getPages().updateCount();
-        }
-        return retval;
-    }
 
-    /**
-     * Remove the page from the document.
-     *
-     * @param pageNumber 0 based index to page number.
-     * @return true if the page was found false otherwise.
-     */
-    public boolean removePage( int pageNumber )
-    {
-        boolean removed = false;
-        List allPages = getDocumentCatalog().getAllPages();
-        if( allPages.size() > pageNumber)
-        {
-            PDPage page = (PDPage)allPages.get( pageNumber );
-            removed = removePage( page );
-        }
-        return removed;
-    }
+
+
 
     /**
      * This will import and copy the contents from another location.  Currently
@@ -948,33 +906,6 @@ public class PDDocument
         return false;
     }
 
-    /**
-     * This will <b>mark</b> a document to be encrypted.  The actual encryption
-     * will occur when the document is saved.
-     * This method is provided for compatibility reasons only. User should use
-     * the new security layer instead and the openProtection method especially.
-     *
-     * @param ownerPassword The owner password to encrypt the document.
-     * @param userPassword The user password to encrypt the document.
-     *
-     * @throws CryptographyException If an error occurs during encryption.
-     * @throws IOException If there is an error accessing the data.
-     *
-     */
-    public void encrypt( String ownerPassword, String userPassword )
-        throws CryptographyException, IOException
-    {
-        try
-        {
-            StandardProtectionPolicy policy =
-                new StandardProtectionPolicy(ownerPassword, userPassword, new AccessPermission());
-            this.protect(policy);
-        }
-        catch(BadSecurityHandlerException e)
-        {
-            throw new CryptographyException(e);
-        }
-    }
 
 
     /**
@@ -1424,22 +1355,7 @@ public class PDDocument
     }
 
 
-    /**
-     * Protects the document with the protection policy pp. The document content will be really encrypted
-     * when it will be saved. This method only marks the document for encryption.
-     *
-     * @see org.apache.pdfbox.pdmodel.encryption.StandardProtectionPolicy
-     * @see org.apache.pdfbox.pdmodel.encryption.PublicKeyProtectionPolicy
-     *
-     * @param pp The protection policy.
-     *
-     * @throws BadSecurityHandlerException If there is an error during protection.
-     */
-    public void protect(ProtectionPolicy pp) throws BadSecurityHandlerException
-    {
-        SecurityHandler handler = SecurityHandlersManager.getInstance().getSecurityHandler(pp);
-        securityHandler = handler;
-    }
+
 
     /**
      * Tries to decrypt the document in memory using the provided decryption material.
@@ -1526,24 +1442,12 @@ public class PDDocument
         return allSecurityToBeRemoved;
     }
 
-    /**
-     * Activates/Deactivates the removal of all security when writing the pdf.
-     *  
-     * @param removeAllSecurity remove all security if set to true
-     */
-    public void setAllSecurityToBeRemoved(boolean removeAllSecurity)
-    {
-        allSecurityToBeRemoved = removeAllSecurity;
-    }
-    
+
     public Long getDocumentId() 
     {
       return documentId;
     }
     
-    public void setDocumentId(Long docId)
-    {
-      documentId = docId;
-    }
+
 }
 

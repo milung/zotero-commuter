@@ -74,8 +74,6 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
             }
             else item.setSynced(SyncStatus.SYNC_OK);
         }
-
-
     }
 
     public void replaceRemoteVersion(Item item)
@@ -100,6 +98,57 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         {
             parent.removeChild(item);
         }
+
+    }
+
+    public void addItemsToCollection(List<Long> itemIds, CollectionEntity collection)
+    {
+        List<Item> updatedItems = new ArrayList<Item>(itemIds.size());
+        List<Item> collectionItems = collection.getItems();
+
+        for(long id : itemIds)
+        {
+            boolean isNewItem = true;
+            for(Item item : collectionItems)
+            {
+                if(item.getId() == id)
+                {
+                    isNewItem = false;
+                    break;
+                }
+            }
+            if(isNewItem)
+            {
+                Item item = itemsDao.findById(id);
+                updatedItems.add(item);
+            }
+        }
+
+        for(Item item : updatedItems)
+        {
+            item.addCollection(collection);
+            item.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
+            itemsDao.upsert(item);
+        }
+
+        fireItemsUpdated();
+
+    }
+
+    public void removeItemsFromCollection(List<Long> itemIds, CollectionEntity collection)
+    {
+        for(long id : itemIds)
+        {
+            Item item = itemsDao.findById(id);
+            item.removeCollection(collection);
+            item.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
+            itemsDao.upsert(item);
+        }
+        fireItemsUpdated();
+    }
+
+    protected void fireItemsUpdated()
+    {
         for( ZoteroStorageListener listener : listeners )
         {
             listener.onItemsUpdated();
@@ -288,20 +337,14 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
     {
         itemsDao.delete(item);
 
-        for( ZoteroStorageListener listener : listeners )
-        {
-            listener.onItemsUpdated();
-        }
+        fireItemsUpdated();
     }
 
     public void deleteItems(@NotNull Iterable<String> keys)
     {
         itemsDao.deleteForKeys(keys);
 
-        for( ZoteroStorageListener listener : listeners )
-        {
-            listener.onItemsUpdated();
-        }
+        fireItemsUpdated();
     }
 
     public void deleteTags(@NotNull Iterable<String> tags)
@@ -320,10 +363,7 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
     public void updateItem(@NotNull Item item)
     {
         updateItemInternal(item);
-        for( ZoteroStorageListener listener : listeners )
-        {
-            listener.onItemsUpdated();
-        }
+        fireItemsUpdated();
     }
 
     private void updateItemInternal(Item item) {
@@ -357,11 +397,8 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
             updateItemInternal(item);
         }
 
-        for( ZoteroStorageListener listener : listeners )
-        {
-            listener.onItemsUpdated();
-        }
-	}
+        fireItemsUpdated();
+    }
 
     public int getItemsVersion()
     {

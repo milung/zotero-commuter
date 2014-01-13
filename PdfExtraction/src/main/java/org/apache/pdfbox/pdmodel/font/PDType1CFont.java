@@ -17,8 +17,6 @@
 
 package org.apache.pdfbox.pdmodel.font;
 
-import java.awt.Font;
-import java.awt.FontFormatException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -76,8 +74,6 @@ public class PDType1CFont extends PDSimpleFont
     private Map<String, Integer> characterToCode = new HashMap<String, Integer>();
 
     private FontMetric fontMetric = null;
-
-    private Font awtFont = null;
 
     private Map<String, Float> glyphWidths = new HashMap<String, Float>();
 
@@ -286,18 +282,6 @@ public class PDType1CFont extends PDSimpleFont
         return fontMatrix;
     }
 
-    /**
-     * {@inheritDoc}
-     */    
-    public Font getawtFont() throws IOException
-    {
-        if (awtFont == null)
-        {
-            this.awtFont = prepareAwtFont(this.cffFont);
-        }
-        return awtFont;
-    }
-    
     private FontMetric getFontMetric() 
     {
         if (fontMetric == null)
@@ -565,24 +549,7 @@ public class PDType1CFont extends PDSimpleFont
         }
     }
 
-    private static Font prepareAwtFont( CFFFont font ) throws IOException
-    {
-        byte[] type1Bytes = Type1FontFormatter.format(font);
 
-        InputStream is = new ByteArrayInputStream(type1Bytes);
-        try
-        {
-            return Font.createFont(Font.TYPE1_FONT, is);
-        }
-        catch( FontFormatException ffe )
-        {
-            throw new WrappedIOException(ffe);
-        }
-        finally
-        {
-            is.close();
-        }
-    }
 
     /**
      * This class represents a PDFEncoding.

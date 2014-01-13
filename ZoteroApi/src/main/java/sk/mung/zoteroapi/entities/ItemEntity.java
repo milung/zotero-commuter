@@ -143,7 +143,29 @@ public class ItemEntity implements Item
 	@Override public List<Tag> getTags() { return tags; }
 	@Override public void addTag(Tag tag) { tags.add(tag); }
 
-    @Override public void addCollection(CollectionEntity key) { collections.add(key); }
+    @Override public void addCollection(CollectionEntity key)
+    {
+        collections.add(key);
+    }
+    @Override
+    public void removeCollection(CollectionEntity col)
+    {
+        int index = -1;
+        for(int ix=0; ix < collections.size(); ++ix)
+        {
+            if(collections.get(ix).getId() == col.getId())
+            {
+                index = ix;
+                break;
+            }
+        }
+        if(index >= 0)
+        {
+            collections.remove(index);
+        }
+    }
+
+
     @Override public List<CollectionEntity> getCollections() { return collections; }
 
     @Override public String getParentKey() { return parentKey; }

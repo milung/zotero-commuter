@@ -29,6 +29,7 @@ public interface Item extends KeyEntity
 
     List<CollectionEntity> getCollections();
     void addCollection(CollectionEntity col);
+    void removeCollection(CollectionEntity col);
 
     List<Tag> getTags();
     void addTag(Tag tag);

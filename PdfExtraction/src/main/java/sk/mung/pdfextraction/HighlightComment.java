@@ -4,9 +4,9 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationTextMarkup;
 import org.apache.pdfbox.util.PDFTextStripperByArea;
+import org.apache.pdfbox.graphics.Rectangle;
 import org.xml.sax.SAXException;
 
-import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -60,7 +60,7 @@ class HighlightComment implements Comment {
                 y = pageSize.getHeight() - y;
             }
 
-            Rectangle2D.Float awtRect = new Rectangle2D.Float(x, y, w,h);
+            Rectangle awtRect = new Rectangle(x, y, w,h);
 
             stripper.addRegion(Integer.toString(i), awtRect);
         }

@@ -16,8 +16,6 @@
  */
 package org.apache.pdfbox.pdmodel.graphics.color;
 
-import java.awt.color.ColorSpace;
-import java.awt.color.ICC_ColorSpace;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
@@ -223,54 +221,5 @@ public final class PDColorSpaceFactory
         return cs;
     }
 
-    /**
-     * This will create the correct color space from a java colorspace.
-     *
-     * @param doc The doc to potentiall write information to.
-     * @param cs The awt colorspace.
-     *
-     * @return The color space.
-     *
-     * @throws IOException If the color space name is unknown.
-     */
-    public static PDColorSpace createColorSpace( PDDocument doc, ColorSpace cs ) throws IOException
-    {
-        PDColorSpace retval = null;
-        if( cs.isCS_sRGB() )
-        {
-            retval = PDDeviceRGB.INSTANCE;
-        }
-        else if( cs instanceof ICC_ColorSpace )
-        {
-            ICC_ColorSpace ics = (ICC_ColorSpace)cs;
-            PDICCBased pdCS = new PDICCBased( doc );
-            retval = pdCS;
-            COSArray ranges = new COSArray();
-            for( int i=0; i<cs.getNumComponents(); i++ )
-            {
-                ranges.add( new COSFloat( ics.getMinValue( i ) ) );
-                ranges.add( new COSFloat( ics.getMaxValue( i ) ) );
-            }
-            PDStream iccData = pdCS.getPDStream();
-            OutputStream output = null;
-            try
-            {
-                output = iccData.createOutputStream();
-                output.write( ics.getProfile().getData() );
-            }
-            finally
-            {
-                if( output != null )
-                {
-                    output.close();
-                }
-            }
-            pdCS.setNumberOfComponents( cs.getNumComponents() );
-        }
-        else
-        {
-            throw new IOException( "Not yet implemented:" + cs );
-        }
-        return retval;
-    }
+
 }

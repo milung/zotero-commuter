@@ -68,10 +68,16 @@
     <string name="note">Note</string>
     <string name="annotation_template"><![CDATA[<p><b>@type on page @page:</b><br/>@content</p>]]></string>
     <string name="attachment_status_extracting">Extracting annotations</string>
+    <string name="clipdata_item">Zotero Item</string>
+    <string name="extraction_error">Cannot extract annotations</string>
+    <string name="action_tags">Tags</string>
 
     <plurals name="number_of_items">
         <item quantity="zero">No items</item>
         <item quantity="one">One item</item>
         <item quantity="other">%d items</item>
+    </plurals>
+    <plurals name="count_items_selected">
+        <item quantity="other">%d selected</item>
     </plurals>
 </resources>

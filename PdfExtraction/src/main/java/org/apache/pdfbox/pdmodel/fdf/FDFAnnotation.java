@@ -16,7 +16,6 @@
  */
 package org.apache.pdfbox.pdmodel.fdf;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -26,6 +25,7 @@ import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.cos.COSNumber;
 
+import org.apache.pdfbox.graphics.Color;
 import org.apache.pdfbox.pdmodel.common.COSObjectable;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;

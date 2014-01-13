@@ -16,8 +16,6 @@
  */
 package org.apache.pdfbox.pdmodel.graphics.color;
 
-import java.awt.color.ColorSpace;
-import java.awt.image.ColorModel;
 
 import java.io.IOException;
 
@@ -90,68 +88,9 @@ public class PDSeparation extends PDColorSpace
         return getAlternateColorSpace().getNumberOfComponents();
     }
 
-    /**
-     * Create a Java colorspace for this colorspace.
-     *
-     * @return A color space that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color space.
-     */
-    protected ColorSpace createColorSpace() throws IOException
-    {
-        try
-        {
-            PDColorSpace alt = getAlternateColorSpace();
-            return alt.getJavaColorSpace();
-        }
-        catch (IOException ioexception)
-        {
-            log.error(ioexception, ioexception);
 
-            throw ioexception;
-        }
-        catch (Exception exception)
-        {
-            log.error(exception, exception);
-            throw new IOException("Failed to Create ColorSpace");
-        }
-    }
 
-    /**
-     * Create a Java color model for this colorspace.
-     *
-     * @param bpc The number of bits per component.
-     *
-     * @return A color model that can be used for Java AWT operations.
-     *
-     * @throws IOException If there is an error creating the color model.
-     */
-    public ColorModel createColorModel( int bpc ) throws IOException
-    {
-        log.info("About to create ColorModel for " + getAlternateColorSpace().toString());
-        return getAlternateColorSpace().createColorModel(bpc);
-    }
 
-    /**
-     * This will get the separation name.
-     *
-     * @return The name in the separation.
-     */
-    public String getColorantName()
-    {
-        COSName name = (COSName)array.getObject( 1 );
-        return name.getName();
-    }
-
-    /**
-     * This will set the separation name.
-     *
-     * @param name The separation name.
-     */
-    public void setColorantName( String name )
-    {
-        array.set( 1, COSName.getPDFName( name ) );
-    }
 
     /**
      * This will get the alternate color space for this separation.
@@ -167,20 +106,7 @@ public class PDSeparation extends PDColorSpace
         return cs;
     }
 
-    /**
-     * This will set the alternate color space.
-     *
-     * @param cs The alternate color space.
-     */
-    public void setAlternateColorSpace( PDColorSpace cs )
-    {
-        COSBase space = null;
-        if( cs != null )
-        {
-            space = cs.getCOSObject();
-        }
-        array.set( 2, space );
-    }
+
 
     /**
      * This will get the tint transform function.
@@ -194,27 +120,7 @@ public class PDSeparation extends PDColorSpace
         return PDFunction.create( array.getObject( 3 ) );
     }
 
-    /**
-     * This will set the tint transform function.
-     *
-     * @param tint The tint transform function.
-     */
-    public void setTintTransform( PDFunction tint )
-    {
-        array.set( 3, tint );
-    }
 
-    /**
-     * Returns the components of the color in the alternate colorspace for the given tint value.
-     * @param tintValue the tint value
-     * @return COSArray with the color components
-     * @throws IOException If the tint function is not supported
-     */
-    public COSArray calculateColorValues(COSBase tintValue) throws IOException
-    {
-        PDFunction tintTransform = getTintTransform();
-        COSArray tint = new COSArray();
-        tint.add(tintValue);
-        return tintTransform.eval(tint);
-    }
+
+
 }

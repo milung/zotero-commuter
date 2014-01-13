@@ -16,12 +16,11 @@
  */
 package org.apache.pdfbox.pdmodel.graphics;
 
-import java.awt.*;
-import java.awt.geom.GeneralPath;
 
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.color.PDColorState;
 import org.apache.pdfbox.pdmodel.text.PDTextState;
+import org.apache.pdfbox.graphics.Dimension;
 import org.apache.pdfbox.util.Matrix;
 
 /**
@@ -64,7 +63,6 @@ public class PDGraphicsState implements Cloneable
     private double flatness = 1.0;
     private double smoothness = 0;
 
-    private GeneralPath currentClippingPath;
 
     /**
      * Default constructor.
@@ -79,7 +77,8 @@ public class PDGraphicsState implements Cloneable
      */
     public PDGraphicsState(PDRectangle page)
     {
-        currentClippingPath = new GeneralPath(new Rectangle(page.createDimension()));
+        Dimension d = page.createDimension();
+
         if (page.getLowerLeftX() != 0 || page.getLowerLeftY() != 0)
         {
             //Compensate for offset
@@ -427,10 +426,7 @@ public class PDGraphicsState implements Cloneable
             {
                 clone.setLineDashPattern( (PDLineDashPattern)lineDashPattern.clone() );
             }
-            if (currentClippingPath != null)
-            {
-                clone.setCurrentClippingPath((GeneralPath)currentClippingPath.clone());
-            }
+
         }
         catch( CloneNotSupportedException e )
         {
@@ -459,49 +455,7 @@ public class PDGraphicsState implements Cloneable
         return nonStrokingColor;
     }
 
-    /**
-     * This will set the current clipping path.
-     *
-     * @param pCurrentClippingPath The current clipping path.
-     *
-     */
-    public void setCurrentClippingPath(Shape pCurrentClippingPath)
-    {
-        if (pCurrentClippingPath != null)
-        {
-            if (pCurrentClippingPath instanceof GeneralPath)
-            {
-                currentClippingPath = (GeneralPath)pCurrentClippingPath;
-            }
-            else
-            {
-                currentClippingPath = new GeneralPath();
-                currentClippingPath.append(pCurrentClippingPath,false);
-            }
-        }
-        else
-        {
-            currentClippingPath = null;
-        }
-    }
 
-    /**
-     * This will get the current clipping path.
-     *
-     * @return The current clipping path.
-     */
-    public Shape getCurrentClippingPath()
-    {
-        return currentClippingPath;
-    }
 
-    public Composite getStrokeJavaComposite() {
 
-        return AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) alphaConstants);
-    }
-
-    public Composite getNonStrokeJavaComposite() {
-
-        return AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) nonStrokingAlphaConstants);
-    }
 }

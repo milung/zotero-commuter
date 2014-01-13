@@ -16,7 +16,7 @@
  */
 package org.apache.pdfbox.util;
 
-import java.awt.geom.Rectangle2D;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 import org.apache.pdfbox.cos.COSStream;
+import org.apache.pdfbox.graphics.Rectangle;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDStream;
 
@@ -40,7 +41,7 @@ import org.apache.pdfbox.pdmodel.common.PDStream;
 public class PDFTextStripperByArea extends PDFTextStripper
 {
     private List<String> regions = new ArrayList<String>();
-    private Map<String,Rectangle2D> regionArea = new HashMap<String,Rectangle2D>();
+    private Map<String,Rectangle> regionArea = new HashMap<String,Rectangle>();
     private Map<String,Vector<ArrayList<TextPosition>>> regionCharacterList = 
         new HashMap<String,Vector<ArrayList<TextPosition>>>();
     private Map<String,StringWriter> regionText = new HashMap<String,StringWriter>();
@@ -96,7 +97,7 @@ public class PDFTextStripperByArea extends PDFTextStripper
      * @param regionName The name of the region.
      * @param rect The rectangle area to retrieve the text from.
      */
-    public void addRegion( String regionName, Rectangle2D rect )
+    public void addRegion( String regionName, Rectangle rect )
     {
         regions.add( regionName );
         regionArea.put( regionName, rect );
@@ -164,7 +165,7 @@ public class PDFTextStripperByArea extends PDFTextStripper
         while( regionIter.hasNext() )
         {
             String region = regionIter.next();
-            Rectangle2D rect = regionArea.get( region );
+            Rectangle rect = regionArea.get( region );
             if( rect.contains( text.getX(), text.getY() ) )
             {
                 charactersByArticle = (Vector)regionCharacterList.get( region );

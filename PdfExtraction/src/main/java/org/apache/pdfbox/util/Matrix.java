@@ -16,7 +16,6 @@
  */
 package org.apache.pdfbox.util;
 
-import java.awt.geom.AffineTransform;
 
 /**
  * This class will be used for matrix manipulation.
@@ -53,34 +52,7 @@ public class Matrix implements Cloneable
         System.arraycopy(DEFAULT_SINGLE, 0, single, 0, DEFAULT_SINGLE.length);
     }
 
-    /**
-     * Create an affine transform from this matrix's values.
-     *
-     * @return An affine transform with this matrix's values.
-     */
-    public AffineTransform createAffineTransform()
-    {
-        AffineTransform retval = new AffineTransform(
-            single[0], single[1],
-            single[3], single[4],
-            single[6], single[7] );
-        return retval;
-    }
 
-    /**
-     * Set the values of the matrix from the AffineTransform.
-     *
-     * @param af The transform to get the values from.
-     */
-    public void setFromAffineTransform( AffineTransform af )
-    {
-        single[0] = (float)af.getScaleX();
-        single[1] = (float)af.getShearY();
-        single[3] = (float)af.getShearX();
-        single[4] = (float)af.getScaleY();
-        single[6] = (float)af.getTranslateX();
-        single[7] = (float)af.getTranslateY();
-    }
 
     /**
      * This will get a matrix value at some point.

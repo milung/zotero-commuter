@@ -81,10 +81,17 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     }
 
     @Override
-    public void addCollection(CollectionEntity key)
+    public void addCollection(CollectionEntity col)
     {
         loadCollections();
-        getAdaptee().addCollection(key);
+        getAdaptee().addCollection(col);
+    }
+
+    @Override
+    public void removeCollection(CollectionEntity col)
+    {
+        loadCollections();
+        getAdaptee().removeCollection(col);
     }
 
     @Override
