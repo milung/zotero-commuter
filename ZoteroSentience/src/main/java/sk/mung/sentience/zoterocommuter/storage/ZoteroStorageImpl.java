@@ -16,6 +16,7 @@ import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.SyncStatus;
+import sk.mung.zoteroapi.entities.Tag;
 
 public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
 {
@@ -153,6 +154,20 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         {
             listener.onItemsUpdated();
         }
+    }
+
+    public void assignTagsToItem(Item item, String[] tags)
+    {
+        item.clearTags();
+        for( String tag : tags)
+        {
+            Tag tagEntity = tagsDao.createEntity();
+            tagEntity.setTag(tag);
+            tagEntity.setType(0);
+            item.addTag(tagEntity);
+        }
+        item.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
+        itemsDao.upsert(item);
     }
 
     class DatabaseConnection

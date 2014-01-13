@@ -160,6 +160,12 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
         getAdaptee().addTag(tag);
     }
 
+    @Override
+    public void clearTags()
+    {
+        getAdaptee().clearTags();
+    }
+
     private void loadCollections()
     {
         if(!areCollectionsLoaded)

@@ -71,6 +71,7 @@
     <string name="clipdata_item">Zotero Item</string>
     <string name="extraction_error">Cannot extract annotations</string>
     <string name="action_tags">Tags</string>
+    <string name="tags">Tags</string>
 
     <plurals name="number_of_items">
         <item quantity="zero">No items</item>
