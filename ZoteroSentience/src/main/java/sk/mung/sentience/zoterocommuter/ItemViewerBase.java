@@ -28,7 +28,7 @@ import sk.mung.zoteroapi.entities.ItemField;
 import sk.mung.zoteroapi.entities.ItemType;
 import sk.mung.zoteroapi.entities.Tag;
 
-public class ItemViewer extends Fragment
+class ItemViewerBase extends Fragment
 {
     public static final String HIDDEN_TAG_PREFIX = "_";
     private Item item;
@@ -59,9 +59,6 @@ public class ItemViewer extends Fragment
                 return super.onOptionsItemSelected(menuItem);
         }
     }
-
-
-
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
@@ -211,6 +208,20 @@ public class ItemViewer extends Fragment
 
     private void renderTags()
     {
+        String tagsText = getSeparatedTags();
+        TextView tagsView = (TextView) getView().findViewById(R.id.textViewTags);
+        if(tagsText.length() == 0)
+        {
+            tagsText = getString(R.string.tags_no_tags);
+            tagsView.setTypeface(null, Typeface.ITALIC);
+        }
+        else tagsView.setTypeface(null, Typeface.NORMAL);
+
+        tagsView.setText(tagsText.toString());
+    }
+
+    private  String getSeparatedTags()
+    {
         StringBuilder tagsText = new StringBuilder();
         boolean isFirst = true;
         for(Tag tag : item.getTags())
@@ -225,15 +236,7 @@ public class ItemViewer extends Fragment
                 isFirst = false;
             }
         }
-        TextView tagsView = (TextView) getView().findViewById(R.id.textViewTags);
-        if(tagsText.length() == 0)
-        {
-            tagsText.append(getString(R.string.tags_no_tags));
-            tagsView.setTypeface(null, Typeface.ITALIC);
-        }
-        else tagsView.setTypeface(null, Typeface.NORMAL);
-
-        tagsView.setText(tagsText.toString());
+        return tagsText.toString();
     }
 
     private void renderCollection()
@@ -274,6 +277,4 @@ public class ItemViewer extends Fragment
         noteRenderer.onActivityResult(requestCode,resultCode,data);
         displayItems();
     }
-
-
 }

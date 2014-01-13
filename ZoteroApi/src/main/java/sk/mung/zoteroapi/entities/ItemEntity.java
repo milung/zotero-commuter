@@ -142,6 +142,8 @@ public class ItemEntity implements Item
 
 	@Override public List<Tag> getTags() { return tags; }
 	@Override public void addTag(Tag tag) { tags.add(tag); }
+    @Override public void clearTags() { tags.clear(); }
+
 
     @Override public void addCollection(CollectionEntity key)
     {
