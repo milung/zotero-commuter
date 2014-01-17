@@ -12,6 +12,7 @@ import sk.mung.zoteroapi.entities.Creator;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.ItemType;
 import sk.mung.sentience.zoterocommuter.R;
+import sk.mung.zoteroapi.entities.SyncStatus;
 
 /**
  * Created by sk1u00e5 on 17.6.2013.
@@ -64,7 +65,6 @@ public class ItemRenderer
 
     public void render(Item item, View view)
     {
-
         if(item == null) return;
         Attributes attr = attributes.get(item.getItemType());
 
@@ -77,8 +77,12 @@ public class ItemRenderer
         StringBuilder creatorsSequence = new StringBuilder();
         for(Creator creator : item.getCreators())
         {
-            creatorsSequence.append( String.format(format, creator.getFirstName(),creator.getLastName(), creator.getShortName()));
-            format = creatorFormatter;
+            if( creator.getType().isAuthor())
+            {
+                creatorsSequence.append( String.format(
+                        format, creator.getFirstName(),creator.getLastName(), creator.getShortName()));
+                format = creatorFormatter;
+            }
         }
         textView = (TextView) view.findViewById(R.id.textViewCreator);
         if( textView != null)
@@ -103,6 +107,20 @@ public class ItemRenderer
         if(icon != null)
         {
             icon.setBackgroundResource(attr == null ? R.drawable.ic_document : attr.getTypeIconId());
+        }
+
+        ImageView syncStatus = (ImageView) view.findViewById(R.id.sync_status);
+        if(syncStatus != null)
+        {
+            syncStatus.setVisibility(item.getSynced() == SyncStatus.SYNC_OK ? View.GONE : View.VISIBLE);
+            if(item.getSynced() == SyncStatus.SYNC_LOCALLY_UPDATED )
+            {
+                syncStatus.setBackgroundResource(R.drawable.blue_dot);
+            }
+            else if(item.getSynced() != SyncStatus.SYNC_OK )
+            {
+                syncStatus.setBackgroundResource(R.drawable.red_dot);
+            }
         }
     }
 }

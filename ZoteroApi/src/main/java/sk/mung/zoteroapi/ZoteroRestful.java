@@ -50,7 +50,7 @@ public class ZoteroRestful {
     public static final String IF_MODIFIED_SINCE_VERSION_HEADER = "If-Modified-Since-Version";
     private static final String IF_MATCH = "If-Match";
     public static final String CONTENT_TYPE = "Content-Type";
-    public static final String MIME_APPLICATION_JSON = "application/json";
+    public static final String MIME_APPLICATION_JSON = "application/json;charset=UTF-8";
     public static final String IF_UNMODIFIED_SINCE_VERSION = "If-Unmodified-Since-Version";
 
 
@@ -407,7 +407,6 @@ public class ZoteroRestful {
             request.addHeader(ZOTERO_API_VERSION_HEADER, ZOTERO_API_VERSION_VALUE);
             request.addHeader(CONTENT_TYPE, MIME_APPLICATION_JSON);
             request.addHeader(IF_UNMODIFIED_SINCE_VERSION, Integer.toString(sinceVersion ));
-
             request.setEntity(new StringEntity(json));
 
             HttpClient httpclient = new DefaultHttpClient();

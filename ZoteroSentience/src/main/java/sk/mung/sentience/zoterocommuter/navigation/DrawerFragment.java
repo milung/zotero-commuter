@@ -75,9 +75,9 @@ public class DrawerFragment extends Fragment
         public void onNavigateTo(Fragment fragment, boolean putBackState) {}
 
         @Override
-        public void onSettingsSelected() {
+        public void onSettingsSelected() {}
 
-        }
+
     };
 
     /**
@@ -100,7 +100,11 @@ public class DrawerFragment extends Fragment
         treeView.setOnChildClickListener(treeAdapter);
         treeView.setOnGroupClickListener(treeAdapter);
 
-        treeView.expandGroup(treeAdapter.getCollectionsIndex());
+        int collectionsIndex = treeAdapter.getCollectionsIndex();
+        if(collectionsIndex >=0)
+        {
+            treeView.expandGroup(collectionsIndex);
+        }
 
         getLoaderManager().initLoader(0, null, this);
     }
@@ -177,7 +181,7 @@ public class DrawerFragment extends Fragment
     	}
         else
         {
-            treeView.setItemChecked(1,true);
+            treeView.setItemChecked(treeAdapter.initialSelectionIndex(),true);
         }
     }
 

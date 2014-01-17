@@ -47,8 +47,8 @@ import static android.app.DownloadManager.STATUS_PENDING;
 public class AttachmentRenderer
 {
     public static final String IMPORTED_URL = "imported_url";
-    private static final String LINKED_URL = "linked_url" ;
-    private static final String LINKED_FILE = "linked_file" ;
+    public static final String LINKED_URL = "linked_url" ;
+    public static final String LINKED_FILE = "linked_file" ;
     private final LayoutInflater inflater;
     private final ItemRenderer renderer;
     private final ViewGroup parent;
@@ -189,18 +189,15 @@ public class AttachmentRenderer
         final ImageView imageView = (ImageView) view.findViewWithTag("icon_status");
         assert imageView != null;
         Field linkMode = child.getField(ItemField.LINK_MODE);
-        String statusText;
         if(linkMode != null && LINKED_URL.equals(linkMode.getValue()))
         {
             Drawable icon = resources.getDrawable(R.drawable.ic_url);
             imageView.setImageDrawable(icon);
-            statusText = context.getResources().getString(R.string.linked_url);
         }
         else if(linkMode != null && LINKED_FILE.equals(linkMode.getValue()))
         {
             Drawable icon = resources.getDrawable(R.drawable.ic_linked_file);
             imageView.setImageDrawable(icon);
-            statusText = context.getResources().getString(R.string.linked_file);
         }
         else
         {
@@ -210,14 +207,25 @@ public class AttachmentRenderer
             {
                 view.setOnLongClickListener(resolutionListener);
             }
-            statusText = context.getResources().getString(status.getResourceId());
         }
-        TextView statusView = (TextView) view.findViewById(R.id.textViewStatus);
-        statusView.setText(statusText);
+
         view.setOnClickListener(downloadListener);
         view.setTag(R.id.item_tag, child);
         view.setBackgroundResource(R.drawable.selector);
 
+        ImageView syncStatus = (ImageView) view.findViewById(R.id.sync_status);
+        if(syncStatus != null)
+        {
+            syncStatus.setVisibility(child.getSynced() == SyncStatus.SYNC_OK ? View.GONE : View.VISIBLE);
+            if(child.getSynced() == SyncStatus.SYNC_LOCALLY_UPDATED )
+            {
+                syncStatus.setBackgroundResource(R.drawable.blue_dot);
+            }
+            else if(child.getSynced() != SyncStatus.SYNC_OK )
+            {
+                syncStatus.setBackgroundResource(R.drawable.red_dot);
+            }
+        }
     }
 
     private boolean isDownloadInProgress(View view, Item item)

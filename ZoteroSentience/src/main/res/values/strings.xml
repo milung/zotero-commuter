@@ -72,6 +72,15 @@
     <string name="extraction_error">Cannot extract annotations</string>
     <string name="action_tags">Tags</string>
     <string name="tags">Tags</string>
+    <string name="tags_split_regex">,|;</string>
+    <string name="read_later">Read later</string>
+    <string name="read_later_tag">_readingQueue</string>
+    <string name="navigation_reading_queue">Reading Queue</string>
+    <string name="remove_local_version">Remove local version</string>
+    <string name="italic_text">Cursive</string>
+    <string name="underline_text">Underline</string>
+    <string name="strike_text">Strike through</string>
+    <string name="share">Share</string>
 
     <plurals name="number_of_items">
         <item quantity="zero">No items</item>

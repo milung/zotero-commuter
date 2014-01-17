@@ -12,14 +12,73 @@ import android.text.Spannable;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
+import android.view.ActionMode;
 import android.view.Menu;
-import android.view.View;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.EditText;
 
 public class NoteEditor extends FragmentActivity
 {
-
     static final String textIntent;
+
+    private final ActionMode.Callback callback = new ActionMode.Callback()
+    {
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu)
+        {
+            MenuInflater inflater = mode.getMenuInflater();
+            assert inflater != null;
+            inflater.inflate(R.menu.contextual_note_editor, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu)
+        {
+            for(int ix = 0; ix<menu.size();ix++)
+            {
+                MenuItem item = menu.getItem(ix);
+                item.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+
+                if(item.getItemId() == android.R.id.selectAll || item.getItemId() == android.R.id.paste)
+                {
+                    item.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+        {
+            // Respond to clicks on the actions in the CAB
+            switch (item.getItemId())
+            {
+                case R.id.bold_text:
+                    onBoldClicked();
+                    return true;
+                case R.id.italic_text:
+                    onItalicClicked();
+                    return true;
+                case R.id.underline_text:
+                    onUnderlineClicked();
+                    return true;
+                case R.id.strike_text:
+                    onStrikeClicked();
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode)
+        {
+
+        }
+    };
 
     public static String getTextIntent() { return textIntent;}
 
@@ -31,6 +90,8 @@ public class NoteEditor extends FragmentActivity
         }
         else textIntent = Intent.EXTRA_TEXT;
     }
+
+
     private interface SpanMatcher<T>
     {
         Class<T> getSpanType();
@@ -47,13 +108,13 @@ public class NoteEditor extends FragmentActivity
         String text = getIntent().getStringExtra(textIntent);
         final EditText editText = ((EditText)findViewById(R.id.editTextNote));
         editText.setText(Html.fromHtml(text));
+        editText.setCustomSelectionActionModeCallback(callback);
     }
 
     private void setupActionBar()
     {
         ActionBar actionBar = getActionBar();
         assert actionBar != null;
-        actionBar.hide();
         actionBar.setTitle(R.string.note_editor);
     }
 
@@ -61,13 +122,26 @@ public class NoteEditor extends FragmentActivity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.note_editor, menu);
+        getMenuInflater().inflate(R.menu.note_editor_menu, menu);
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        // Respond to clicks on the actions in the CAB
+        switch (item.getItemId())
+        {
+            case R.id.save_text:
+                onSaveSelected();
+                return true;
 
+            default:
+                return false;
+        }
+    }
 
-    public void onSaveSelected( @SuppressWarnings("UnusedParameters") View button)
+    public void onSaveSelected()
     {
         Intent intent = new Intent();
         EditText editText = ((EditText)findViewById(R.id.editTextNote));
@@ -79,7 +153,7 @@ public class NoteEditor extends FragmentActivity
         finish();
     }
 
-    public void onBoldClicked( @SuppressWarnings("UnusedParameters") View button)
+    public void onBoldClicked( )
     {
         setFormatting(new SpanMatcher<StyleSpan>()
         {
@@ -103,7 +177,7 @@ public class NoteEditor extends FragmentActivity
         });
     }
 
-    public void onItalicClicked( @SuppressWarnings("UnusedParameters") View button)
+    public void onItalicClicked()
     {
         setFormatting(new SpanMatcher<StyleSpan>()
         {
@@ -127,7 +201,7 @@ public class NoteEditor extends FragmentActivity
         });
     }
 
-    public void onUnderlineClicked( @SuppressWarnings("UnusedParameters") View button)
+    public void onUnderlineClicked( )
     {
         setFormatting(new SpanMatcher<UnderlineSpan>()
         {
@@ -151,7 +225,7 @@ public class NoteEditor extends FragmentActivity
         });
     }
 
-    public void onStrikeClicked( @SuppressWarnings("UnusedParameters") View button)
+    public void onStrikeClicked( )
     {
         setFormatting(new SpanMatcher<StrikethroughSpan>()
         {

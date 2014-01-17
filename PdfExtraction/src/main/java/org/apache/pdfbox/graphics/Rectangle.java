@@ -28,6 +28,7 @@ public class Rectangle
 
     private boolean isInInterval(float point, float start, float size)
     {
-        return point >= start && point <= start+size;
+        if( size > 0) return point >= start && point <= start+size;
+        else return point <= start && point >= start+size;
     }
 }

@@ -41,4 +41,7 @@ public interface ZoteroStorage
     void clearCaches();
 
 
+    void removeOrphanedTags();
+
+    void invalidateItems();
 }

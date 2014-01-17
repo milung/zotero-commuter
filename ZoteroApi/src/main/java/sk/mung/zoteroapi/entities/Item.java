@@ -33,6 +33,7 @@ public interface Item extends KeyEntity
 
     List<Tag> getTags();
     void addTag(Tag tag);
+    void removeTag(Tag tag);
     void clearTags();
 
     String getParentKey();
@@ -48,4 +49,5 @@ public interface Item extends KeyEntity
     void clearRelations();
 
 
+    String exportText();
 }

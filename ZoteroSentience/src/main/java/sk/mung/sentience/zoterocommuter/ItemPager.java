@@ -45,7 +45,7 @@ public class ItemPager extends Fragment
 
     private Cursor cursor = null;
 
-    private GlobalState getGlobalState()
+    protected final GlobalState getGlobalState()
     {
         return (GlobalState) getActivity().getApplication();
     }
@@ -143,7 +143,7 @@ public class ItemPager extends Fragment
         actionBar.setSubtitle(getActionSubtitle());
     }
 
-    private String getActionTitle()
+    protected String getActionTitle()
     {
         if(collectionId <= 0)
         {
@@ -153,7 +153,7 @@ public class ItemPager extends Fragment
         return entity.getName();
     }
 
-    private String getActionSubtitle()
+    protected String getActionSubtitle()
     {
         CollectionEntity entity = getGlobalState().getStorage().findCollectionById(collectionId);
         return getResources().getQuantityString(R.plurals.number_of_items, entity.getItemsCount(), entity.getItemsCount());

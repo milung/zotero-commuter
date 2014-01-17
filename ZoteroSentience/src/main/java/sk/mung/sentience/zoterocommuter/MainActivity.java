@@ -17,8 +17,6 @@ import java.util.TimerTask;
 
 import sk.mung.sentience.zoterocommuter.navigation.ActivityWithDrawer;
 import sk.mung.sentience.zoterocommuter.navigation.DrawerFragment;
-import sk.mung.zoteroapi.entities.CollectionEntity;
-import sk.mung.zoteroapi.entities.Item;
 
 /**
  * An activity representing a list of LibraryItems. This activity has different
@@ -35,7 +33,7 @@ import sk.mung.zoteroapi.entities.Item;
  * selections.
  */
 public class MainActivity extends ActivityWithDrawer
-        implements DrawerFragment.Callbacks, ItemListFragment.Callback
+        implements DrawerFragment.Callbacks
 {
     public static final int SYNC_CHECK_PERIOD = 300;
     private MenuItem refreshActionImage;
@@ -45,12 +43,6 @@ public class MainActivity extends ActivityWithDrawer
     protected int getContentLayoutId()
     {
         return R.layout.activity_library;
-    }
-
-    @Override
-    protected Fragment createInitialFragment()
-    {
-        return createCollectionFragment(0);
     }
 
     @Override
@@ -124,21 +116,7 @@ public class MainActivity extends ActivityWithDrawer
         return fragment;
     }
 
-    @Override
-    public void onItemSelected(int position, Item item, long collectionKey)
-    {
-        Bundle arguments = new Bundle();
-        arguments.putLong(ItemPager.ARG_COLLECTION_ID, collectionKey);
-        arguments.putInt(ItemPager.ARG_CURRENT_POSITION, position);
 
-        CollectionEntity entity = ((GlobalState)getApplication()).getStorage().findCollectionById(collectionKey);
-        arguments.putString(ItemPager.ARG_COLLECTION_NAME, entity.getName());
-        arguments.putInt(ItemPager.ARG_ITEMS_COUNT, entity.getItemsCount());
-
-        ItemPager pager = new ItemPager();
-        pager.setArguments(arguments);
-        navigateTo(pager,true);
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

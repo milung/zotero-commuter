@@ -100,7 +100,7 @@ public abstract class AbstractZoteroCursorLoader extends AsyncTaskLoader<Cursor>
      */
     @Override public void onCanceled(Cursor tree)
     {
-        onCanceled(tree);
+        super.onCanceled(tree);
         onReleaseResources(tree);
     }
 

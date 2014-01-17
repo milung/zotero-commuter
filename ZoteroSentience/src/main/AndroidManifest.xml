@@ -2,13 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sk.mung.sentience.zoterocommuter"
     android:sharedUserId="sk.mung.sentience.rl"
-    android:sharedUserLabel="@string/user_id"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:sharedUserLabel="@string/user_id" >
 
-    <uses-sdk
-        android:minSdkVersion="14"
-        android:targetSdkVersion="19" />
+
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -25,6 +21,7 @@
         <activity
             android:name="sk.mung.sentience.zoterocommuter.MainActivity"
             android:label="@string/app_name"
+            android:icon="@drawable/ic_launcher"
             android:noHistory="false"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar" >
             <intent-filter>
@@ -36,7 +33,10 @@
         <activity
             android:name="sk.mung.sentience.zoterocommuter.NoteEditor"
             android:icon="@drawable/ic_note_editor_light"
-            android:label="@string/note_editor" >
+            android:label="@string/note_editor"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            <meta-data android:name="android.support.UI_OPTIONS"
+                       android:value="splitActionBarWhenNarrow" />
             <intent-filter>
                 <action android:name="android.intent.action.EDIT" />
 

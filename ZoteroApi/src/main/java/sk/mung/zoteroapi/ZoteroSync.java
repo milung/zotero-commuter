@@ -108,7 +108,8 @@ public class ZoteroSync
         uploadUpdatedItems();
         uploadAttachments();
         updateLocalItemsDeletions();
-
+        storage.removeOrphanedTags();
+        storage.invalidateItems();
     }
 
     private void updateLocalItemsDeletions()
@@ -135,6 +136,7 @@ public class ZoteroSync
         List<Item> items =  storage.findItemsBySynced(status);
         zotero.updateItems(items, storage.getItemsVersion());
         storage.setItemsVersion(zotero.getLastModifiedVersion());
+
     }
 
     private void uploadAttachments()

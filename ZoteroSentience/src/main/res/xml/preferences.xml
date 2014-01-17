@@ -45,9 +45,9 @@
             android:title="@string/prefs_clear_library"
             android:summary="@string/prefs_summary_clear_library">
         <intent
-                android:targetClass="sk.mung.sentience.zoterosentience.SettingsIntentActivity"
-                android:targetPackage="sk.mung.sentience.zoterosentience"
-                android:action="sk.mung.sentience.zoterosentience.clear_library">
+                android:targetClass="sk.mung.sentience.zoterocommuter.SettingsIntentActivity"
+                android:targetPackage="sk.mung.sentience.zoterocommuter"
+                android:action="sk.mung.sentience.zoterocommuter.clear_library">
         </intent>
     </Preference>
 
@@ -55,9 +55,9 @@
             android:title="@string/prefs_delete_attachment"
             android:summary="@string/prefs_summary_delete_attachment">
         <intent
-                android:targetClass="sk.mung.sentience.zoterosentience.SettingsIntentActivity"
-                android:targetPackage="sk.mung.sentience.zoterosentience"
-                android:action="sk.mung.sentience.zoterosentience.delete_attachments">
+                android:targetClass="sk.mung.sentience.zoterocommuter.SettingsIntentActivity"
+                android:targetPackage="sk.mung.sentience.zoterocommuter"
+                android:action="sk.mung.sentience.zoterocommuter.delete_attachments">
         </intent>
     </Preference>
 </PreferenceScreen>

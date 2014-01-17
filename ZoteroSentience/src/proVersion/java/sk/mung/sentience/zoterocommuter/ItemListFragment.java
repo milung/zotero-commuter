@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.content.Loader;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sk.mung.sentience.zoterocommuter.provider.ZoteroContract;
+import sk.mung.sentience.zoterocommuter.storage.ItemsLoader;
+import sk.mung.sentience.zoterocommuter.storage.ReadingQueueLoader;
 import sk.mung.sentience.zoterocommuter.storage.ZoteroStorageImpl;
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;
@@ -32,6 +36,8 @@ public class ItemListFragment
         extends ItemListFragmentBase
 {
 
+    private int itemsCount = -1;
+    private boolean isReadingQueue = false;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -45,6 +51,58 @@ public class ItemListFragment
     {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        Bundle bundle;
+        if(savedInstanceState != null)  bundle = savedInstanceState; // 1
+        else if(getArguments() != null) bundle = getArguments();     // 2
+        else                            bundle = getActivity().getIntent().getExtras(); // 3
+        isReadingQueue = bundle != null && bundle.getBoolean(ARG_IS_READING_QUEUE, false);
+    }
+
+    @Override
+    protected String getActionTitle()
+    {
+        if(isReadingQueue)
+        {
+            return getString(R.string.navigation_reading_queue);
+        }
+        else return super.getActionTitle();
+    }
+
+    @Override
+    protected String getActionSubtitle()
+    {
+        if(itemsCount < 0) return "";
+        else return getResources().getQuantityString(R.plurals.number_of_items, itemsCount, itemsCount);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args)
+    {
+        if(isReadingQueue)
+        {
+            ReadingQueueLoader loader
+                    = new ReadingQueueLoader(this.getActivity(), getGlobalState().getStorage());
+            loader.setUpdateThrottle(3000);
+            return loader;
+        }
+        else return super.onCreateLoader(id,args);
+
+    }
+
+    @Override
+    public Fragment createPager(int position)
+    {
+        if(isReadingQueue)
+        {
+            Bundle arguments = new Bundle();
+            arguments.putInt(ItemPager.ARG_CURRENT_POSITION, position);
+            arguments.putString(ItemPager.ARG_COLLECTION_NAME, getString(R.string.navigation_reading_queue));
+
+            ReadingQueuePager pager = new ReadingQueuePager();
+            pager.setArguments(arguments);
+            return pager;
+        }
+        else return super.createPager(position);
     }
 
     @Override
@@ -86,8 +144,13 @@ public class ItemListFragment
                         mode.finish();
                         return true;
                     case R.id.item_cut:
+                        cutSelectedItems(selectedIds); // cut must go before copy due to invalidate options menu
                         copySelectedItems(selectedIds);
-                        cutSelectedItems(selectedIds);
+                        selectedIds.clear();
+                        mode.finish();
+                        return true;
+                    case R.id.item_remove_local:
+                        removeLocalItems(selectedIds);
                         selectedIds.clear();
                         mode.finish();
                         return true;
@@ -124,11 +187,47 @@ public class ItemListFragment
         });
     }
 
+    private void removeLocalItems(List<Long> selectedIds)
+    {
+        AsyncTask<List<Long>, Void, Void> task = new AsyncTask<List<Long>, Void, Void>()
+        {
+            @Override
+            protected Void doInBackground(List<Long>... params)
+            {
+                ZoteroStorageImpl storage = getGlobalState().getStorage();
+                storage.removeItemsLocalVersion(params[0]);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid)
+            {
+                getGlobalState().getStorage().invalidateItems();
+            }
+        };
+        task.execute(new ArrayList<Long>(selectedIds));
+    }
+
     private void cutSelectedItems(List<Long> selectedIds)
     {
-        ZoteroStorageImpl storage = getGlobalState().getStorage();
-        CollectionEntity collection = storage.findCollectionById(getCollectionId());
-        storage.removeItemsFromCollection(selectedIds,collection);
+        AsyncTask<List<Long>,Void, Void> task = new AsyncTask<List<Long>, Void, Void>()
+        {
+            @Override
+            protected Void doInBackground(List<Long>... params)
+            {
+                ZoteroStorageImpl storage = getGlobalState().getStorage();
+                CollectionEntity collection = storage.findCollectionById(getCollectionId());
+                storage.removeItemsFromCollection(params[0],collection);
+                return null;
+            }
+            @Override
+            protected void onPostExecute(Void aVoid)
+            {
+                getGlobalState().getStorage().invalidateItems();
+            }
+        };
+        task.execute(new ArrayList<Long>(selectedIds));
+
     }
 
     @Override
@@ -165,6 +264,12 @@ public class ItemListFragment
                 CollectionEntity collection = storage.findCollectionById(getCollectionId());
                 storage.addItemsToCollection(itemIds, collection);
                 return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid)
+            {
+                getGlobalState().getStorage().invalidateItems();
             }
         };
         pasteTask.execute(uris);
@@ -235,13 +340,15 @@ public class ItemListFragment
         ClipboardManager clipboard = (ClipboardManager)
                 getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
 
-        pasteItem.setVisible(false);
-        if(getCollectionId() > 0 && pasteItem != null && clipboard.hasPrimaryClip())
+        Long collectionId = getCollectionId();
+
+        if(collectionId!= null && collectionId > 0 && pasteItem != null && clipboard.hasPrimaryClip())
         {
             boolean isItemMime = clipboard.getPrimaryClipDescription()
                     .hasMimeType(ZoteroContract.MIMETYPE_ITEMS_ITEM);
             pasteItem.setVisible(isItemMime);
         }
+        else if(pasteItem != null) pasteItem.setVisible(false);
     }
 
     private void copySelectedItems(List<Long> selectedIds)
@@ -265,5 +372,12 @@ public class ItemListFragment
         clipboard.setPrimaryClip(clipData);
         getActivity().invalidateOptionsMenu();
 
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor)
+    {
+        itemsCount = cursor.getCount();
+        super.onLoadFinished(loader, cursor);
     }
 }

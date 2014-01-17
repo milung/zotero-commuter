@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/save_text"
+        android:icon="@drawable/ic_save"
+        android:showAsAction="always|withText"
+        android:title="@string/save"
+        android:titleCondensed="@string/save">
+    </item>
+
+
+</menu>

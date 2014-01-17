@@ -13,7 +13,7 @@ import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.SyncStatus;
 
 
-class CollectionsDao extends BaseKeyDao<CollectionEntity>
+class CollectionsDao extends BaseKeyDao<CollectionEntity> implements ZoteroStorageListener
 {
     private final static String TABLE = "collections";
 
@@ -168,5 +168,23 @@ class CollectionsDao extends BaseKeyDao<CollectionEntity>
         {
             c.close();
         }
+    }
+
+    @Override
+    public void onCollectionsUpdated()
+    {
+        clearCaches();
+    }
+
+    @Override
+    public void onItemsUpdated()
+    {
+        clearCaches();
+    }
+
+    @Override
+    public void onTagsUpdated()
+    {
+        clearCaches();
     }
 }
