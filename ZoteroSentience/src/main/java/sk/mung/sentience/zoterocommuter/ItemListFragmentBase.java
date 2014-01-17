@@ -1,6 +1,6 @@
 package sk.mung.sentience.zoterocommuter;
 
-import android.app.Activity;
+
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,39 +15,51 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import sk.mung.sentience.zoterocommuter.navigation.ActivityWithDrawer;
 import sk.mung.sentience.zoterocommuter.storage.ItemsLoader;
 import sk.mung.zoteroapi.entities.CollectionEntity;
-import sk.mung.zoteroapi.entities.Item;
+
 
 class ItemListFragmentBase extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>,ListView.OnItemClickListener
 {
     public static final String ARG_COLLECTION_KEY = "collection_key" ;
     private static final String ITEM_LIST_POSITION = "item_list_position";
-    private static Callback dummyCallback
-            = new Callback()
-    {
-        @Override
-        public void onItemSelected(int position, Item item, long collectionKey)
-        {}
-    };
+    public static final String ARG_IS_READING_QUEUE = "IS_READING_QUEUE";
+
 
     protected final Long getCollectionId()
     {
         return collectionId;
     }
 
-    private Long collectionId;
+    private Long collectionId =0L;
     private ItemListAdapter listAdapter;
-    private Callback callback;
     private int position=-1;
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id)
     {
-        Item item = (Item) view.getTag(R.id.tag_item);
-        callback.onItemSelected(position, item, collectionId);
+        ActivityWithDrawer drawer = (ActivityWithDrawer) getActivity();
+        Fragment pager = createPager(position);
+        drawer.navigateTo(pager, true);
         this.position = position;
+    }
+
+
+    public Fragment createPager(int position)
+    {
+        Bundle arguments = new Bundle();
+        arguments.putLong(ItemPager.ARG_COLLECTION_ID, collectionId);
+        arguments.putInt(ItemPager.ARG_CURRENT_POSITION, position);
+
+        CollectionEntity entity = getGlobalState().getStorage().findCollectionById(collectionId);
+        arguments.putString(ItemPager.ARG_COLLECTION_NAME, entity.getName());
+        arguments.putInt(ItemPager.ARG_ITEMS_COUNT, entity.getItemsCount());
+
+        ItemPager pager = new ItemPager();
+        pager.setArguments(arguments);
+        return pager;
     }
 
     private void scrollToPosition(int position)
@@ -60,41 +72,44 @@ class ItemListFragmentBase extends Fragment
         this.position = position;
     }
 
-    private String getActionTitle()
+    protected String getActionTitle()
     {
-        if(collectionId <= 0)
+        if(collectionId == null || collectionId <= 0)
         {
             return getResources().getString(R.string.all_items);
         }
-        CollectionEntity entity = getGlobalState().getStorage().findCollectionById(collectionId);
-        return entity.getName();
+        try
+        {
+            CollectionEntity entity = getGlobalState().getStorage().findCollectionById(collectionId);
+            return entity.getName();
+        }
+        catch(IllegalArgumentException ex) //e.g if db was cleared
+        {
+            collectionId = 0L;
+            return getResources().getString(R.string.all_items);
+        }
     }
 
-    private String getActionSubtitle()
+    protected String getActionSubtitle()
     {
-        CollectionEntity entity = getGlobalState().getStorage().findCollectionById(collectionId);
-        return getResources().getQuantityString(R.plurals.number_of_items, entity.getItemsCount(), entity.getItemsCount());
+        int count = 0;
+        try
+        {
+            CollectionEntity entity = getGlobalState().getStorage().findCollectionById(collectionId);
+            count = entity.getItemsCount();
+        }
+        catch (IllegalArgumentException ex) // eg. if db is cleaned
+        {
+            count = 0;
+        }
+        return getResources().getQuantityString(R.plurals.number_of_items, count , count);
     }
 
-    @Override
-    public void onAttach(Activity activity)
-    {
-        super.onAttach(activity);
-
-        // Activities containing this fragment must implement its callbacks.
-        if (!(activity instanceof Callback)) { throw new IllegalStateException(
-                "Activity must implement fragment's callbacks."); }
-
-        callback = (Callback) activity;
-    }
 
     @Override
     public void onDetach()
     {
         super.onDetach();
-
-        // Reset the active callbacks interface to the dummy implementation.
-        callback = dummyCallback;
     }
 
     @Override
@@ -147,7 +162,6 @@ class ItemListFragmentBase extends Fragment
 
         ItemsLoader loader
                 = new ItemsLoader(this.getActivity(), collectionId, getGlobalState().getStorage());
-        loader.setUpdateThrottle(3000);
         return loader;
     }
 
@@ -169,6 +183,7 @@ class ItemListFragmentBase extends Fragment
         assert actionBar != null;
         actionBar.setTitle(getActionTitle());
         actionBar.setSubtitle(getActionSubtitle());
+
     }
 
     @Override
@@ -186,10 +201,5 @@ class ItemListFragmentBase extends Fragment
         {
             outState.putLong(ARG_COLLECTION_KEY, collectionId);
         }
-    }
-
-    public interface Callback
-    {
-        public void onItemSelected(int position, Item item, long collectionKey);
     }
 }

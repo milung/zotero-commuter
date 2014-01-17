@@ -12,7 +12,7 @@ public class SettingsIntentActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         String action = getIntent().getAction();
-        if("sk.mung.sentience.zoterosentience.clear_library".equals(action))
+        if("sk.mung.sentience.zoterocommuter.clear_library".equals(action))
         {
             Intent serviceStartIntent;
             serviceStartIntent = new Intent(this, SynchronizingService.class);
@@ -22,7 +22,7 @@ public class SettingsIntentActivity extends Activity
             this.startService(serviceStartIntent);
             finish();
         }
-        if("sk.mung.sentience.zoterosentience.delete_attachments".equals(action))
+        if("sk.mung.sentience.zoterocommuter.delete_attachments".equals(action))
         {
             ZoteroSync sync = ((GlobalState)getApplication()).getZoteroSync();
             sync.deleteAllAttachments();

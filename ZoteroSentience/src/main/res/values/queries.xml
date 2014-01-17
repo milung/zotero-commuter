@@ -113,8 +113,6 @@
     <string name="get_library_items">
         SELECT  items._id, items.key, items.version, items.type, items.synced, items.title, items.parent
         FROM items
-        LEFT JOIN items_to_collections ON items._id=items_to_collections.item
-        LEFT JOIN collections ON items_to_collections.collection=collections._id
         WHERE {SYNC_FILTER} AND items.parent IS NULL
         ORDER BY items.title
     </string>
@@ -128,21 +126,36 @@
 
     <string name="get_item_tags">
         SELECT  tags._id, tags.tag, tags.type
-        FROM items
-        LEFT JOIN items_to_tags ON items._id = items_to_tags.item
-        LEFT JOIN tags ON items_to_tags.tag = tags._id
-        WHERE items._id=?
+        FROM tags
+        LEFT JOIN items_to_tags ON items_to_tags.tag = tags._id
+        WHERE items_to_tags.item=?
         ORDER BY tags.tag
     </string>
 
     <string name="get_item_collections">
         SELECT  collections.key, collections.name, collections.version, collections.synced, collections.parent, collections._id
-        FROM items
-        LEFT JOIN items_to_collections ON items._id = items_to_collections.item
-        LEFT JOIN collections ON items_to_collections.collection = collections._id
-        WHERE items._id=?
+        FROM collections
+        LEFT JOIN items_to_collections ON items_to_collections.collection = collections._id
+        WHERE items_to_collections.item=?
         ORDER BY collections.name
     </string>
 
+
+    <string name="delete_tag_orphans">
+        DELETE FROM tags
+        WHERE _id IN (
+            SELECT tags._id FROM tags
+            LEFT JOIN items_to_tags ON tags._id = items_to_tags.tag
+            WHERE items_to_tags.tag IS NULL);
+    </string>
+
+    <string name="get_tagged_items">
+        SELECT  items._id, items.key, items.version, items.type, items.synced, items.title, items.parent
+        FROM items
+        LEFT JOIN items_to_tags ON items._id = items_to_tags.item
+        LEFT JOIN tags ON items_to_tags.tag = tags._id
+        WHERE {SYNC_FILTER} AND tags.tag=?
+        ORDER BY items.title
+    </string>
 
 </resources>

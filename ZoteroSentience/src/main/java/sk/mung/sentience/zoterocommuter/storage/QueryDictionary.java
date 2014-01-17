@@ -70,4 +70,14 @@ public class QueryDictionary
     {
         return context.getResources().getString(R.string.create_relations_table);
     }
+
+    public String getDeleteTagOrphans()
+    {
+        return context.getResources().getString(R.string.delete_tag_orphans);
+    }
+
+    public String getTaggedItems()
+    {
+        return context.getResources().getString(R.string.get_tagged_items);
+    }
 }

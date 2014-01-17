@@ -12,7 +12,7 @@ import sk.mung.zoteroapi.entities.Tag;
 
 public class TagsDao extends BaseDao<Tag>
 {
-    private static final String COLUMN_TAG = "tag";
+    static final String COLUMN_TAG = "tag";
 
     public TagsDao(ZoteroStorageImpl.DatabaseConnection databaseConnection, QueryDictionary queries)
     {
@@ -50,6 +50,29 @@ public class TagsDao extends BaseDao<Tag>
             rowId = searchIdOfEntity(entity);
         }
         entity.setId(rowId);
+    }
+
+    @Override
+    protected long searchIdOfEntity(Tag entity)
+    {
+        // the tags are exclusive on tag column so ignore type while id search
+        String query = COLUMN_TAG + QUESTION_MARK;
+        String[] arguments = new String[] { entity.getTag()};
+        Cursor cursor
+                = getReadableDatabase().query(getTable(), new String[]{COLUMN_ID}, query, arguments, null, null, null );
+        try
+        {
+            if(cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+                return cursor.getLong(0);
+            }
+        }
+        finally
+        {
+            cursor.close();
+        }
+        return -1;
     }
 
     @Override
@@ -100,5 +123,35 @@ public class TagsDao extends BaseDao<Tag>
     public void deleteByName(String tag)
     {
         getWritableDatabase().delete(getTable(),COLUMN_TAG + QUESTION_MARK, new String[] { tag});
+    }
+
+    public void deleteOrphans()
+    {
+        getWritableDatabase().execSQL(getQueries().getDeleteTagOrphans());
+
+    }
+
+    public Tag findByLabel(String tagLabel)
+    {
+        Cursor cursor= getReadableDatabase().query(
+                getTable(),
+                getSelectColumns(),
+                COLUMN_TAG+QUESTION_MARK,
+                new String[] { tagLabel}, null, null, null );
+        try
+        {
+            if(cursor.getCount() > 0)
+            {
+                cursor.moveToFirst();
+                return cursorToEntity(cursor);
+            }
+        }
+        finally
+        {
+            cursor.close();
+        }
+        Tag newTag = createEntity();
+        newTag.setTag(tagLabel);
+        return newTag;
     }
 }

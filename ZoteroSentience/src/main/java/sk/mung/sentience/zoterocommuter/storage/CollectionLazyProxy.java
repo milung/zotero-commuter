@@ -7,10 +7,7 @@ import java.util.List;
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Item;
 
-/**
- * Created by sk1u00e5 on 19.6.2013.
- */
-class CollectionLazyProxy extends CollectionEntity
+class CollectionLazyProxy extends CollectionEntity implements BaseDao.UpdateListener
 {
     private final ItemsDao itemsDao;
     private boolean areItemsLoaded = false;
@@ -22,14 +19,21 @@ class CollectionLazyProxy extends CollectionEntity
     }
 
     @Override
-    public List<Item> getItems()
+    public synchronized List<Item> getItems()
     {
         loadItems();
         return super.getItems();
     }
 
     @Override
-    public int getItemsCount()
+    public  synchronized void removeItem(Item item)
+    {
+        loadItems();
+        super.removeItem(item);
+    }
+
+    @Override
+    public synchronized int getItemsCount()
     {
         if(areItemsLoaded)
         {
@@ -55,7 +59,7 @@ class CollectionLazyProxy extends CollectionEntity
 
     }
 
-    private synchronized void loadItems()
+    private  void loadItems()
     {
         if(!areItemsLoaded )
         {
@@ -66,5 +70,12 @@ class CollectionLazyProxy extends CollectionEntity
 
             areItemsLoaded = true;
         }
+    }
+
+    @Override
+    public synchronized void onDataUpdated(BaseDao sender, Long entityId)
+    {
+        areItemsLoaded = false;
+        getItems().clear();
     }
 }

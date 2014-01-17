@@ -2,15 +2,32 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/read_later"
+        android:title="@string/read_later"
+        android:icon="@drawable/ic_read_later"
+        android:orderInCategory="10"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/add_note"
         android:title="@string/add_node"
         android:icon="@drawable/ic_add_note"
         android:orderInCategory="10"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/menu_item_share"
+        app:showAsAction="ifRoom"
+        android:title="@string/share"
+        android:orderInCategory="10"
+        app:actionProviderClass="android.support.v7.widget.ShareActionProvider" />
+
     <item
         android:id="@+id/tags"
         android:title="@string/action_tags"
         android:icon="@drawable/ic_action_tags"
         android:orderInCategory="10"
         app:showAsAction="ifRoom"/>
+
 </menu>

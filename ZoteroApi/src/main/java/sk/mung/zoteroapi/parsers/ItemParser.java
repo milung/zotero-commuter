@@ -151,7 +151,7 @@ public class ItemParser extends AbstractAtomParser<Item>
         {
             generator.writeStringField("itemType", item.getItemType().getZoteroName());
             String key = item.getKey();
-            if(! (key == null || key.isEmpty()))
+            if(! (key == null || key.isEmpty() || key.length() < 5 || key.startsWith(ItemEntity.NEW_ITEM_KEYP_PREFIX)))
             {
                 generator.writeStringField("itemKey", key);
             }
@@ -167,9 +167,18 @@ public class ItemParser extends AbstractAtomParser<Item>
                     generator.writeStartObject();
 
                     generator.writeStringField("creatorType", creator.getType().getZoteroName());
-                    generator.writeStringField("firstName", creator.getFirstName());
-                    generator.writeStringField("lastName", creator.getLastName());
-                    generator.writeStringField("shortName", creator.getShortName());
+                    if(creator.getFirstName()!=null)
+                    {
+                        generator.writeStringField("firstName", creator.getFirstName());
+                    }
+                    if(creator.getLastName()!=null)
+                    {
+                        generator.writeStringField("lastName", creator.getLastName());
+                    }
+                    if(creator.getShortName()!=null)
+                    {
+                        generator.writeStringField("shortName", creator.getShortName());
+                    }
 
                     generator.writeEndObject(); //creator
                 }
@@ -201,7 +210,11 @@ public class ItemParser extends AbstractAtomParser<Item>
             {
                 for(CollectionEntity collection : item.getCollections())
                 {
-                    generator.writeString(collection.getKey());
+                    String ckey = collection.getKey();
+                    if(ckey != null && !ckey.trim().isEmpty())
+                    {
+                        generator.writeString(ckey);
+                    }
                 }
             }
             generator.writeEndArray(); //collections

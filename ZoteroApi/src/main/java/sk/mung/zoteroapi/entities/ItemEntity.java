@@ -9,6 +9,7 @@ import java.util.List;
 public class ItemEntity implements Item
 {
 
+    public static final String NEW_ITEM_KEYP_PREFIX = "new_";
     private long id;
     private String title;
     private int version;
@@ -143,6 +144,22 @@ public class ItemEntity implements Item
 	@Override public List<Tag> getTags() { return tags; }
 	@Override public void addTag(Tag tag) { tags.add(tag); }
     @Override public void clearTags() { tags.clear(); }
+    @Override public void removeTag(Tag tag)
+    {
+        int index = -1;
+        for(int ix=0; ix < tags.size(); ++ix)
+        {
+            if(tags.get(ix).getId() == tag.getId())
+            {
+                index = ix;
+                break;
+            }
+        }
+        if(index >= 0)
+        {
+            tags.remove(index);
+        }
+    }
 
 
     @Override public void addCollection(CollectionEntity key)
@@ -194,5 +211,26 @@ public class ItemEntity implements Item
     public void clearRelations()
     {
         relations.clear();
+    }
+
+    @Override
+    public String exportText()
+    {
+        StringBuilder text = new StringBuilder();
+        text.append(getTitle()).append(" by ");
+        for(Creator creator : getCreators())
+        {
+            String name = creator.getLastName();
+            if(name != null)
+            {
+                text.append(name).append(", ");
+            }
+            name = creator.getFirstName();
+            if(name != null)
+            {
+                text.append(name).append(", ");
+            }
+        }
+        return text.toString();
     }
 }

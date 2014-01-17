@@ -75,10 +75,27 @@ public class CollectionEntity implements KeyEntity
 
     public List<Item> getItems() { return items;}
     public void addItem(Item item) { items.add(item);}
+    public void removeItem(Item item)
+    {
+        int index = -1;
+        for(int ix = 0 ; ix < items.size(); ++ix)
+        {
+            if(items.get(ix).getKey() == item.getKey())
+            {
+                index = ix;
+                break;
+            }
+        }
+        if(index >= 0)
+        {
+            items.remove(index);
+        }
+    }
 
     public int getItemsCount()
     {
         return items.size();
     }
+
 
 }

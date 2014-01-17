@@ -9,6 +9,7 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import sk.mung.sentience.zoterocommuter.storage.ZoteroStorageImpl;
 import sk.mung.zoteroapi.ZoteroStorage;
 import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.ItemEntity;
 import sk.mung.zoteroapi.entities.ItemField;
 import sk.mung.zoteroapi.entities.ItemType;
 import sk.mung.zoteroapi.entities.SyncStatus;
@@ -61,7 +63,7 @@ public class NoteRenderer
         GlobalState globalState= (GlobalState)context.getActivity().getApplication();
         ZoteroStorage storage = globalState.getStorage();
         Item note = storage.createItem();
-        note.setKey(Long.toString(globalState.getKeyCounter(),16));
+        note.setKey(ItemEntity.NEW_ITEM_KEYP_PREFIX + Long.toString(globalState.getKeyCounter(),16));
         note.setItemType(ItemType.NOTE);
         note.setParentKey(item.getKey());
         note.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
@@ -121,9 +123,19 @@ public class NoteRenderer
         view.setOnLongClickListener(resolutionListener);
 
         EditStatus status = getEditStatus(noteItem);
-        String statusText = context.getResources().getString(status.getResourceId());
-        TextView statusView = (TextView) view.findViewById(R.id.textViewStatus);
-        statusView.setText(statusText);
+        ImageView syncStatus = (ImageView) view.findViewById(R.id.sync_status);
+        if(syncStatus != null)
+        {
+            syncStatus.setVisibility(noteItem.getSynced() == SyncStatus.SYNC_OK ? View.GONE : View.VISIBLE);
+            if(noteItem.getSynced() == SyncStatus.SYNC_LOCALLY_UPDATED )
+            {
+                syncStatus.setBackgroundResource(R.drawable.blue_dot);
+            }
+            else if(noteItem.getSynced() != SyncStatus.SYNC_OK )
+            {
+                syncStatus.setBackgroundResource(R.drawable.red_dot);
+            }
+        }
         view.setBackgroundResource(R.drawable.selector);
         parent.addView(view);
     }

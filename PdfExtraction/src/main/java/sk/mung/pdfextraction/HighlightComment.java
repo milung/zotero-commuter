@@ -35,43 +35,68 @@ class HighlightComment implements Comment {
         int rotation = page.findRotation();
         PDRectangle pageSize = page.findMediaBox();
 
-        float[] quadPoints = annotation.getQuadPoints();
-        for(int i = 0; i < quadPoints.length/8; ++i)
+        PDRectangle rect = annotation.getRectangle();
+        float x = 0F,y=0F,w=0F,h=0F;
+        int regionCount = 0;
+        if(rect != null)
         {
-            float minx = Integer.MAX_VALUE;
-            float miny = Integer.MAX_VALUE;
-            float maxx = Integer.MIN_VALUE;
-            float maxy = Integer.MIN_VALUE;
-            for(int j = 0; j < 8; j+=2)
+            x = rect.getLowerLeftX() - 1;
+            y = rect.getUpperRightY() - 1;
+            w = rect.getWidth() + 2;
+            h = rect.getHeight() + 4;
+            if (rotation == 0)
             {
-                minx = Math.min(minx,quadPoints[i*8+j]);
-                miny = Math.min(miny,quadPoints[i*8+j+1]);
-                maxx = Math.max(maxx,quadPoints[i*8+j]);
-                maxy = Math.max(maxy,quadPoints[i*8+j+1]);
-            }
-            float x = quadPoints[i*8] - 1;
-            float y = quadPoints[i*8 + 1] - 1;
-
-            float w = maxx-minx + 2;
-            float h = maxy - miny + 2;
-
-            if (rotation == 0) {
-
                 y = pageSize.getHeight() - y;
             }
 
             Rectangle awtRect = new Rectangle(x, y, w,h);
 
-            stripper.addRegion(Integer.toString(i), awtRect);
+            stripper.addRegion(Integer.toString(0), awtRect);
+            regionCount = 1;
+        }
+        else
+        {
+            float[] quadPoints = annotation.getQuadPoints();
+            regionCount = quadPoints.length/8;
+            for(int i = 0; i < quadPoints.length/8; ++i)
+            {
+                float minx = Integer.MAX_VALUE;
+                float miny = Integer.MAX_VALUE;
+                float maxx = Integer.MIN_VALUE;
+                float maxy = Integer.MIN_VALUE;
+                for(int j = 0; j < 8; j+=2)
+                {
+                    minx = Math.min(minx,quadPoints[i*8+j]);
+                    miny = Math.min(miny,quadPoints[i*8+j+1]);
+                    maxx = Math.max(maxx,quadPoints[i*8+j]);
+                    maxy = Math.max(maxy,quadPoints[i*8+j+1]);
+                }
+                x = quadPoints[i*8] - 1;
+                y = quadPoints[i*8 + 1] - 1;
+
+                w = maxx-minx + 2;
+                h = maxy - miny + 2;
+
+
+
+                if (rotation == 0)
+                {
+                    y = pageSize.getHeight() - y;
+                }
+
+                Rectangle awtRect = new Rectangle(x, y, w,h);
+
+                stripper.addRegion(Integer.toString(i), awtRect);
+            }
         }
 
-        stripper.extractRegions(page);
-        StringBuilder textBuilder = new StringBuilder();
-        for(int i = 0; i < quadPoints.length/8; ++i)
-        {
-            String regionText = stripper.getTextForRegion(Integer.toString(i));
-            textBuilder.append(regionText);
-        }
+            stripper.extractRegions(page);
+            StringBuilder textBuilder = new StringBuilder();
+            for(int i = 0; i < regionCount; ++i)
+            {
+                String regionText = stripper.getTextForRegion(Integer.toString(i));
+                textBuilder.append(regionText);
+            }
         return textBuilder.toString().replace("\r\n"," ").replace("\r"," ").replace("\r"," ").trim();
     }
 

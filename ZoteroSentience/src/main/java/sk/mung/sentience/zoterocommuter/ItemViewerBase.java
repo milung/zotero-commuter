@@ -21,6 +21,7 @@ import sk.mung.sentience.zoterocommuter.renderers.FieldRenderer;
 import sk.mung.sentience.zoterocommuter.renderers.ItemConflictFragment;
 import sk.mung.sentience.zoterocommuter.renderers.ItemRenderer;
 import sk.mung.sentience.zoterocommuter.renderers.NoteRenderer;
+import sk.mung.sentience.zoterocommuter.storage.ZoteroStorageListener;
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
@@ -28,9 +29,37 @@ import sk.mung.zoteroapi.entities.ItemField;
 import sk.mung.zoteroapi.entities.ItemType;
 import sk.mung.zoteroapi.entities.Tag;
 
-class ItemViewerBase extends Fragment
+class ItemViewerBase extends Fragment implements ZoteroStorageListener
 {
     public static final String HIDDEN_TAG_PREFIX = "_";
+
+    protected final Item getItem()
+    {
+        return item;
+    }
+
+    @Override
+    public void onPause()
+    {
+        GlobalState globalState = getGlobalState();
+        globalState.getStorage().removeListener(this);
+        super.onPause();
+    }
+
+    protected final GlobalState getGlobalState()
+    {
+        return (GlobalState)getActivity().getApplication();
+    }
+
+    @Override
+    public void onResume()
+    {
+        GlobalState globalState = getGlobalState();
+        globalState.getStorage().addListener(this);
+
+        super.onResume();
+    }
+
     private Item item;
     private ItemRenderer itemRenderer;
     private AttachmentRenderer attachmentRenderer;
@@ -45,7 +74,10 @@ class ItemViewerBase extends Fragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.item_menu, menu);
+        if(menu.findItem(R.id.add_note) == null)
+        {
+            inflater.inflate(R.menu.item_menu, menu);
+        }
     }
 
     @Override
@@ -111,7 +143,7 @@ class ItemViewerBase extends Fragment
 
     private void displayItems()
     {
-        if(item == null) return;
+        if(item == null || getActivity()==null) return;
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup parent = (ViewGroup) getView().findViewById(R.id.itemsGroup);
 
@@ -218,6 +250,20 @@ class ItemViewerBase extends Fragment
         else tagsView.setTypeface(null, Typeface.NORMAL);
 
         tagsView.setText(tagsText.toString());
+        View strip = getView().findViewById(R.id.tagStrip);
+        strip.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                onTagsClicked(v);
+            }
+        });
+    }
+
+    protected void onTagsClicked(View view)
+    {
+        // overriden in pro
     }
 
     private  String getSeparatedTags()
@@ -276,5 +322,31 @@ class ItemViewerBase extends Fragment
         super.onActivityResult(requestCode, resultCode, data);
         noteRenderer.onActivityResult(requestCode,resultCode,data);
         displayItems();
+    }
+
+    @Override
+    public void onCollectionsUpdated()
+    {
+
+    }
+
+    @Override
+    public void onItemsUpdated()
+    {
+        getActivity().runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                displayItems();
+            }
+        });
+
+    }
+
+    @Override
+    public void onTagsUpdated()
+    {
+
     }
 }

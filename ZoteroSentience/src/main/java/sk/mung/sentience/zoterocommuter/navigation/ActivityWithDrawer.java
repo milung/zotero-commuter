@@ -32,7 +32,6 @@ public abstract class ActivityWithDrawer extends ActionBarActivity
     private boolean currentAddToBackStack = false;
 
     abstract protected int getContentLayoutId();
-    abstract protected Fragment createInitialFragment();
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -45,7 +44,7 @@ public abstract class ActivityWithDrawer extends ActionBarActivity
         }
         else
         {
-            currentFragment = createInitialFragment();
+            currentFragment = NavigationTreeAdapter.createInitialFragment();
         }
         drawerLayout =
                 (DrawerLayout)findViewById(R.id.drawer_layout);

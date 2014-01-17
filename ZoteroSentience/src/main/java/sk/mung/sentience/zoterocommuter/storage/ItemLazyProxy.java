@@ -30,7 +30,7 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     private boolean areTagsLoaded = false;
     private boolean areCollectionsLoaded = false;
 
-    public ItemLazyProxy(
+    public  ItemLazyProxy(
             Item adaptee,
             CreatorsDao creatorsDao,
             ItemsDao itemsDao,
@@ -48,14 +48,14 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
 
     @NotNull
     @Override
-    public Item createCopy()
+    public synchronized Item createCopy()
     {
         Item adaptee = getAdaptee().createCopy();
         return new ItemLazyProxy(adaptee, creatorsDao, getItemsDao(),fieldsDao, tagsDao, collectionsDao);
     }
 
     @Override
-    public void copyState(Item template)
+    public synchronized void copyState(Item template)
     {
         getAdaptee().copyState(template);
     }
@@ -67,21 +67,21 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     }
 
     @Override
-    public List<Creator> getCreators()
+    public synchronized List<Creator> getCreators()
     {
         loadCreators();
         return getAdaptee().getCreators();
     }
 
     @Override
-    public List<Field> getFields()
+    public synchronized List<Field> getFields()
     {
         loadFields();
         return getAdaptee().getFields();
     }
 
     @Override
-    public void addCollection(CollectionEntity col)
+    public synchronized void addCollection(CollectionEntity col)
     {
         loadCollections();
         getAdaptee().addCollection(col);
@@ -101,7 +101,7 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     }
 
     @Override
-    public void addCreator(Creator creator)
+    public synchronized void addCreator(Creator creator)
     {
         loadCreators();
         getAdaptee().addCreator(creator);
@@ -122,14 +122,14 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     }
 
     @Override
-    public List<Tag> getTags()
+    public synchronized List<Tag> getTags()
     {
         loadTags();
         return getAdaptee().getTags();
     }
 
     @Override
-    public List<CollectionEntity> getCollections()
+    public synchronized List<CollectionEntity> getCollections()
     {
         loadCollections();
         return getAdaptee().getCollections();
@@ -154,15 +154,23 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     }
 
     @Override
-    public void addTag(Tag tag)
+    public synchronized void addTag(Tag tag)
     {
         loadTags();
         getAdaptee().addTag(tag);
     }
 
     @Override
-    public void clearTags()
+    public synchronized void removeTag(Tag tag)
     {
+        loadTags();
+        getAdaptee().removeTag(tag);
+    }
+
+    @Override
+    public synchronized void clearTags()
+    {
+        areTagsLoaded = true;
         getAdaptee().clearTags();
     }
 
@@ -207,7 +215,7 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     }
 
     @Override
-    public List<Item> getChildren()
+    public synchronized List<Item> getChildren()
     {
         loadChildren();
         return getAdaptee().getChildren();
@@ -221,15 +229,16 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     }
 
     @Override
-    public void removeChild(Item item)
+    public synchronized void removeChild(Item item)
     {
         loadChildren();
         getAdaptee().removeChild(item);
     }
 
     @Override
-    public void clearChildren()
+    public synchronized void clearChildren()
     {
+        areChildrenLoaded = true;
         getAdaptee().clearChildren();
     }
 
@@ -251,12 +260,18 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
         getAdaptee().clearRelations();
     }
 
+    @Override
+    public String exportText()
+    {
+        return getAdaptee().exportText();
+    }
+
     private ItemsDao getItemsDao()
     {
         return (ItemsDao) getDao();
     }
 
-    private synchronized void loadChildren()
+    private void loadChildren()
     {
         if(!areChildrenLoaded)
         {
@@ -271,7 +286,7 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     }
 
     @Override
-    public void addField(Field field)
+    public synchronized void addField(Field field)
     {
         loadFields();
         field.setItem(this);
@@ -280,13 +295,13 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     }
 
     @Override
-    public Field getField(ItemField fieldType)
+    public synchronized Field getField(ItemField fieldType)
     {
         loadFields();
         return getAdaptee().getField(fieldType);
     }
 
-    private synchronized void loadFields()
+    private void loadFields()
     {
         if(!areFieldsLoaded)
         {
@@ -301,7 +316,7 @@ public class ItemLazyProxy extends BaseLazyKeyProxy<Item> implements Item, BaseD
     }
 
     @Override
-    public void onDataUpdated(BaseDao sender, Long entityId)
+    public synchronized void onDataUpdated(BaseDao sender, Long entityId)
     {
         if(entityId == null || entityId.equals(getId()))
         {

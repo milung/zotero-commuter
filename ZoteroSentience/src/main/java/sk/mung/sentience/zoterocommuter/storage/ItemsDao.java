@@ -3,7 +3,6 @@ package sk.mung.sentience.zoterocommuter.storage;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.util.List;
 
@@ -30,7 +29,6 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
     static final String TABLE_ITEMS_TO_TAGS = "items_to_tags";
     private static final String TABLE_ITEMS_TO_COLLECTIONS = "items_to_collections";
     public static final String SYNC_FILTER = "{SYNC_FILTER}";
-    private static final String TAG = "ItemsDao";
 
     private final CreatorsDao creatorsDao;
     private final TagsDao tagsDao;
@@ -108,12 +106,13 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
     }
     private void updateItemCollections(Item item)
     {
+        List<CollectionEntity> collections = item.getCollections(); // remember before cleaning
         getWritableDatabase().delete(
                 TABLE_ITEMS_TO_COLLECTIONS,
                 COLUMN_ITEM + QUESTION_MARK,
                 new String[]{Long.toString(item.getId())});
 
-        for(CollectionEntity collectionKey: item.getCollections())
+        for(CollectionEntity collectionKey: collections)
         {
             ContentValues collectionValues = new ContentValues();
             collectionValues.put(COLUMN_ITEM, item.getId());
@@ -129,13 +128,14 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
 
     private void updateItemCreators( Item item)
     {
+        List<Creator> creators = item.getCreators(); // remember before cleaning db relations
         SQLiteDatabase database = getWritableDatabase();
         database.delete(
                 TABLE_ITEMS_TO_CREATORS,
                 COLUMN_ITEM + QUESTION_MARK,
                 new String[]{Long.toString(item.getId())});
 
-        for(Creator creator: item.getCreators())
+        for(Creator creator: creators)
         {
             creatorsDao.upsert(creator);
 
@@ -150,12 +150,13 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
 
     private void updateTags(Item item)
     {
+        List<Tag> tags = item.getTags(); // remember before cleaning
         getWritableDatabase().delete(
                 TABLE_ITEMS_TO_TAGS,
                 COLUMN_ITEM + QUESTION_MARK,
                 new String[]{Long.toString(item.getId())});
 
-        for( Tag tag : item.getTags() )
+        for( Tag tag : tags )
         {
             tagsDao.upsert(tag);
             ContentValues itemTagValues = new ContentValues();
@@ -183,7 +184,6 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
     @Override
     protected void cursorToEntity(Cursor cursor, Item item)
     {
-        Log.d(TAG, ">> cursorToEntity - enter");
         item.setId( cursor.getLong(0));
         item.setKey( cursor.getString(1));
         item.setVersion( cursor.getInt(2));
@@ -191,7 +191,6 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
         item.setSynced(SyncStatus.fromStatusCode(cursor.getInt(4)));
         item.setTitle(cursor.getString(5));
         item.setParentKey(idToKey(cursor.getLong(6)));
-        Log.d(TAG, "<< cursorToEntity - leave");
     }
 
     @Override
@@ -228,7 +227,6 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
 
     public List<Item> findByCollection(CollectionEntity collection)
     {
-        Log.d(TAG, ">> findByCollection - enter");
         String query = getQueries().getLibraryItems();
 
         String[] selectionParams = null;
@@ -239,23 +237,19 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
         }
 
         query= query.replace(SYNC_FILTER, getSyncFilter());
-        Log.d(TAG, ">> findByCollection - do query");
         Cursor cursor = getReadableDatabase().rawQuery(query, selectionParams);
         try
         {
-            Log.d(TAG, ">> findByCollection - transforming cursor");
             return cursorToEntities(cursor);
         }
         finally
         {
             cursor.close();
-            Log.d(TAG, ">> findByCollection - leave");
         }
     }
 
     public Cursor cursorByCollectionId(long collectionId)
     {
-        Log.d(TAG, "--> cursorByCollection - enter");
         String query = getQueries().getLibraryItems();
 
         String[] selectionParams = null;
@@ -266,16 +260,9 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
         }
 
         query= query.replace(SYNC_FILTER, getSyncFilter());
-        Log.d(TAG, "... cursorByCollection - do query");
 
-        try
-        {
-            return getReadableDatabase().rawQuery(query, selectionParams);
-        }
-        finally
-        {
-            Log.d(TAG, "<-- cursorByCollection - leave");
-        }
+        return getReadableDatabase().rawQuery(query, selectionParams);
+
     }
 
     public List<Item> findByParent(Item parent)
@@ -319,5 +306,16 @@ public class ItemsDao extends BaseKeyDao<Item> implements ZoteroStorageListener
 
     public void setCollectionsDao(CollectionsDao collectionsDao) {
         this.collectionsDao = collectionsDao;
+    }
+
+    public Cursor cursorByTagLabel(String tagLabel)
+    {
+        String query = getQueries().getTaggedItems();
+
+        String[] selectionParams = new String[]{tagLabel};
+
+        query= query.replace(SYNC_FILTER, getSyncFilter());
+
+        return getReadableDatabase().rawQuery(query, selectionParams);
     }
 }

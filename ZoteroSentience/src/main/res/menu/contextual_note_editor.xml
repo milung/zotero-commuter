@@ -1,0 +1,38 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/bold_text"
+        android:icon="@drawable/ic_bold_text"
+        android:showAsAction="always"
+        android:title="@string/bold_text"
+        android:titleCondensed="@string/bold_text"
+        android:orderInCategory="0">
+    </item>
+
+    <item
+        android:id="@+id/italic_text"
+        android:icon="@drawable/ic_italic_text"
+        android:showAsAction="always"
+        android:title="@string/italic_text"
+        android:titleCondensed="@string/italic_text"
+        android:orderInCategory="0">
+    </item>
+
+    <item
+        android:id="@+id/underline_text"
+        android:icon="@drawable/ic_underline_text"
+        android:showAsAction="always"
+        android:title="@string/underline_text"
+        android:titleCondensed="@string/underline_text"
+        android:orderInCategory="0">
+    </item>
+
+    <item
+        android:id="@+id/strike_text"
+        android:icon="@drawable/ic_strike_text"
+        android:showAsAction="always"
+        android:title="@string/strike_text"
+        android:titleCondensed="@string/strike_text"
+        android:orderInCategory="10">
+    </item>
+
+</menu>

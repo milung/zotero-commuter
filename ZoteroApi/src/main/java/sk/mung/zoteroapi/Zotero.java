@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.apache.commons.logging.Log;
 import org.apache.http.HttpStatus;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -37,7 +38,8 @@ public class Zotero
     private static final String COLLECTION_KEY = "collectionKey";
 
 	private static final int CHUNK_SIZE = 50;
-    
+    private static final String TAG = "Zotero";
+
     private ZoteroRestful restful;
     private final ObjectMapper mapper = new ObjectMapper();
         
@@ -192,8 +194,10 @@ public class Zotero
 
         try
         {
+            String jsonStruct = multiUploadToJson(items);
+
             ZoteroRestful.Response response = restful.uploadEntities(
-                    multiUploadToJson(items), ITEMS, sinceVersion);
+                    jsonStruct, ITEMS, sinceVersion);
             processUploadStatus(items, status, response);
         }
         catch (JsonProcessingException e)

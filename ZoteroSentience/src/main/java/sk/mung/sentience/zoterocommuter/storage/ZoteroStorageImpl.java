@@ -15,6 +15,7 @@ import sk.mung.zoteroapi.ZoteroStorage;
 import sk.mung.zoteroapi.entities.CollectionEntity;
 import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
+import sk.mung.zoteroapi.entities.ItemEntity;
 import sk.mung.zoteroapi.entities.SyncStatus;
 import sk.mung.zoteroapi.entities.Tag;
 
@@ -46,6 +47,12 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         }
     }
 
+    @Override
+    public void removeOrphanedTags()
+    {
+        tagsDao.deleteOrphans();
+    }
+
     public List<Item> findItemsBySynced(@NotNull SyncStatus syncStatus)
     {
         return itemsDao.findBySynced(syncStatus);
@@ -69,11 +76,15 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
             if(remoteVersion != null)
             {
                 item.copyState(remoteVersion);
-                item.setSynced(SyncStatus.SYNC_OK);
                 itemsDao.delete(remoteVersion);
-                itemsDao.upsert(item);
             }
-            else item.setSynced(SyncStatus.SYNC_OK);
+            String key = item.getKey();
+            if(key.startsWith(ItemsDao.CONFLICTED_KEY_PREFIX))
+            {
+                item.setKey(key.substring(ItemsDao.CONFLICTED_KEY_PREFIX.length()));
+            }
+            item.setSynced(SyncStatus.SYNC_OK);
+            itemsDao.upsert(item);
         }
     }
 
@@ -93,6 +104,12 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
 
     public void markAsDeleted(Item item)
     {
+        if(item.getKey().startsWith(ItemEntity.NEW_ITEM_KEYP_PREFIX))
+        {
+            // newly created entity, just remove
+            itemsDao.delete(item);
+            return;
+        }
         item.setSynced(SyncStatus.SYNC_DELETED);
         Item parent = itemsDao.findByKey(item.getParentKey());
         if(parent != null)
@@ -132,7 +149,6 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
             itemsDao.upsert(item);
         }
 
-        fireItemsUpdated();
 
     }
 
@@ -144,8 +160,8 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
             item.removeCollection(collection);
             item.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
             itemsDao.upsert(item);
+            collection.removeItem(item);
         }
-        fireItemsUpdated();
     }
 
     protected void fireItemsUpdated()
@@ -161,13 +177,48 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         item.clearTags();
         for( String tag : tags)
         {
+            if(tag.trim().isEmpty()) continue;
+
             Tag tagEntity = tagsDao.createEntity();
-            tagEntity.setTag(tag);
+            tagEntity.setTag(tag.trim());
             tagEntity.setType(0);
+            tagsDao.upsert(tagEntity);
             item.addTag(tagEntity);
         }
         item.setSynced(SyncStatus.SYNC_LOCALLY_UPDATED);
         itemsDao.upsert(item);
+    }
+
+    public Cursor findAllTagsCursor()
+    {
+        return tagsDao.findAllCursor(tagsDao.COLUMN_TAG + " ASC");
+    }
+
+    public void invalidateItems()
+    {
+        fireItemsUpdated();
+    }
+
+    public Tag findTagByName(String tagLabel)
+    {
+        return tagsDao.findByLabel(tagLabel);
+    }
+
+    public Cursor findItemsCursorByTag(String tagLabel)
+    {
+        return itemsDao.cursorByTagLabel(tagLabel);
+    }
+
+    public void removeItemsLocalVersion(List<Long> itemIds)
+    {
+        for(long id : itemIds)
+        {
+            Item item = itemsDao.findById(id);
+            if(item != null)
+            {
+                removeLocalVersion(item);
+            }
+        }
     }
 
     class DatabaseConnection
@@ -248,6 +299,7 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
         this.itemsDao.setCollectionsDao(collectionsDao);
 
         addListener(this.itemsDao);
+        addListener(this.collectionsDao);
     }
 
     @Override
@@ -374,6 +426,7 @@ public class ZoteroStorageImpl extends SQLiteOpenHelper implements ZoteroStorage
             listener.onTagsUpdated();
         }
     }
+
 
     public void updateItem(@NotNull Item item)
     {

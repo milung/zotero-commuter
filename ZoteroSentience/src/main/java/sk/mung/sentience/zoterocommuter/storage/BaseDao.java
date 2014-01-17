@@ -33,6 +33,16 @@ public abstract class BaseDao<T extends Entity>
                     getTable(), COLUMN_ID + "=?", new String[]{ Long.toString(entity.getId()) });
     }
 
+    public Cursor findAllCursor()
+    {
+        return getReadableDatabase().query(getTable(),getSelectColumns(),null, null, null, null, null);
+    }
+
+    public Cursor findAllCursor(String orderBy)
+    {
+        return getReadableDatabase().query(getTable(),getSelectColumns(),null, null, null, null, orderBy);
+    }
+
     interface UpdateListener
     {
         void onDataUpdated(BaseDao sender, Long entityId);
@@ -239,7 +249,7 @@ public abstract class BaseDao<T extends Entity>
         }
     }
 
-    protected final long searchIdOfEntity(T entity)
+    protected long searchIdOfEntity(T entity)
     {
         ContentValues values = entityToValues(entity);
         String query = buildQuery(values);

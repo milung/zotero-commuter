@@ -16,4 +16,11 @@
         android:title="@android:string/cut"
         android:titleCondensed="@android:string/cut">
     </item>
+
+    <item
+        android:id="@+id/item_remove_local"
+        android:showAsAction="never|withText"
+        android:title="@string/remove_local_version"
+        android:titleCondensed="@android:string/cut">
+    </item>
 </menu>
