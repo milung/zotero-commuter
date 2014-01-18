@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/tags"
+        android:inputType="textMultiLine"
+        android:hint="@string/tags" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView" >
+        <sk.mung.sentience.zoterocommuter.utils.FlowLayout
+            android:id="@+id/flow_layout"
+            android:layout_margin="4dip"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            app:verticalSpacing="4dp"
+            app:horizontalSpacing="4dp"/>
+    </ScrollView>
+</LinearLayout>

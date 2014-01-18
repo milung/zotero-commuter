@@ -17,9 +17,7 @@
     <string name="attachment_download_description">Downloading zotero attachment</string>
     <string name="no_external_storage">External storage not available for downloading attachment</string>
     <string name="attachment_removed">Document lost or already removed on the server</string>
-    <string name="zotero_field_date">Date:</string>
-    <string name="zotero_field_library_catalog">Library Catalog:</string>
-    <string name="zotero_field_publication_title">Publication Title:</string>
+
     <string name="zotero_attachment"/>
     <string name="tags_separator">;</string>
     <string name="tags_no_tags">«no tags assigned»</string>
@@ -81,6 +79,8 @@
     <string name="underline_text">Underline</string>
     <string name="strike_text">Strike through</string>
     <string name="share">Share</string>
+    <string name="empty_creators">«no creators assigned»</string>
+    <string name="creators_with_label_line"><![CDATA[<b>@label:</b>&nbsp;@creators<br/>]]></string>
 
     <plurals name="number_of_items">
         <item quantity="zero">No items</item>

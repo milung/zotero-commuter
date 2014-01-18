@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,7 +15,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import sk.mung.sentience.zoterocommuter.renderers.AttachmentRenderer;
 import sk.mung.sentience.zoterocommuter.renderers.FieldRenderer;
@@ -23,6 +26,8 @@ import sk.mung.sentience.zoterocommuter.renderers.ItemRenderer;
 import sk.mung.sentience.zoterocommuter.renderers.NoteRenderer;
 import sk.mung.sentience.zoterocommuter.storage.ZoteroStorageListener;
 import sk.mung.zoteroapi.entities.CollectionEntity;
+import sk.mung.zoteroapi.entities.Creator;
+import sk.mung.zoteroapi.entities.CreatorType;
 import sk.mung.zoteroapi.entities.Field;
 import sk.mung.zoteroapi.entities.Item;
 import sk.mung.zoteroapi.entities.ItemField;
@@ -32,6 +37,7 @@ import sk.mung.zoteroapi.entities.Tag;
 class ItemViewerBase extends Fragment implements ZoteroStorageListener
 {
     public static final String HIDDEN_TAG_PREFIX = "_";
+
 
     protected final Item getItem()
     {
@@ -148,6 +154,7 @@ class ItemViewerBase extends Fragment implements ZoteroStorageListener
         ViewGroup parent = (ViewGroup) getView().findViewById(R.id.itemsGroup);
 
         itemRenderer.render(item, getView().findViewById(R.id.headerGroup));
+        renderCreators();
         renderCollection();
         renderTags();
 
@@ -175,6 +182,21 @@ class ItemViewerBase extends Fragment implements ZoteroStorageListener
             getView().findViewById(R.id.imageViewUrl).setVisibility(View.INVISIBLE);
 
         }
+
+    }
+
+    private void renderCreators()
+    {
+        String creatorsText = getCreatorsWithLabels();
+        TextView creatorsView = (TextView) getView().findViewById(R.id.textViewCreators);
+        if (creatorsText.length() == 0)
+        {
+            creatorsText = getString(R.string.empty_creators);
+            creatorsView.setTypeface(null, Typeface.ITALIC);
+        }
+        else creatorsView.setTypeface(null, Typeface.NORMAL);
+
+        creatorsView.setText(Html.fromHtml(creatorsText.toString()));
 
     }
 
@@ -348,5 +370,77 @@ class ItemViewerBase extends Fragment implements ZoteroStorageListener
     public void onTagsUpdated()
     {
 
+    }
+
+    private static final Map<CreatorType, Integer> creatorTypeToFormatterResId
+            = new HashMap<CreatorType, Integer>(30);
+
+    static
+    {
+        creatorTypeToFormatterResId.put(CreatorType.AUTHOR,R.string.creator_type_author);
+        creatorTypeToFormatterResId.put(CreatorType.CONTRIBUTOR,R.string.creator_type_contributor);
+        creatorTypeToFormatterResId.put(CreatorType.EDITOR,R.string.creator_type_editor);
+        creatorTypeToFormatterResId.put(CreatorType.TRANSLATOR,R.string.creator_type_translator);
+        creatorTypeToFormatterResId.put(CreatorType.SERIES_EDITOR,R.string.creator_type_series_editor);
+        creatorTypeToFormatterResId.put(CreatorType.INTERVIEWEE,R.string.creator_type_interviewee);
+        creatorTypeToFormatterResId.put(CreatorType.INTERVIEWER,R.string.creator_type_interviewer);
+        creatorTypeToFormatterResId.put(CreatorType.DIRECTOR,R.string.creator_type_director);
+        creatorTypeToFormatterResId.put(CreatorType.SCRIPTWRITER,R.string.creator_type_scriptwriter);
+        creatorTypeToFormatterResId.put(CreatorType.PRODUCER,R.string.creator_type_producer);
+        creatorTypeToFormatterResId.put(CreatorType.CAST_MEMBER,R.string.creator_type_member);
+        creatorTypeToFormatterResId.put(CreatorType.SPONSOR,R.string.creator_type_sponsor);
+        creatorTypeToFormatterResId.put(CreatorType.COUNSEL,R.string.creator_type_counsel);
+        creatorTypeToFormatterResId.put(CreatorType.INVENTOR,R.string.creator_type_inventor);
+        creatorTypeToFormatterResId.put(CreatorType.ATTORNEY_AGENT,R.string.creator_type_attorney_agent);
+        creatorTypeToFormatterResId.put(CreatorType.RECIPIENT,R.string.creator_type_recipient);
+        creatorTypeToFormatterResId.put(CreatorType.PERFORMER,R.string.creator_type_performer);
+        creatorTypeToFormatterResId.put(CreatorType.COMPOSER,R.string.creator_type_composer);
+        creatorTypeToFormatterResId.put(CreatorType.WORDS_BY,R.string.creator_type_words_by);
+        creatorTypeToFormatterResId.put(CreatorType.CARTOGRAPHER,R.string.creator_type_cartographer);
+        creatorTypeToFormatterResId.put(CreatorType.PROGRAMMER,R.string.creator_type_programmer);
+        creatorTypeToFormatterResId.put(CreatorType.ARTIST,R.string.creator_type_artist);
+        creatorTypeToFormatterResId.put(CreatorType.COMMENTER,R.string.creator_type_commenter);
+        creatorTypeToFormatterResId.put(CreatorType.PRESENTER,R.string.creator_type_presenter);
+        creatorTypeToFormatterResId.put(CreatorType.GUEST,R.string.creator_type_guest);
+        creatorTypeToFormatterResId.put(CreatorType.PODCASTER,R.string.creator_type_podcaster);
+        creatorTypeToFormatterResId.put(CreatorType.REVIEWED_AUTHOR,R.string.creator_type_reviewed_author);
+        creatorTypeToFormatterResId.put(CreatorType.COSPONSOR,R.string.creator_type_cosponsor);
+        creatorTypeToFormatterResId.put(CreatorType.BOOK_AUTHOR,R.string.creator_type_book_author);
+    }
+    public String getCreatorsWithLabels()
+    {
+       Map<CreatorType,List<Creator>> creators = new HashMap<CreatorType, List<Creator>>();
+
+        for(Creator creator: item.getCreators())
+        {
+            if(!creators.containsKey(creator.getType()))
+            {
+                creators.put(creator.getType(), new ArrayList<Creator>());
+            }
+            creators.get(creator.getType()).add(creator);
+        }
+
+        StringBuilder result=new StringBuilder();
+        String creatorFormatter = getString(R.string.creator_sequence_format);
+        String firstFormat = getString(R.string.creator_sequence_format_first);
+        String template = getString(R.string.creators_with_label_line);
+        for( Map.Entry<CreatorType,List<Creator>> entry : creators.entrySet())
+        {
+            String format = firstFormat;
+            StringBuilder creatorsSequence = new StringBuilder();
+            for(Creator creator : entry.getValue())
+            {
+                if( creator.getType().isAuthor())
+                {
+                    creatorsSequence.append( String.format(
+                            format, creator.getFirstName(),creator.getLastName(), creator.getShortName()));
+                    format = creatorFormatter;
+                }
+            }
+            String label = getString(creatorTypeToFormatterResId.get(entry.getKey()) );
+            String line = template.replace("@label",label).replace("@creators", creatorsSequence.toString());
+            result.append( line);
+        }
+        return result.toString();
     }
 }

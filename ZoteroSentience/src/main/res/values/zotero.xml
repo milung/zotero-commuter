@@ -12,7 +12,6 @@
     <string name="zotero_magazine_article">Magazine Article</string>
     <string name="zotero_report">Report</string>
 
-
     <string name="zotero_field_abstract_note">Abstract</string>
     <string name="zotero_field_extra">Extra</string>
     <string name="zotero_field_application_number">Application Number:</string>
@@ -108,4 +107,38 @@
     <string name="zotero_field_website_title">Website.</string>
     <string name="zotero_field_modification_time">Last Modified:</string>
     <string name="zotero_field_doi">DOI:</string>
+    <string name="zotero_field_date">Date:</string>
+    <string name="zotero_field_library_catalog">Library Catalog:</string>
+    <string name="zotero_field_publication_title">Publication Title:</string>
+
+    <string name="creator_type_author">Author</string>
+    <string name="creator_type_contributor">Contributor</string>
+    <string name="creator_type_editor">Editor</string>
+    <string name="creator_type_translator">Translator</string>
+    <string name="creator_type_series_editor">Series Editor</string>
+    <string name="creator_type_interviewee">Interviewee</string>
+    <string name="creator_type_interviewer">Interviewer</string>
+    <string name="creator_type_director">Director</string>
+    <string name="creator_type_scriptwriter">Script Writer</string>
+    <string name="creator_type_producer">Producer</string>
+    <string name="creator_type_member">Member</string>
+    <string name="creator_type_sponsor">Sponsor</string>
+    <string name="creator_type_counsel">Counsel</string>
+    <string name="creator_type_inventor">Inventor</string>
+    <string name="creator_type_attorney_agent">Attorney Agent</string>
+    <string name="creator_type_recipient">Recipient</string>
+    <string name="creator_type_performer">Performer</string>
+    <string name="creator_type_composer">Composer</string>
+    <string name="creator_type_words_by">Words by</string>
+    <string name="creator_type_cartographer">Cartographer</string>
+    <string name="creator_type_programmer">Programmer</string>
+    <string name="creator_type_artist">Artist</string>
+    <string name="creator_type_commenter">Commenter</string>
+    <string name="creator_type_presenter">Presenter</string>
+    <string name="creator_type_guest">Guest</string>
+    <string name="creator_type_podcaster">Podcaster</string>
+    <string name="creator_type_reviewed_author">Reviewed Author</string>
+    <string name="creator_type_cosponsor">Cosponsor</string>
+    <string name="creator_type_book_author">Author of Book</string>
+
 </resources>

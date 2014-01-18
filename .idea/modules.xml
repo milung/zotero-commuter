@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/ZoteroApi/ZoteroApi.iml" filepath="$PROJECT_DIR$/ZoteroApi/ZoteroApi.iml" />
       <module fileurl="file://$PROJECT_DIR$/ZoteroSentience/ZoteroSentience.iml" filepath="$PROJECT_DIR$/ZoteroSentience/ZoteroSentience.iml" />
       <module fileurl="file://$PROJECT_DIR$/anotationswithzotero.iml" filepath="$PROJECT_DIR$/anotationswithzotero.iml" />
+      <module fileurl="file://$PROJECT_DIR$/csl4j/csl4j.iml" filepath="$PROJECT_DIR$/csl4j/csl4j.iml" />
     </modules>
   </component>
 </project>
