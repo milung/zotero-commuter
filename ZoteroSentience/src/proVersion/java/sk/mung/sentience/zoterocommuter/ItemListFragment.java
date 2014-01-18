@@ -380,4 +380,11 @@ public class ItemListFragment
         itemsCount = cursor.getCount();
         super.onLoadFinished(loader, cursor);
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(ARG_IS_READING_QUEUE, isReadingQueue);
+    }
 }

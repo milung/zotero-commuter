@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:gravity="center_vertical"
+    android:background="@drawable/selector"
+    android:minHeight="48dp">
+
+    <ImageView
+        android:id="@+id/navigation_group_image"
+        android:layout_gravity="center|left"
+        android:layout_margin="8dp"
+        android:layout_marginRight="12dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_briefcase_holo" />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:gravity="center|left"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Item"
+        android:textColor="@android:color/secondary_text_dark_nodisable"
+        />
+
+    <ImageView
+        android:id="@+id/indicator"
+        android:layout_gravity="center|right"
+        android:layout_margin="8dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_navigation_expand"
+        android:contentDescription="@string/group_indicator" />
+</LinearLayout>

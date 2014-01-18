@@ -116,13 +116,13 @@ public class NoteRenderer
     {
         View view = inflater.inflate(R.layout.listitem_item_note, parent, false);
         assert view != null;
+
         TextView noteView = (TextView) view.findViewById(R.id.textViewNote);
         noteView.setText(Html.fromHtml(noteItem.getField(ItemField.NOTE).getValue()));
         view.setTag(R.id.item_tag, noteItem);
         view.setOnClickListener(editListener);
         view.setOnLongClickListener(resolutionListener);
 
-        EditStatus status = getEditStatus(noteItem);
         ImageView syncStatus = (ImageView) view.findViewById(R.id.sync_status);
         if(syncStatus != null)
         {
@@ -138,17 +138,6 @@ public class NoteRenderer
         }
         view.setBackgroundResource(R.drawable.selector);
         parent.addView(view);
-    }
-
-    private EditStatus getEditStatus(Item noteItem)
-    {
-        switch(noteItem.getSynced())
-        {
-            case SYNC_OK: return EditStatus.SYNCED;
-            case SYNC_CONFLICT: return EditStatus.CONFLICT;
-            case SYNC_LOCALLY_UPDATED: return EditStatus.LOCAL_UPDATE;
-            default: return EditStatus.SYNCED;
-        }
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data)

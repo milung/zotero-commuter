@@ -14,15 +14,15 @@
 
         <LinearLayout
 
-                android:id="@+id/headerGroup"
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
-                android:padding="4dp"
-                android:background="@android:color/holo_orange_dark"
-                android:layout_marginBottom="8dp"
-                android:focusable="false">
+            android:id="@+id/headerGroup"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:padding="4dp"
+            android:background="@android:color/holo_orange_dark"
+            android:layout_marginBottom="8dp"
+            android:focusable="false">
 
             <LinearLayout
                 android:orientation="vertical"
@@ -43,14 +43,14 @@
                     android:layout_marginBottom="2dp"/>
 
                 <TextView
-                        android:layout_width="fill_parent"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:text="Small Text"
-                        android:id="@+id/textViewType"
-                        android:textStyle="italic"
-                        android:textColor="@android:color/white"
-                        android:textColorHighlight="@android:color/holo_green_light"/>
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:id="@+id/textViewType"
+                    android:textStyle="italic"
+                    android:textColor="@android:color/white"
+                    android:textColorHighlight="@android:color/holo_green_light"/>
 
             </LinearLayout>
             <ImageView
@@ -66,7 +66,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="left|center_vertical"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:id="@+id/creatorsStrip">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -78,7 +79,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Small Text"
+                android:text="Small Text lorem ipsum aspen retum in tor lerum ad farbum"
                 android:id="@+id/textViewCreators"
                 android:gravity="center_vertical"
                 android:layout_marginLeft="4dp"/>
@@ -90,13 +91,45 @@
             android:layout_marginTop="2dp"
             android:layout_marginBottom="2dp"
             android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:clickable="false"/>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:padding="8dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_collection"
+                android:paddingRight="8dp" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:id="@+id/textViewCollections"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="4dp"/>
+
+        </LinearLayout>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"/>
         <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center_vertical"
-                android:padding="8dp"
-                android:id="@+id/tagStrip">
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center_vertical"
+            android:padding="8dp"
+            android:id="@+id/tagStrip">
 
             <ImageView
                     android:layout_width="wrap_content"
@@ -105,13 +138,13 @@
                 android:paddingRight="8dp" />
 
             <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Small Text"
-                android:id="@+id/textViewTags"
-                android:gravity="center_vertical"
-                android:layout_marginLeft="4dp"/>
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="Small Text"
+                    android:id="@+id/textViewTags"
+                    android:gravity="center_vertical"
+                    android:layout_marginLeft="4dp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -153,8 +186,6 @@
                 android:layout_height="fill_parent"
             android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"/>
-
-
 
     </LinearLayout>
 
