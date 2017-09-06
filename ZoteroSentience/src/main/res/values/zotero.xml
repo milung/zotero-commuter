@@ -2,8 +2,8 @@
 <resources>
 
     <string name="callback">oauth://callback</string>
-    <string name="zotero_api_key">50ef774d9807c97b4019</string>
-    <string name="zotero_api_secret">046afdf8dffeaf8b62e3</string>
+    <string name="zotero_api_key">apikey</string>
+    <string name="zotero_api_secret">apisecret</string>
 
     <string name="zotero_book">Book</string>
     <string name="zotero_book_section">Book Section</string>
